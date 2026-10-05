@@ -3341,7 +3341,6 @@ loadScene('slab');
 $('cap').classList.remove('go');
 curProj=1;curSpeed=PROJ_DEF[1].spd;syncSpeed();refreshActive();
 requestAnimationFrame(loop);
-setTimeout(()=>{window.__lab.fire(1,2100,sceneMidY);syncSpeed();refreshActive();},900);
 
 /* тестовые хуки */
 window.__lab={
