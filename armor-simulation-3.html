@@ -396,14 +396,15 @@ const MAXG=3500;
 const gx=new Float32Array(MAXG),gy=new Float32Array(MAXG),gvx=new Float32Array(MAXG),gvy=new Float32Array(MAXG),
       gl=new Float32Array(MAXG),gm=new Float32Array(MAXG),gs=new Float32Array(MAXG),gs0=new Float32Array(MAXG);
 const gkind=new Uint8Array(MAXG),gseed=new Float32Array(MAXG); // 0=огонь, 1=дым, 2=пыль
+const gblast=new Float32Array(MAXG); // фаза разлёта: 1→0, пока >0 дым летит прямо без подъёма
 let gHead=0;
-function gas(x,y,ax,ay,life,size,kind){
+function gas(x,y,ax,ay,life,size,kind,blast){
   if(kind===0&&!Q.fire)return;
   if(kind!==0&&!Q.smoke)return;
   if(Math.random()>Q.fx+.05)return;
   const i=gHead;gHead=(gHead+1)%MAXG;
   gx[i]=x;gy[i]=y;gvx[i]=ax;gvy[i]=ay;gl[i]=life;gm[i]=life;gs[i]=gs0[i]=size;
-  gkind[i]=kind===undefined?0:kind;gseed[i]=Math.random()*6.283;
+  gkind[i]=kind===undefined?0:kind;gseed[i]=Math.random()*6.283;gblast[i]=blast||0;
   if(gasN<MAXG)gasN++;
 }
 // удобный спавн: яркая вспышка + серый дым + пыль
@@ -1174,6 +1175,62 @@ const SCENES={
     rectC(204,128,12,22,M.CONC);
     rectC(198,150,24,4,M.CONC);
   }},
+  bldg:{n:'Пятиэтажка 🏢',f(){
+    rectC(120,140,150,6,M.CONC);
+    rectC(120,60,8,86,M.CONC);rectC(262,60,8,86,M.CONC);
+    rectC(120,56,150,6,M.CONC);
+    for(let f=0;f<4;f++){
+      const y=66+f*18;
+      rectC(128,y+14,134,4,M.CONC);
+      for(let x=0;x<5;x++)rectC(132+x*26,y,3,14,M.CONC);
+      rectC(132,y+6,120,2,M.OAK);
+      if(f%2===0)rectC(140+f*20,y+10,30,2,M.FUEL);
+    }
+    boxShell(200,120,24,16,M.BRASS,M.EXP,2);
+  }},
+  pillbox:{n:'ДОТ',f(){
+    rectC(150,140,90,6,M.CONC);
+    rectC(150,100,22,40,M.CONC);
+    rectC(198,100,42,40,M.CONC);
+    rectC(172,100,26,14,M.CONC);
+    rectC(172,128,26,12,M.CONC);
+    rectC(150,92,90,10,M.HHA);
+    boxShell(176,110,16,14,M.BRASS,M.EXP,2);
+  }},
+  rszo:{n:'РСЗО 🚀',f(){
+    const wheel=(wx,wy,r)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.RUB);
+      for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
+        if(dx*dx+dy*dy<=4)putCell(wx+dx,wy+dy,M.STEEL);
+    };
+    for(const wx of [148,178,228,248])wheel(wx,164,7);
+    rectC(136,154,124,4,M.STEEL);
+    rectC(136,138,40,16,M.STEEL);
+    rectC(140,140,10,8,M.GLASS);
+    for(let r=0;r<2;r++)for(let t=0;t<6;t++)boxShell(184+t*12,118+r*14,10,12,M.STEEL,M.EXP,2);
+    rectC(180,112,76,3,M.HHA);
+  }},
+  radar:{n:'РЛС 📡',f(){
+    rectC(170,140,80,6,M.CONC);
+    rectC(200,100,8,46,M.STEEL);
+    rotRect(204,86,44,4,0.5,M.STEEL);
+    rectC(186,88,10,6,M.GLASS);
+    boxShell(176,120,20,20,M.STEEL,M.FUEL,2);
+    boxShell(216,120,20,20,M.BRASS,M.EXP,2);
+  }},
+  fortress:{n:'Крепость 🏰',f(){
+    rectC(110,140,170,6,M.CONC);
+    rectC(110,80,16,66,M.CONC);
+    rectC(264,80,16,66,M.CONC);
+    rectC(126,108,138,4,M.HHA);
+    rectC(126,128,138,18,M.CONC);
+    for(let y=128;y<146;y++)for(let x=188;x<206;x++){const o=occ[y*LX+x];if(o>=0)kill(o);}
+    rectC(188,128,18,3,M.STEEL);rectC(188,143,18,3,M.STEEL);
+    boxShell(130,84,20,16,M.BRASS,M.EXP,2);
+    boxShell(230,84,20,16,M.BRASS,M.EXP,2);
+    rectC(150,96,90,4,M.OAK);
+  }},
   empty:{n:'Пустая',f(){}},
 };
 
@@ -1431,7 +1488,13 @@ function detonateAt(x,y,power){
   for(let g=0;g<nR;g++){
     const ang=g/nR*6.283+Math.random()*.4;
     const sp=(3.5+Math.random()*2)*Math.min(2.5,power);
-    gas(x+Math.cos(ang)*6,y+Math.sin(ang)*6,Math.cos(ang)*sp,Math.sin(ang)*sp,16+Math.random()*10,2.5+power*0.4,2);
+    gas(x+Math.cos(ang)*6,y+Math.sin(ang)*6,Math.cos(ang)*sp,Math.sin(ang)*sp,16+Math.random()*10,2.5+power*0.4,2,1);
+  }
+  // разлёт дыма: густые клубы, выброшенные взрывом во все стороны
+  const nB=Math.min(46,Math.round(16+power*6));
+  for(let k=0;k<nB;k++){
+    const ang=Math.random()*6.283,sp=(6+Math.random()*9)*Math.min(2.2,power);
+    gas(x+(Math.random()-.5)*10,y+(Math.random()-.5)*10,Math.cos(ang)*sp,Math.sin(ang)*sp,90+Math.random()*90,3.5+Math.random()*3.5,Math.random()<0.55?1:2,1);
   }
   // огненный шар + густой дым после взрыва
   const nS=Math.min(26,Math.round(5+power*3));
@@ -2008,11 +2071,20 @@ function postFrame(n){
     const kind=gkind[i],f=gl[i]/gm[i]; // 1→0
     if(kind===0){ // огонь: быстро гаснет, лёгкий подъём
       gvy[i]-=1.4*dtf;gvx[i]*=.94;gvy[i]*=.94;
-    }else{ // дым/пыль: подъём, турбулентность, расширение
-      gvy[i]-=(kind===1?1.8:0.7)*dtf;
-      gvx[i]+=Math.sin(simT*3+gseed[i])*1.6*dtf;
-      gvx[i]*=.965;gvy[i]*=.965;
-      if(gvy[i]<-1.6)gvy[i]=-1.6;if(gvy[i]>1)gvy[i]=1;
+    }else{ // дым/пыль: сначала разлёт от взрыва, потом подъём и турбулентность
+      const bl=gblast[i];
+      if(bl>0){
+        gvx[i]*=.985;gvy[i]*=.985;
+        gblast[i]=bl-dtf*1.1;
+        const cap=1+bl*11;
+        if(gvy[i]<-cap)gvy[i]=-cap;if(gvy[i]>cap)gvy[i]=cap;
+        if(gvx[i]<-cap)gvx[i]=-cap;if(gvx[i]>cap)gvx[i]=cap;
+      }else{
+        gvy[i]-=(kind===1?1.8:0.7)*dtf;
+        gvx[i]+=Math.sin(simT*3+gseed[i])*1.6*dtf;
+        gvx[i]*=.965;gvy[i]*=.965;
+        if(gvy[i]<-1.6)gvy[i]=-1.6;if(gvy[i]>1)gvy[i]=1;
+      }
       gs[i]=gs0[i]*(1+(1-f)*1.9);
     }
     {
@@ -2052,7 +2124,20 @@ function updateWaves(dt){
     const w=waves[i];
     w.r+=w.spd*dt*3;
     w.life-=dt*1.1;
-    if(w.r>=w.maxR||w.life<=0)waves.splice(i,1);
+    if(w.r>=w.maxR||w.life<=0){waves.splice(i,1);continue;}
+    // фронт волны толкает дым и пыль — разлёт от взрыва
+    const r0=(w.r-16)*(w.r-16),r1=(w.r+16)*(w.r+16);
+    for(let g=0;g<MAXG;g++){
+      if(gl[g]<=0||gkind[g]===0)continue;
+      const dx=gx[g]-w.x,dy=gy[g]-w.y,d2=dx*dx+dy*dy;
+      if(d2<r0||d2>r1)continue;
+      const d=Math.sqrt(d2)||1;
+      const push=(1-Math.abs(d-w.r)/16)*w.power*1.2;
+      gvx[g]+=dx/d*push;gvy[g]+=dy/d*push;
+      if(gblast[g]<1)gblast[g]=1;
+      const s2=gvx[g]*gvx[g]+gvy[g]*gvy[g];
+      if(s2>289){const s=17/Math.sqrt(s2);gvx[g]*=s;gvy[g]*=s;}
+    }
   }
 }
 function waveR(w,ang){
@@ -2432,7 +2517,7 @@ function resetAll(){
   nP=0;nB=0;freeP=[];freeB=[];act=[];actB=[];pending=[];projs=[];waves.length=0;
   occ.fill(-1);flg.fill(0,0,MAXP);awake.fill(0);pb.fill(-1);bAlive.fill(0);bAct.fill(0);
   Tv.fill(0);
-  sparkN=0;gasN=0;sl.fill(0);gl.fill(0);
+  sparkN=0;gasN=0;sl.fill(0);gl.fill(0);gblast.fill(0);
   detCount=0;peakT=0;maxT=0;maxSp=0;shotFrames=-1;pScale=1;
 }
 (function buildUI(){
