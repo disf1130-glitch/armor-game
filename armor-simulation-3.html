@@ -1388,6 +1388,7 @@ const PROJ_DEF=[
  {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
  {id:'p20k',n:'Царь 20К 💥',info:'20К',spd:3000,type:'tsar',blast:5.0,shape:['.....SSSS.....','...SSSSSSSS...','..SSNNNNNNSS..','.SSNNEEEEENNSS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SSNNEEEEENNSS.','..SSNNNNNNSS..','...SSSSSSSS...','.....SSSS.....']},
  {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS......','....SSSSSSSS....','...SSNNNNNNSS...','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS...','....SSSSSSSS....','......SSSS......']},
+ {id:'gigatsar',n:'Гипер-царь 🌞',info:'гига · 100Мт',spd:2500,type:'tsar',blast:12.0,shape:['....SSSSS....','..SSNNNNNSS..','.SNNEEEEENNS.','.SNEYYYYYENS.','SNEEYYYYYEENS','SNEEYYYYYEENS','SNEEYYYYYEENS','.SNEYYYYYENS.','.SNNEEEEENNS.','..SSNNNNNSS..','....SSSSS....']},
 ];
 let curProj=3,curSpeed=PROJ_DEF[3].spd;
 function projLen(def){return def.shape[0].length;}
@@ -3262,6 +3263,11 @@ function wsRender(){
     const bLike=document.createElement('button');bLike.textContent='♥';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
+    if(wsTab==='down'){
+      const bDel=document.createElement('button');bDel.textContent='✕';bDel.title='Удалить из Скачанных и из меню';
+      bDel.onclick=()=>wsDownDelete(it.id);
+      row.appendChild(bDel);
+    }
     d.appendChild(row);
     list.appendChild(d);
   }
@@ -3333,6 +3339,19 @@ async function wsLike(id){
 $('wstab-proj').onclick=()=>{wsTab='proj';wsFetchList();};
 $('wstab-build').onclick=()=>{wsTab='build';wsFetchList();};
 $('wstab-down').onclick=()=>{wsTab='down';wsFetchList();};
+/* удалить из Скачанных + убрать из меню */
+function wsDownDelete(id){
+  try{const arr=wsLocal('down').filter(x=>x.id!==id);wsLocalSave('down',arr);}catch(e){}
+  const k=PROJ_DEF.findIndex(d=>d.id==='ws'+id);
+  if(k>=0){
+    PROJ_DEF.splice(k,1);
+    if(curProj>k)curProj--;
+    if(curProj>=PROJ_DEF.length)curProj=Math.max(0,PROJ_DEF.length-1);
+    renderProjs();
+  }
+  wsFetchList();
+  caption('Удалено из Скачанных.');
+}
 $('wsrefresh').onclick=()=>wsFetchList();
 $('wspub').onclick=()=>wsPublishFromEditor(wsTab==='build'?'build':'proj');
 $('wsopen').onclick=async()=>{$('workshop').classList.add('open');$('editor').classList.remove('open');$('beditor').classList.remove('open');await wsConnect();wsFetchList();};
