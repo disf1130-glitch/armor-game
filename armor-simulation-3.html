@@ -150,6 +150,13 @@
     <button data-edscale="4" title="80×40">×4</button>
     <label style="margin:0 0 0 auto"><input id="edpin" type="checkbox" checked style="accent-color:var(--acc)"> 📌 в воздухе</label>
   </div>
+  <div class="row" style="margin-bottom:6px;align-items:center">
+    <label style="margin:0">Кисть</label>
+    <button data-edbrush="1" class="on" title="1 блок">1</button>
+    <button data-edbrush="2" title="2×2 блока">2</button>
+    <button data-edbrush="3" title="3×3 блока">3</button>
+    <button data-edbrush="4" title="4×4 блока">4</button>
+  </div>
   <canvas id="edc"></canvas>
   <div id="edpal"></div>
   <div class="row"><button id="edmirror">MIRROR</button><button id="edoutline" title="Обвести контур текущим материалом">OUTLINE</button><button id="edplate" title="Тяни прямоугольник — зальёт материалом">▦ PLATE</button><button id="edclear">CLEAR</button></div>
@@ -174,6 +181,13 @@
     <button data-bedscale="3" title="66×39">×3</button>
     <button data-bedscale="4" title="88×52">×4</button>
     <label style="margin:0 0 0 auto"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> 📌 в воздухе</label>
+  </div>
+  <div class="row" style="margin-bottom:6px;align-items:center">
+    <label style="margin:0">Кисть</label>
+    <button data-bedbrush="1" class="on" title="1 блок">1</button>
+    <button data-bedbrush="2" title="2×2 блока">2</button>
+    <button data-bedbrush="3" title="3×3 блока">3</button>
+    <button data-bedbrush="4" title="4×4 блока">4</button>
   </div>
   <canvas id="bedc"></canvas>
   <div id="bedpal"></div>
@@ -1287,12 +1301,12 @@ const SCENES={
     boxShell(236,150,24,6,M.STEEL,M.FUEL,2);
     boxShell(234,118,22,28,M.TI,M.ALU,3);
     rectC(237,122,4,20,M.STEEL);rectC(244,122,4,20,M.STEEL);
-    // БАШНЯ-САРАЙ
+    // БАШНЯ-САРАЙ — толстая броня 7 блоков
     rectC(168,146,64,4,M.HHA);
-    rectC(168,106,4,40,M.HHA);
-    rectC(228,106,4,40,M.HHA);
-    rectC(168,102,64,4,M.HHA);
-    rectC(182,100,8,2,M.STEEL);rectC(206,100,8,2,M.STEEL);
+    rectC(168,106,7,40,M.HHA);
+    rectC(225,106,7,40,M.HHA);
+    rectC(168,99,64,7,M.HHA);
+    rectC(182,97,8,2,M.STEEL);rectC(206,97,8,2,M.STEEL);
     // 152 мм гаубица
     rectC(70,124,100,6,M.STEEL);
     rectC(62,122,10,10,M.HHA);
@@ -2899,8 +2913,17 @@ function edFillRect(a,b){
   const ax=a%EW,ay=(a/EW)|0,bx=b%EW,by=(b/EW)|0;
   for(let y=Math.min(ay,by);y<=Math.max(ay,by);y++)for(let x=Math.min(ax,bx);x<=Math.max(ax,bx);x++)edGrid[y*EW+x]=edMat;
 }
-edc.addEventListener('pointerdown',e=>{e.preventDefault();try{edc.setPointerCapture(e.pointerId);}catch(_){}edDown=true;const c=edCell(e);if(c<0){edDown=false;return;}if(edPlate){edAnchor=c;edDraw();edStrokeRect(c,c);}else{edGrid[c]=edMat;edDraw();}});
-edc.addEventListener('pointermove',e=>{if(!edDown)return;const c=edCell(e);if(c<0)return;if(edPlate&&edAnchor>=0){edDraw();edStrokeRect(edAnchor,c);}else if(!edPlate&&edGrid[c]!==edMat){edGrid[c]=edMat;edDraw();}});
+let edBrush=1;
+function edPaint(c){
+  const cx=c%EW,cy=(c/EW)|0;let ch=false;
+  for(let y=cy;y<Math.min(EH,cy+edBrush);y++)for(let x=cx;x<Math.min(EW,cx+edBrush);x++){
+    if(edGrid[y*EW+x]!==edMat){edGrid[y*EW+x]=edMat;ch=true;}
+  }
+  return ch;
+}
+document.querySelectorAll('button[data-edbrush]').forEach(b=>b.onclick=()=>{edBrush=+b.dataset.edbrush;document.querySelectorAll('button[data-edbrush]').forEach(x=>x.classList.toggle('on',x===b));});
+edc.addEventListener('pointerdown',e=>{e.preventDefault();try{edc.setPointerCapture(e.pointerId);}catch(_){}edDown=true;const c=edCell(e);if(c<0){edDown=false;return;}if(edPlate){edAnchor=c;edDraw();edStrokeRect(c,c);}else{edPaint(c);edDraw();}});
+edc.addEventListener('pointermove',e=>{if(!edDown)return;const c=edCell(e);if(c<0)return;if(edPlate&&edAnchor>=0){edDraw();edStrokeRect(edAnchor,c);}else if(!edPlate&&edPaint(c)){edDraw();}});
 edc.addEventListener('pointerup',e=>{if(edPlate&&edAnchor>=0){const c=edCell(e);if(c>=0)edFillRect(edAnchor,c);edAnchor=-1;edDraw();}edDown=false;});
 edc.addEventListener('pointercancel',()=>{edDown=false;edAnchor=-1;});
 $('edplate').onclick=e=>{edPlate=!edPlate;e.target.classList.toggle('on',edPlate);};
@@ -3050,8 +3073,17 @@ function bedFillRect(a,b){
   const ax=a%BW,ay=(a/BW)|0,bx=b%BW,by=(b/BW)|0;
   for(let y=Math.min(ay,by);y<=Math.max(ay,by);y++)for(let x=Math.min(ax,bx);x<=Math.max(ax,bx);x++)bedGrid[y*BW+x]=bedMat;
 }
-bedc.addEventListener('pointerdown',e=>{e.preventDefault();try{bedc.setPointerCapture(e.pointerId);}catch(_){}bedDown=true;const c=bedCell(e);if(c<0){bedDown=false;return;}if(bedPlate){bedAnchor=c;bedDraw();bedStrokeRect(c,c);}else{bedGrid[c]=bedMat;bedDraw();}});
-bedc.addEventListener('pointermove',e=>{if(!bedDown)return;const c=bedCell(e);if(c<0)return;if(bedPlate&&bedAnchor>=0){bedDraw();bedStrokeRect(bedAnchor,c);}else if(!bedPlate&&bedGrid[c]!==bedMat){bedGrid[c]=bedMat;bedDraw();}});
+let bedBrush=1;
+function bedPaint(c){
+  const cx=c%BW,cy=(c/BW)|0;let ch=false;
+  for(let y=cy;y<Math.min(BH,cy+bedBrush);y++)for(let x=cx;x<Math.min(BW,cx+bedBrush);x++){
+    if(bedGrid[y*BW+x]!==bedMat){bedGrid[y*BW+x]=bedMat;ch=true;}
+  }
+  return ch;
+}
+document.querySelectorAll('button[data-bedbrush]').forEach(b=>b.onclick=()=>{bedBrush=+b.dataset.bedbrush;document.querySelectorAll('button[data-bedbrush]').forEach(x=>x.classList.toggle('on',x===b));});
+bedc.addEventListener('pointerdown',e=>{e.preventDefault();try{bedc.setPointerCapture(e.pointerId);}catch(_){}bedDown=true;const c=bedCell(e);if(c<0){bedDown=false;return;}if(bedPlate){bedAnchor=c;bedDraw();bedStrokeRect(c,c);}else{bedPaint(c);bedDraw();}});
+bedc.addEventListener('pointermove',e=>{if(!bedDown)return;const c=bedCell(e);if(c<0)return;if(bedPlate&&bedAnchor>=0){bedDraw();bedStrokeRect(bedAnchor,c);}else if(!bedPlate&&bedPaint(c)){bedDraw();}});
 bedc.addEventListener('pointerup',e=>{if(bedPlate&&bedAnchor>=0){const c=bedCell(e);if(c>=0)bedFillRect(bedAnchor,c);bedAnchor=-1;bedDraw();}bedDown=false;});
 bedc.addEventListener('pointercancel',()=>{bedDown=false;bedAnchor=-1;});
 $('bedplate').onclick=e=>{bedPlate=!bedPlate;e.target.classList.toggle('on',bedPlate);};
