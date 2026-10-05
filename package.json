@@ -1,0 +1,12 @@
+{
+  "name": "armor-workshop",
+  "version": "1.0.0",
+  "description": "Armor Simulation + shared workshop",
+  "main": "workshop-server.js",
+  "scripts": {
+    "start": "node workshop-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

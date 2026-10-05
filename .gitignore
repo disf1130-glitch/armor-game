@@ -1,0 +1,12 @@
+node_modules/
+# тяжёлое из папки Downloads — на хостинг не едет
+*.zip
+*.rar
+*.exe
+*.crdownload
+*.index
+*.iso
+*.msi
+# старые версии симуляции
+armor-simulation (1).html
+armor-simulation-2.html
