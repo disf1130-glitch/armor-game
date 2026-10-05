@@ -99,7 +99,7 @@
   <input id="projsearch" placeholder="🔍 Поиск…" maxlength="30" style="width:100%;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
   <div class="list" id="projs"></div>
   <label>Скорость <b id="spdv"></b></label>
-  <input type="range" id="spd" min="100" max="30000" step="50" value="2500">
+  <input type="range" id="spd" min="50" max="30000" step="50" value="2500">
   <div class="row" style="margin-top:4px">
     <input id="spdnum" type="number" min="50" max="30000" step="10" value="2500" title="Впиши любую скорость до 30000, Enter — применить" style="flex:1;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12.5px">
     <button id="spdmax" title="Максимум 30000">MAX</button>
@@ -191,6 +191,14 @@
     <button data-bedbrush="2" title="2×2 блока">2</button>
     <button data-bedbrush="3" title="3×3 блока">3</button>
     <button data-bedbrush="4" title="4×4 блока">4</button>
+  </div>
+  <div class="row" style="margin-bottom:6px;align-items:center">
+    <label style="margin:0">Масштаб</label>
+    <button data-bscale="1" class="on" title="Как нарисовано">1×</button>
+    <button data-bscale="2" title="В 2 раза больше">2×</button>
+    <button data-bscale="3" title="В 3 раза больше">3×</button>
+    <button data-bscale="4" title="В 4 раза больше">4×</button>
+    <button data-bscale="5" title="В 5 раз больше">5×</button>
   </div>
   <canvas id="bedc"></canvas>
   <div id="bedpal"></div>
@@ -1372,14 +1380,16 @@ const PCH={S:M.STEEL,B:M.BRASS,W:M.W,E:M.EXP,C:M.CU,L:M.LEAD,T:M.TI,
 const CH2MAT=PCH, MAT2CH={};
 for(const ch in PCH)MAT2CH[PCH[ch]]=ch;
 const PROJ_DEF=[
+ {id:'goroh',n:'Горох 🌱',info:'слабый',spd:700,type:'kin',shape:['.OO.','OOOO','.OO.']},
+ {id:'hlope',n:'Хлопушка 🎉',info:'слабая',spd:1000,type:'he',shape:['.SS.','SEES','.SS.']},
  {id:'dart',n:'Подкалиберный',info:'вольфрам',spd:3600,type:'kin',shape:['WWWWWWWWWWWWWWWW.','SWWWWWWWWWWWWWWWWW','WWWWWWWWWWWWWWWW.']},
  {id:'he',n:'Фугас',info:'взрыв',spd:1700,type:'he',shape:['.SSSSSSSS..','SEEEEEEEES.','SEEEEEEEESS','SEEEEEEEES.','.SSSSSSSS..']},
  {id:'kinzhal',n:'Кинжал 🗡',info:'вольфрам · 7000',spd:7000,type:'kin',shape:['WWWWWWWWWWWWWWWWWWWWWWWWWW..','HWWWWWWWWWWWWWWWWWWWWWWWWWWS','WWWWWWWWWWWWWWWWWWWWWWWWWW..']},
- {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,max:3000,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
- {id:'p20k',n:'Царь 20К 💥',info:'20К · макс 3к',spd:3000,max:3000,type:'tsar',blast:5.0,shape:['.....SSSS.....','...SSSSSSSS...','..SSNNNNNNSS..','.SSNNEEEEENNSS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SSNNEEEEENNSS.','..SSNNNNNNSS..','...SSSSSSSS...','.....SSSS.....']},
- {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,max:3000,type:'tsar',blast:8.0,shape:['......SSSS......','....SSSSSSSS....','...SSNNNNNNSS...','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS...','....SSSSSSSS....','......SSSS......']},
+ {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
+ {id:'p20k',n:'Царь 20К 💥',info:'20К',spd:3000,type:'tsar',blast:5.0,shape:['.....SSSS.....','...SSSSSSSS...','..SSNNNNNNSS..','.SSNNEEEEENNSS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SSNNEEEEENNSS.','..SSNNNNNNSS..','...SSSSSSSS...','.....SSSS.....']},
+ {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS......','....SSSSSSSS....','...SSNNNNNNSS...','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS...','....SSSSSSSS....','......SSSS......']},
 ];
-let curProj=1,curSpeed=PROJ_DEF[1].spd;
+let curProj=3,curSpeed=PROJ_DEF[3].spd;
 function projLen(def){return def.shape[0].length;}
 function spawnProj(def,nx,ny,ang,mps){
   const sh=def.shape,h=sh.length,w=sh[0].length,ca=Math.cos(ang),sa=Math.sin(ang);
@@ -1411,7 +1421,7 @@ function fire(x,y,ang,fromEdge){
   const def=PROJ_DEF[curProj];
   const nx=fromEdge?(8+projLen(def)*SP):x;
   sndFire();
-  const mps=def.max?Math.min(curSpeed,def.max):curSpeed;
+  const mps=curSpeed;
   spawnProj(def,nx,y,fromEdge?0:ang,mps);
   hideHint();
 }
@@ -3092,16 +3102,22 @@ function bedBuild(){
   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const m=bedGrid[y*BW+x];if(m)cells.push([x-x0,y-y0,m]);}
   return {w:x1-x0+1,h:y1-y0+1,cells};
 }
+let bedScaleF=1;
+document.querySelectorAll('button[data-bscale]').forEach(b=>b.onclick=()=>{bedScaleF=+b.dataset.bscale;document.querySelectorAll('button[data-bscale]').forEach(x=>x.classList.toggle('on',x===b));caption('Масштаб построек: '+bedScaleF+'×.');});
 function bedPlace(build){
-  const cx0=Math.max(0,Math.min(LX-build.w,Math.round(cam.x/SP-build.w/2)));
-  const cy0=Math.max(0,Math.min(LY-build.h,Math.round(cam.y/SP-build.h/2)));
+  const S=bedScaleF||1,wS=build.w*S,hS=build.h*S;
+  const cx0=Math.max(0,Math.min(LX-wS,Math.round(cam.x/SP-wS/2)));
+  const cy0=Math.max(0,Math.min(LY-hS,Math.round(cam.y/SP-hS/2)));
   const hold=$('bedpin')&&$('bedpin').checked;
+  let n=0;
   for(const [dx,dy,m] of build.cells){
-    const idx=putCell(cx0+dx,cy0+dy,m);
-    if(idx>=0&&hold){fix[idx]=1;pin[idx]=1;wake(idx);}
+    for(let sy=0;sy<S;sy++)for(let sx=0;sx<S;sx++){
+      const idx=putCell(cx0+dx*S+sx,cy0+dy*S+sy,m);
+      if(idx>=0){n++;if(hold){fix[idx]=1;pin[idx]=1;wake(idx);}}
+    }
   }
   markAnchors();recomputeSupport();
-  caption('На карте: '+build.w+'×'+build.h+' · '+build.cells.length+' блоков'+(hold?' · в воздухе 📌':'')+'.');
+  caption('На карте: '+wS+'×'+hS+' · '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе 📌':'')+'.');
   wsAutosaveBuild(build);
   if($('workshop')&&$('workshop').classList.contains('open')&&wsTab==='build')wsFetchList();
 }
@@ -3379,7 +3395,7 @@ setTs(.5);syncSpeed();setView(0);refreshActive();
 document.querySelector('#scenes button[data-s="composite"]');
 loadScene('slab');
 $('cap').classList.remove('go');
-curProj=1;curSpeed=PROJ_DEF[1].spd;syncSpeed();refreshActive();
+curProj=3;curSpeed=PROJ_DEF[3].spd;syncSpeed();refreshActive();
 requestAnimationFrame(loop);
 
 /* тестовые хуки */
