@@ -16,7 +16,9 @@
     scrollbar-width:thin;scrollbar-color:#2b3347 transparent;transition:transform .25s}
   #panel.hide{transform:translateX(-330px)}
   #projs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-  #projs button{flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;text-align:center}
+  #projs button{flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;text-align:center;position:relative}
+  #projs .pdel{position:absolute;top:2px;right:5px;text-decoration:none;font-style:normal;color:#ff6b60;font-size:11px;cursor:pointer;display:none}
+  #projs button:hover .pdel{display:block}
   #projs button canvas{flex:none;background:#070a10;border:1px solid var(--line);border-radius:3px;max-width:100%}
   #projs .pi{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0;flex:none}
   #projs .pi span{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -2805,6 +2807,7 @@ function projPreview(d){
   return c;
 }
 function addProjButton(d,i,tag){
+  if(tag)d.tag=tag;
   const b=document.createElement('button');
   b.dataset.i=i;
   b.title=d.n+' — '+d.spd+' м/с';
@@ -2813,19 +2816,39 @@ function addProjButton(d,i,tag){
   const nm=document.createElement('span');nm.textContent=d.n;
   tx.appendChild(nm);
   b.appendChild(tx);
-  if(tag){const t=document.createElement('em');t.className='tag';t.textContent=tag;b.appendChild(t);}
+  if(d.tag){const t=document.createElement('em');t.className='tag';t.textContent=d.tag;b.appendChild(t);}
+  if(d.tag){
+    const x=document.createElement('u');x.className='pdel';x.textContent='✕';x.title='Убрать из моего меню';
+    x.onclick=e=>{e.stopPropagation();delProj(i);};
+    b.appendChild(x);
+  }
   b.onclick=()=>{tool='fire';curProj=i;curSpeed=d.spd;syncSpeed();refreshActive();};
   $('projs').appendChild(b);
   return b;
 }
-$('projsearch').oninput=e=>{
-  const q=e.target.value.trim().toLowerCase();
+/* убрать скачанный/свой снаряд только из своего меню */
+function delProj(i){
+  if(!PROJ_DEF[i]||!PROJ_DEF[i].tag)return;
+  PROJ_DEF.splice(i,1);
+  if(curProj>i)curProj--;
+  if(curProj>=PROJ_DEF.length)curProj=Math.max(0,PROJ_DEF.length-1);
+  renderProjs();
+  caption('Убрано из меню.');
+}
+function renderProjs(){
+  const pl=$('projs');pl.innerHTML='';
+  PROJ_DEF.forEach((d,k)=>addProjButton(d,k,d.tag));
+  refreshActive();projFilter();
+}
+function projFilter(){
+  const q=(($('projsearch')&&$('projsearch').value)||'').trim().toLowerCase();
   document.querySelectorAll('#projs button').forEach(b=>{
     const d=PROJ_DEF[+b.dataset.i];
     const t=d?((d.n||'')+' '+(d.info||'')).toLowerCase():'';
     b.style.display=(!q||t.includes(q))?'':'none';
   });
-};
+}
+$('projsearch').oninput=projFilter;
 let EW=40,EH=20,ECS=14;
 let edGrid=new Uint8Array(EW*EH);
 let edMat=M.STEEL,edDown=false;
@@ -3186,8 +3209,10 @@ function wsRender(){
   const list=$('wslist');if(!list)return;
   list.innerHTML='';
   document.querySelectorAll('#workshop button[id^="wstab"]').forEach(b=>b.classList.toggle('on',b.id==='wstab-'+(wsTab==='proj'?'proj':'build')));
-  if(!wsItems.length){list.innerHTML='<div style="color:var(--dim);font-size:12px">Пока пусто — выложи первый '+(wsTab==='proj'?'снаряд':'постройку')+' из редактора.</div>';return;}
-  const sorted=[...wsItems].sort((a,b)=>(b.likes||0)-(a.likes||0));
+  let hid=[];try{hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');}catch(e){}
+  const vis=wsItems.filter(x=>!hid.includes(x.id));
+  if(!vis.length){list.innerHTML='<div style="color:var(--dim);font-size:12px">Пока пусто — выложи первый '+(wsTab==='proj'?'снаряд':'постройку')+' из редактора.</div>';return;}
+  const sorted=[...vis].sort((a,b)=>(b.likes||0)-(a.likes||0));
   for(const it of sorted){
     const d=document.createElement('div');d.className='wsitem';
     const top=document.createElement('div');top.className='wstop';
@@ -3203,7 +3228,7 @@ function wsRender(){
     const bLike=document.createElement('button');bLike.textContent='♥';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
-    const bDel=document.createElement('button');bDel.textContent='✕ Удалить';bDel.title='Удалить из воркшопа';
+    const bDel=document.createElement('button');bDel.textContent='✕ Удалить';bDel.title='Убрать только у себя';
     bDel.onclick=()=>wsDelete(it.id);
     row.appendChild(bDel);
     d.appendChild(row);
@@ -3266,14 +3291,16 @@ async function wsLike(id){
     if(l){l.likes=it.likes;wsLocalSave(it.type,arr);}
   }
 }
+/* удалить только у себя: из локальных + скрыть чужие (на сервере остаётся) */
 async function wsDelete(id){
-  if(!confirm('Удалить из воркшопа?'))return;
-  if(wsBase){
-    try{await fetch(wsBase+'/api/items/'+id,{method:'DELETE'});}catch(e){}
-    await wsFetchList();return;
-  }
+  if(!confirm('Убрать только у себя? (у других останется)'))return;
   for(const t of ['proj','build']){const arr=wsLocal(t).filter(x=>x.id!==id);wsLocalSave(t,arr);}
-  await wsFetchList();
+  try{
+    const hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');
+    if(!hid.includes(id)){hid.push(id);localStorage.setItem('ws_hidden',JSON.stringify(hid));}
+  }catch(e){}
+  wsItems=wsItems.filter(x=>x.id!==id);
+  wsRender();
 }
 $('wstab-proj').onclick=()=>{wsTab='proj';wsFetchList();};
 $('wstab-build').onclick=()=>{wsTab='build';wsFetchList();};
