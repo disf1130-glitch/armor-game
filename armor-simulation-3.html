@@ -1383,14 +1383,14 @@ const PROJ_DEF=[
  {id:'goroh',n:'Горох 🌱',info:'слабый',spd:700,type:'kin',shape:['.OO.','OOOO','.OO.']},
  {id:'hlope',n:'Хлопушка 🎉',info:'слабая',spd:1000,type:'he',shape:['.SS.','SEES','.SS.']},
  {id:'granata',n:'Граната 💣',info:'средняя',spd:1400,type:'he',shape:['..SSS..','.SSESS.','SSEEEES','.SSESS.','..SSS..']},
+ {id:'bolvanka',n:'Болванка',info:'сталь · не взрыв',spd:2600,type:'kin',shape:['....SSS....','..SSSSSSS..','SSSSSSSSSSS','..SSSSSSS..','....SSS....']},
  {id:'dart',n:'Подкалиберный',info:'вольфрам',spd:3600,type:'kin',shape:['WWWWWWWWWWWWWWWW.','SWWWWWWWWWWWWWWWWW','WWWWWWWWWWWWWWWW.']},
  {id:'he',n:'Фугас',info:'взрыв',spd:1700,type:'he',shape:['.SSSSSSSS..','SEEEEEEEES.','SEEEEEEEESS','SEEEEEEEES.','.SSSSSSSS..']},
  {id:'kinzhal',n:'Кинжал 🗡',info:'вольфрам · 7000',spd:7000,type:'kin',shape:['WWWWWWWWWWWWWWWWWWWWWWWWWW..','HWWWWWWWWWWWWWWWWWWWWWWWWWWS','WWWWWWWWWWWWWWWWWWWWWWWWWW..']},
  {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
- {id:'p20k',n:'Царь 20К 💥',info:'20К',spd:3000,type:'tsar',blast:5.0,shape:['.....SSSS.....','...SSSSSSSS...','..SSNNNNNNSS..','.SSNNEEEEENNSS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SSNNEEEEENNSS.','..SSNNNNNNSS..','...SSSSSSSS...','.....SSSS.....']},
  {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS......','....SSSSSSSS....','...SSNNNNNNSS...','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS...','....SSSSSSSS....','......SSSS......']},
 ];
-let curProj=4,curSpeed=PROJ_DEF[4].spd;
+let curProj=5,curSpeed=PROJ_DEF[5].spd;
 function projLen(def){return def.shape[0].length;}
 function spawnProj(def,nx,ny,ang,mps){
   const sh=def.shape,h=sh.length,w=sh[0].length,ca=Math.cos(ang),sa=Math.sin(ang);
@@ -2529,7 +2529,9 @@ cv.addEventListener('pointerdown',e=>{
     return;
   }
   try{cv.setPointerCapture(e.pointerId);}catch(_){}
-  const p=toWorld(e);mouseDown=true;downP=p;curP=p;lastP=null;
+  const p=toWorld(e);
+  if(tool==='place'&&placeBuild&&e.button===0&&!e.shiftKey){doPlaceBuild(p);return;}
+  mouseDown=true;downP=p;curP=p;lastP=null;
   if(tool!=='fire')strokeTo(p);
 });
 cv.addEventListener('pointermove',e=>{
@@ -2615,6 +2617,13 @@ function drawOverlay(){
       ctx.strokeStyle='rgba(245,166,35,.5)';
       ctx.strokeRect(curP.x-12,curP.y-12,24,24);
     }
+  }else if(tool==='place'&&placeBuild){
+    const w=placeBuild.w*SP,h=placeBuild.h*SP;
+    const x=curP.x-w/2,y=curP.y-h/2;
+    ctx.fillStyle='rgba(245,166,35,.10)';ctx.fillRect(x,y,w,h);
+    ctx.strokeStyle='rgba(245,166,35,.95)';ctx.setLineDash([6,4]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,210,122,.9)';ctx.font='12px sans-serif';
+    ctx.fillText(placeBuild.w+'×'+placeBuild.h,x+4,y+14);
   }else{
     const R=(brushR+.5)*SP;
     ctx.strokeStyle=tool==='erase'?'rgba(255,90,80,.9)':'rgba(255,255,255,.7)';
@@ -2635,6 +2644,7 @@ function setToolLabel(){
   if(tool==='fire')el.innerHTML='ОГОНЬ · <b>'+PROJ_DEF[curProj].n+'</b>';
   else if(tool==='paint')el.innerHTML='СТРОИТЬ · <b>'+MAT[curMat].n+'</b>';
   else if(tool==='plate')el.innerHTML='PLATE · <b>'+MAT[curMat].n+'</b> · тяни квадрат';
+  else if(tool==='place')el.innerHTML='ПОСТАВИТЬ · <b>клик — место</b>';
   else el.innerHTML='ЛАСТИК';
 }
 function refreshActive(){
@@ -3105,21 +3115,30 @@ function bedBuild(){
 }
 let bedScaleF=1;
 document.querySelectorAll('button[data-bscale]').forEach(b=>b.onclick=()=>{bedScaleF=+b.dataset.bscale;document.querySelectorAll('button[data-bscale]').forEach(x=>x.classList.toggle('on',x===b));caption('Масштаб построек: '+bedScaleF+'×.');});
-function bedPlace(build){
-  const S=bedScaleF||1,wS=build.w*S,hS=build.h*S;
-  const cx0=Math.max(0,Math.min(LX-wS,Math.round(cam.x/SP-wS/2)));
-  const cy0=Math.max(0,Math.min(LY-hS,Math.round(cam.y/SP-hS/2)));
+let placeBuild=null; // {base,w,h,S} — клик по карте ставит куда хочешь
+function startPlaceBuild(build){
+  const S=bedScaleF||1;
+  placeBuild={base:build,w:build.w*S,h:build.h*S,S};
+  tool='place';refreshActive();
+  caption('Кликни куда поставить · '+placeBuild.w+'×'+placeBuild.h+(S>1?' · ×'+S:'')+' · Esc — отмена');
+}
+function doPlaceBuild(p){
+  const b=placeBuild;placeBuild=null;
+  if(!b)return;
+  const S=b.S,cx0=Math.max(0,Math.min(LX-b.w,Math.round(p.x/SP-b.w/2)));
+  const cy0=Math.max(0,Math.min(LY-b.h,Math.round(p.y/SP-b.h/2)));
   const hold=$('bedpin')&&$('bedpin').checked;
   let n=0;
-  for(const [dx,dy,m] of build.cells){
+  for(const [dx,dy,m] of b.base.cells){
     for(let sy=0;sy<S;sy++)for(let sx=0;sx<S;sx++){
       const idx=putCell(cx0+dx*S+sx,cy0+dy*S+sy,m);
       if(idx>=0){n++;if(hold){fix[idx]=1;pin[idx]=1;wake(idx);}}
     }
   }
   markAnchors();recomputeSupport();
-  caption('На карте: '+wS+'×'+hS+' · '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе 📌':'')+'.');
-  wsAutosaveBuild(build);
+  tool='fire';refreshActive();
+  caption('Поставлено: '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе 📌':'')+'.');
+  wsAutosaveBuild(b.base);
   if($('workshop')&&$('workshop').classList.contains('open')&&wsTab==='build')wsFetchList();
 }
 /* поставил на карту — сохранилось в воркшоп (локально) */
@@ -3182,7 +3201,7 @@ $('bedsnap').onclick=bedSnap;
 $('bedoutline').onclick=bedOutline;
 $('bedopen').onclick=()=>{$('beditor').classList.add('open');$('editor').classList.remove('open');bedLayout();bedDraw();};
 $('bedclose').onclick=()=>$('beditor').classList.remove('open');
-$('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;bedPlace(b);$('beditor').classList.remove('open');};
+$('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;startPlaceBuild(b);$('beditor').classList.remove('open');};
 $('bedws').onclick=()=>wsPublishFromEditor('build');
 bedLayout();
 
@@ -3321,7 +3340,7 @@ function wsInstall(id){
     $('workshop').classList.remove('open');
     caption('Снаряд в бою: '+def.n);
   }else{
-    bedPlace({w:it.data.w,h:it.data.h,cells:it.data.cells});
+    startPlaceBuild({w:it.data.w,h:it.data.h,cells:it.data.cells});
     $('workshop').classList.remove('open');
   }
 }
@@ -3365,7 +3384,7 @@ addEventListener('keydown',e=>{
   }else if(e.key==='p'||e.key==='з')togglePause();
   else if(e.key==='r'||e.key==='к')loadScene(sceneName);
   else if(e.key>='1'&&e.key<='4')setView(+e.key-1);
-  else if(e.key==='Escape'){tool='fire';refreshActive();}
+  else if(e.key==='Escape'){tool='fire';placeBuild=null;refreshActive();}
   else if(e.key==='+'||e.key==='=')zoomAt(innerWidth/2,innerHeight/2,1.25);
   else if(e.key==='-'||e.key==='_')zoomAt(innerWidth/2,innerHeight/2,1/1.25);
   else if(e.key==='0'){$('zreset').onclick();}
@@ -3414,7 +3433,7 @@ setTs(.5);syncSpeed();setView(0);refreshActive();
 document.querySelector('#scenes button[data-s="composite"]');
 loadScene('slab');
 $('cap').classList.remove('go');
-curProj=4;curSpeed=PROJ_DEF[4].spd;syncSpeed();refreshActive();
+curProj=5;curSpeed=PROJ_DEF[5].spd;syncSpeed();refreshActive();
 requestAnimationFrame(loop);
 
 /* тестовые хуки */
