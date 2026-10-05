@@ -203,6 +203,7 @@
   <div class="row" style="margin-bottom:6px">
     <button id="wstab-proj" class="on">Снаряды</button>
     <button id="wstab-build" class="">Постройки</button>
+    <button id="wstab-down" class="">⬇ Скачанные</button>
     <button id="wsrefresh" title="Обновить список">↻</button>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
@@ -2655,6 +2656,15 @@ function resetAll(){
   for(const k in SCENES){const b=document.createElement('button');b.textContent=SCENES[k].n;b.dataset.s=k;b.onclick=()=>loadScene(k);sc_.appendChild(b);}
   const pl=$('projs');
   PROJ_DEF.forEach((d,i)=>addProjButton(d,i));
+  /* возврат скачанных снарядов после перезагрузки */
+  try{
+    const down=JSON.parse(localStorage.getItem('ws_down')||'[]');
+    for(const it of down){
+      if(!it||!it.data||!Array.isArray(it.data.shape)||!it.data.shape.length||it.data.shape.length>40)continue;
+      const def={id:'ws'+it.id,n:String(it.name||'Воркшоп').slice(0,18),info:'воркшоп',spd:it.data.spd||1500,type:it.data.ptype||'kin',shape:it.data.shape,tag:'WS'};
+      PROJ_DEF.push(def);addProjButton(def,PROJ_DEF.length-1,'WS');
+    }
+  }catch(e){}
 
   const vl=$('views');
   [['Материал','Материал'],['Давление','Давление'],['Напряжение','Напряжение'],['Тепло','Тепло']].forEach((v,i)=>{
@@ -3182,6 +3192,7 @@ function wsLocalSave(type,arr){
 async function wsFetchList(){
   const list=$('wslist');
   if(list)list.innerHTML='<div style="color:var(--dim);font-size:12px">Загрузка…</div>';
+  if(wsTab==='down'){wsItems=wsLocal('down');wsRender();return;}
   if(wsBase){
     try{
       const r=await fetch(wsBase+'/api/items?type='+wsTab,{cache:'no-store'});
@@ -3208,7 +3219,7 @@ function wsPreviewCanvas(item){
 function wsRender(){
   const list=$('wslist');if(!list)return;
   list.innerHTML='';
-  document.querySelectorAll('#workshop button[id^="wstab"]').forEach(b=>b.classList.toggle('on',b.id==='wstab-'+(wsTab==='proj'?'proj':'build')));
+  document.querySelectorAll('#workshop button[id^="wstab"]').forEach(b=>b.classList.toggle('on',b.id==='wstab-'+wsTab));
   let hid=[];try{hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');}catch(e){}
   const vis=wsItems.filter(x=>!hid.includes(x.id));
   if(!vis.length){list.innerHTML='<div style="color:var(--dim);font-size:12px">Пока пусто — выложи первый '+(wsTab==='proj'?'снаряд':'постройку')+' из редактора.</div>';return;}
@@ -3272,6 +3283,14 @@ function wsInstall(id){
   if(it.type==='proj'){
     const def={id:'ws'+it.id,n:String(it.name||'Воркшоп').slice(0,18),info:'воркшоп',spd:it.data.spd||curSpeed,type:it.data.ptype||'kin',shape:it.data.shape};
     PROJ_DEF.push(def);addProjButton(def,PROJ_DEF.length-1,'WS');
+    try{
+      const arr=wsLocal('down');
+      if(!arr.find(x=>x.id===it.id)){
+        arr.push({id:it.id,type:'proj',name:it.name,author:it.author||'anon',date:Date.now(),likes:0,mine:true,data:it.data});
+        while(arr.length>50)arr.shift();
+        wsLocalSave('down',arr);
+      }
+    }catch(e){}
     curProj=PROJ_DEF.length-1;curSpeed=def.spd;syncSpeed();tool='fire';refreshActive();
     $('workshop').classList.remove('open');
     caption('Снаряд в бою: '+def.n);
@@ -3294,7 +3313,7 @@ async function wsLike(id){
 /* удалить только у себя: из локальных + скрыть чужие (на сервере остаётся) */
 async function wsDelete(id){
   if(!confirm('Убрать только у себя? (у других останется)'))return;
-  for(const t of ['proj','build']){const arr=wsLocal(t).filter(x=>x.id!==id);wsLocalSave(t,arr);}
+  for(const t of ['proj','build','down']){const arr=wsLocal(t).filter(x=>x.id!==id);wsLocalSave(t,arr);}
   try{
     const hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');
     if(!hid.includes(id)){hid.push(id);localStorage.setItem('ws_hidden',JSON.stringify(hid));}
@@ -3304,8 +3323,9 @@ async function wsDelete(id){
 }
 $('wstab-proj').onclick=()=>{wsTab='proj';wsFetchList();};
 $('wstab-build').onclick=()=>{wsTab='build';wsFetchList();};
+$('wstab-down').onclick=()=>{wsTab='down';wsFetchList();};
 $('wsrefresh').onclick=()=>wsFetchList();
-$('wspub').onclick=()=>wsPublishFromEditor(wsTab);
+$('wspub').onclick=()=>wsPublishFromEditor(wsTab==='build'?'build':'proj');
 $('wsopen').onclick=async()=>{$('workshop').classList.add('open');$('editor').classList.remove('open');$('beditor').classList.remove('open');await wsConnect();wsFetchList();};
 $('wsclose').onclick=()=>$('workshop').classList.remove('open');
 wsConnect().then(()=>{const s=$('wsstatus');});
