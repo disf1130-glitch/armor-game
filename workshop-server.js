@@ -58,7 +58,7 @@ function validItem(o) {
     if (!Array.isArray(o.data.shape) || !o.data.shape.length || o.data.shape.length > 40) return false;
     if (String(o.data.shape[0]).length > 80) return false;
   } else {
-    if (!Array.isArray(o.data.cells) || !o.data.cells.length || o.data.cells.length > 8000) return false;
+    if (!Array.isArray(o.data.cells) || !o.data.cells.length || o.data.cells.length > 16000) return false;
   }
   return true;
 }

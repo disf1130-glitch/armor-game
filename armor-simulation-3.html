@@ -168,9 +168,9 @@
   <div class="edhead">РЕДАКТОР БЛОКОВ <small>размер · строй и ставь на карту</small><button id="bedclose" title="Закрыть">✕</button></div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <label style="margin:0">Размер</label>
-    <input id="bedw" type="number" min="4" max="110" step="1" value="44" title="Ширина в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="bedw" type="number" min="4" max="150" step="1" value="44" title="Ширина в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <span style="color:var(--dim)">×</span>
-    <input id="bedh" type="number" min="4" max="70" step="1" value="26" title="Высота в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="bedh" type="number" min="4" max="90" step="1" value="26" title="Высота в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <button id="bedresize" title="Применить размер">⤢</button>
     <button id="bedsnap" title="Прижать рисунок к сетке">SNAP</button>
   </div>
@@ -180,6 +180,7 @@
     <button data-bedscale="2" title="44×26">×2</button>
     <button data-bedscale="3" title="66×39">×3</button>
     <button data-bedscale="4" title="88×52">×4</button>
+    <button data-bedscale="5" title="110×65">×5</button>
     <label style="margin:0 0 0 auto"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> 📌 в воздухе</label>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
@@ -3002,16 +3003,16 @@ function bedCell(e){
   if(cx<0||cy<0||cx>=BW||cy>=BH)return -1;
   return cy*BW+cx;
 }
-const BED_TIERS=[[22,13],[44,26],[66,39],[88,52]];
+const BED_TIERS=[[22,13],[44,26],[66,39],[88,52],[110,65]];
 function bedApplySize(w,h){
-  w=Math.max(4,Math.min(110,w));h=Math.max(4,Math.min(70,h));
+  w=Math.max(4,Math.min(150,w));h=Math.max(4,Math.min(90,h));
   const ng=new Uint8Array(w*h);
   for(let y=0;y<Math.min(h,BH);y++)for(let x=0;x<Math.min(w,BW);x++)ng[y*w+x]=bedGrid[y*BW+x];
   BW=w;BH=h;bedGrid=ng;$('bedw').value=w;$('bedh').value=h;bedLayout();bedDraw();
 }
 function bedResize(){
-  const w=Math.max(4,Math.min(110,+$('bedw').value||44));
-  const h=Math.max(4,Math.min(70,+$('bedh').value||26));
+  const w=Math.max(4,Math.min(150,+$('bedw').value||44));
+  const h=Math.max(4,Math.min(90,+$('bedh').value||26));
   const ng=new Uint8Array(w*h);
   for(let y=0;y<Math.min(h,BH);y++)for(let x=0;x<Math.min(w,BW);x++)ng[y*w+x]=bedGrid[y*BW+x];
   BW=w;BH=h;bedGrid=ng;bedLayout();bedDraw();
@@ -3061,6 +3062,22 @@ function bedPlace(build){
   }
   markAnchors();recomputeSupport();
   caption('На карте: '+build.w+'×'+build.h+' · '+build.cells.length+' блоков'+(hold?' · в воздухе 📌':'')+'.');
+  wsAutosaveBuild(build);
+  if($('workshop')&&$('workshop').classList.contains('open')&&wsTab==='build')wsFetchList();
+}
+/* поставил на карту — сохранилось в воркшоп (локально) */
+function wsAutosaveBuild(build){
+  try{
+    const arr=wsLocal('build');
+    const last=arr[arr.length-1];
+    if(last&&last.auto&&last.data&&last.data.w===build.w&&last.data.h===build.h&&last.data.cells.length===build.cells.length)return;
+    arr.push({id:'w'+Date.now().toString(36),type:'build',
+      name:'С карты '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+      author:'я',date:Date.now(),likes:0,mine:true,auto:true,
+      data:{w:build.w,h:build.h,cells:build.cells}});
+    while(arr.length>30)arr.shift();
+    wsLocalSave('build',arr);
+  }catch(e){}
 }
 let bedPlate=false,bedAnchor=-1;
 function bedStrokeRect(a,b){
@@ -3186,11 +3203,9 @@ function wsRender(){
     const bLike=document.createElement('button');bLike.textContent='♥';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
-    if(!wsBase||it.mine){
-      const bDel=document.createElement('button');bDel.textContent='✕';bDel.title='Удалить';
-      bDel.onclick=()=>wsDelete(it.id);
-      row.appendChild(bDel);
-    }
+    const bDel=document.createElement('button');bDel.textContent='✕ Удалить';bDel.title='Удалить из воркшопа';
+    bDel.onclick=()=>wsDelete(it.id);
+    row.appendChild(bDel);
     d.appendChild(row);
     list.appendChild(d);
   }
