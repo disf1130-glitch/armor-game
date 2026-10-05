@@ -1176,17 +1176,48 @@ const SCENES={
     rectC(198,150,24,4,M.CONC);
   }},
   bldg:{n:'Пятиэтажка 🏢',f(){
-    rectC(120,140,150,6,M.CONC);
-    rectC(120,60,8,86,M.CONC);rectC(262,60,8,86,M.CONC);
-    rectC(120,56,150,6,M.CONC);
+    // фундамент и подвал с бойлерной
+    rectC(116,168,158,5,M.CONC);
+    rectC(116,158,6,10,M.CONC);rectC(268,158,6,10,M.CONC);
+    boxShell(176,159,36,8,M.BRASS,M.EXP,2);
+    rectC(140,166,80,1,M.STEEL);rectC(140,167,80,1,M.FUEL);
+    rectC(116,156,158,2,M.CONC);
+    // 4 этажа
     for(let f=0;f<4;f++){
-      const y=66+f*18;
-      rectC(128,y+14,134,4,M.CONC);
-      for(let x=0;x<5;x++)rectC(132+x*26,y,3,14,M.CONC);
-      rectC(132,y+6,120,2,M.OAK);
-      if(f%2===0)rectC(140+f*20,y+10,30,2,M.FUEL);
+      const y=76+f*20;
+      // наружные стены + окна со стёклами
+      rectC(116,y,7,20,M.CONC);rectC(267,y,7,20,M.CONC);
+      for(const wx of [116,267]){
+        for(let wy=y+5;wy<y+13;wy++)for(let xx=wx+1;xx<wx+6;xx++){const o=occ[wy*LX+xx];if(o>=0)kill(o);}
+        rectC(wx+1,y+5,5,8,M.GLASS);
+      }
+      // перегородки с дверными проёмами
+      for(const px of [162,214]){rectC(px,y,3,8,M.CONC);rectC(px,y+13,3,7,M.CONC);}
+      // мебель: кровати, тумбы, холодильник
+      for(let ri=0;ri<3;ri++){
+        const rx=[128,168,220][ri]+((f+ri)%2)*6;
+        rectC(rx,y+12,12,3,M.OAK);
+        rectC(rx,y+9,3,3,M.OAK);
+        if((f+ri)%3===0)rectC(rx+14,y+8,5,7,M.ALU);
+      }
+      // батареи + газовая труба под потолком
+      rectC(124,y+14,6,4,M.ALU);rectC(252,y+14,6,4,M.ALU);
+      rectC(123,y+1,144,1,M.FUEL);
+      // лестница в среднем пролёте
+      for(let s=0;s<8;s++)rectC(192+s*2,y+18-s*2,2,2,M.CONC);
+      // плита с проёмом под лестницу
+      rectC(123,y+18,69,2,M.CONC);rectC(208,y+18,59,2,M.CONC);
     }
-    boxShell(200,120,24,16,M.BRASS,M.EXP,2);
+    // крыша: плита, парапет, труба, бак, антенна
+    rectC(116,72,158,4,M.CONC);
+    rectC(116,64,4,10,M.CONC);rectC(270,64,4,10,M.CONC);
+    rectC(240,60,6,12,M.CONC);rectC(238,58,10,2,M.HHA);
+    boxShell(200,60,16,12,M.STEEL,M.WATER,2);
+    rectC(150,54,2,18,M.STEEL);rectC(146,54,10,2,M.STEEL);
+    // подъезд: дверь + козырёк
+    for(let wy=142;wy<154;wy++)for(let xx=128;xx<140;xx++){const o=occ[wy*LX+xx];if(o>=0)kill(o);}
+    rectC(128,142,3,12,M.OAK);rectC(137,142,3,12,M.OAK);
+    rectC(124,140,20,2,M.STEEL);
   }},
   pillbox:{n:'ДОТ',f(){
     rectC(150,140,90,6,M.CONC);
@@ -1230,6 +1261,88 @@ const SCENES={
     boxShell(130,84,20,16,M.BRASS,M.EXP,2);
     boxShell(230,84,20,16,M.BRASS,M.EXP,2);
     rectC(150,96,90,4,M.OAK);
+  }},
+  kv2:{n:'КВ-2 💥',f(){
+    const wheel=(wx,wy,r)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+    };
+    for(const wx of [142,164,186,208,230,252])wheel(wx,166,6);
+    rectC(130,159,136,3,M.RUB);rectC(130,173,136,3,M.RUB);
+    rectC(128,159,3,17,M.RUB);rectC(265,159,3,17,M.RUB);
+    // низ корпуса + палуба
+    rectC(132,150,128,9,M.HHA);
+    rectC(134,146,128,4,M.STEEL);
+    // нос и скулы
+    rectC(130,134,10,22,M.STEEL);
+    rotRect(152,140,44,7,-0.6,M.HHA);
+    rectC(254,112,8,44,M.HHA);
+    putCell(134,133,M.GLASS);
+    // трансмиссия, механик
+    boxShell(142,130,22,16,M.TI,M.ALU,3);
+    rectC(140,138,7,12,M.OAK);
+    // БК и баки в корпусе
+    boxShell(170,132,26,12,M.BRASS,M.EXP,2);
+    boxShell(200,132,20,12,M.STEEL,M.FUEL,2);
+    boxShell(236,150,24,6,M.STEEL,M.FUEL,2);
+    boxShell(234,118,22,28,M.TI,M.ALU,3);
+    rectC(237,122,4,20,M.STEEL);rectC(244,122,4,20,M.STEEL);
+    // БАШНЯ-САРАЙ
+    rectC(168,146,64,4,M.HHA);
+    rectC(168,106,4,40,M.HHA);
+    rectC(228,106,4,40,M.HHA);
+    rectC(168,102,64,4,M.HHA);
+    rectC(182,100,8,2,M.STEEL);rectC(206,100,8,2,M.STEEL);
+    // 152 мм гаубица
+    rectC(70,124,100,6,M.STEEL);
+    rectC(62,122,10,10,M.HHA);
+    boxShell(168,120,16,12,M.HHA,M.STEEL,2);
+    rectC(184,126,30,4,M.STEEL);
+    // БК в башне
+    for(let x=176;x<=200;x+=4){putCell(x,110,M.BRASS);putCell(x,111,M.EXP);putCell(x,138,M.BRASS);putCell(x,139,M.EXP);}
+    boxShell(204,108,20,32,M.BRASS,M.EXP,2);
+    // экипаж
+    rectC(176,130,7,12,M.OAK);rectC(218,130,7,12,M.OAK);
+    putCell(179,129,M.GLASS);putCell(221,129,M.GLASS);
+    rectC(258,106,10,3,M.STEEL);
+  }},
+  mi24:{n:'Ми-24 🐊',f(){
+    // лыжи и стойки
+    rectC(140,166,100,3,M.STEEL);
+    rectC(160,154,4,12,M.STEEL);rectC(216,154,4,12,M.STEEL);
+    rectC(160,152,60,3,M.STEEL);
+    // нос + кабины
+    rectC(132,140,16,16,M.HHA);
+    for(let wy=142;wy<149;wy++)for(let xx=134;xx<143;xx++){const o=occ[wy*LX+xx];if(o>=0)kill(o);}
+    rectC(134,142,9,7,M.GLASS);
+    for(let wy=136;wy<142;wy++)for(let xx=144;xx<152;xx++){const o=occ[wy*LX+xx];if(o>=0)kill(o);}
+    rectC(144,136,8,6,M.GLASS);
+    rectC(120,146,12,2,M.STEEL);
+    // кабина десанта
+    rectC(148,136,70,20,M.STEEL);
+    rectC(148,152,70,4,M.HHA);
+    rectC(148,132,70,4,M.HHA);
+    rectC(160,144,7,8,M.OAK);rectC(180,144,7,8,M.OAK);
+    boxShell(196,140,16,12,M.BRASS,M.EXP,2);
+    boxShell(218,144,16,12,M.STEEL,M.FUEL,2);
+    // двигатели и выхлопы
+    boxShell(160,122,50,10,M.TI,M.ALU,2);
+    rectC(208,124,10,3,M.STEEL);rectC(208,129,10,3,M.STEEL);
+    // несущий винт
+    rectC(181,96,4,26,M.STEEL);
+    boxShell(175,90,16,7,M.TI,M.STEEL,2);
+    rectC(100,88,162,2,M.STEEL);
+    // хвостовая балка
+    for(let t=0;t<18;t++){const h=Math.max(2,6-((t*0.25)|0));rectC(218+t*4,136-((t*0.3)|0),4,h,M.STEEL);}
+    rectC(250,128,20,2,M.STEEL);
+    // киль и рулевой винт
+    rectC(286,112,4,22,M.HHA);
+    rectC(290,116,3,24,M.STEEL);
+    putCell(291,127,M.TI);putCell(291,128,M.TI);
+    // крыло и блоки НУРС
+    rectC(158,156,50,3,M.STEEL);
+    boxShell(164,159,14,7,M.STEEL,M.EXP,1);
+    boxShell(190,159,14,7,M.STEEL,M.EXP,1);
   }},
   empty:{n:'Пустая',f(){}},
 };
