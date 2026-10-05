@@ -1382,15 +1382,15 @@ for(const ch in PCH)MAT2CH[PCH[ch]]=ch;
 const PROJ_DEF=[
  {id:'goroh',n:'Горох 🌱',info:'слабый',spd:700,type:'kin',shape:['.OO.','OOOO','.OO.']},
  {id:'hlope',n:'Хлопушка 🎉',info:'слабая',spd:1000,type:'he',shape:['.SS.','SEES','.SS.']},
+ {id:'granata',n:'Граната 💣',info:'средняя',spd:1400,type:'he',shape:['..SSS..','.SSESS.','SSEEEES','.SSESS.','..SSS..']},
  {id:'dart',n:'Подкалиберный',info:'вольфрам',spd:3600,type:'kin',shape:['WWWWWWWWWWWWWWWW.','SWWWWWWWWWWWWWWWWW','WWWWWWWWWWWWWWWW.']},
  {id:'he',n:'Фугас',info:'взрыв',spd:1700,type:'he',shape:['.SSSSSSSS..','SEEEEEEEES.','SEEEEEEEESS','SEEEEEEEES.','.SSSSSSSS..']},
  {id:'kinzhal',n:'Кинжал 🗡',info:'вольфрам · 7000',spd:7000,type:'kin',shape:['WWWWWWWWWWWWWWWWWWWWWWWWWW..','HWWWWWWWWWWWWWWWWWWWWWWWWWWS','WWWWWWWWWWWWWWWWWWWWWWWWWW..']},
  {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
  {id:'p20k',n:'Царь 20К 💥',info:'20К',spd:3000,type:'tsar',blast:5.0,shape:['.....SSSS.....','...SSSSSSSS...','..SSNNNNNNSS..','.SSNNEEEEENNSS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SNEYYYYYYYENS.','.SSNNEEEEENNSS.','..SSNNNNNNSS..','...SSSSSSSS...','.....SSSS.....']},
  {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS......','....SSSSSSSS....','...SSNNNNNNSS...','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS...','....SSSSSSSS....','......SSSS......']},
- {id:'gigatsar',n:'Гипер-царь 🌞',info:'гига · 100Мт',spd:2500,type:'tsar',blast:12.0,shape:['....SSSSS....','..SSNNNNNSS..','.SNNEEEEENNS.','.SNEYYYYYENS.','SNEEYYYYYEENS','SNEEYYYYYEENS','SNEEYYYYYEENS','.SNEYYYYYENS.','.SNNEEEEENNS.','..SSNNNNNSS..','....SSSSS....']},
 ];
-let curProj=3,curSpeed=PROJ_DEF[3].spd;
+let curProj=4,curSpeed=PROJ_DEF[4].spd;
 function projLen(def){return def.shape[0].length;}
 function spawnProj(def,nx,ny,ang,mps){
   const sh=def.shape,h=sh.length,w=sh[0].length,ca=Math.cos(ang),sa=Math.sin(ang);
@@ -3414,7 +3414,7 @@ setTs(.5);syncSpeed();setView(0);refreshActive();
 document.querySelector('#scenes button[data-s="composite"]');
 loadScene('slab');
 $('cap').classList.remove('go');
-curProj=3;curSpeed=PROJ_DEF[3].spd;syncSpeed();refreshActive();
+curProj=4;curSpeed=PROJ_DEF[4].spd;syncSpeed();refreshActive();
 requestAnimationFrame(loop);
 
 /* тестовые хуки */
