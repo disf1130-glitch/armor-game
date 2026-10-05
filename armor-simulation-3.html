@@ -2839,10 +2839,17 @@ function addProjButton(d,i,tag){
 /* убрать скачанный/свой снаряд только из своего меню */
 function delProj(i){
   if(!PROJ_DEF[i]||!PROJ_DEF[i].tag)return;
+  const wid=String(PROJ_DEF[i].id||'').replace(/^ws/,'');
   PROJ_DEF.splice(i,1);
   if(curProj>i)curProj--;
   if(curProj>=PROJ_DEF.length)curProj=Math.max(0,PROJ_DEF.length-1);
   renderProjs();
+  /* удалил из меню — удаляется и из Скачанных */
+  try{
+    const arr=wsLocal('down').filter(x=>x.id!==wid);
+    wsLocalSave('down',arr);
+  }catch(e){}
+  if($('workshop')&&$('workshop').classList.contains('open'))wsFetchList();
   caption('Убрано из меню.');
 }
 function renderProjs(){
@@ -3239,9 +3246,6 @@ function wsRender(){
     const bLike=document.createElement('button');bLike.textContent='♥';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
-    const bDel=document.createElement('button');bDel.textContent='✕ Удалить';bDel.title='Убрать только у себя';
-    bDel.onclick=()=>wsDelete(it.id);
-    row.appendChild(bDel);
     d.appendChild(row);
     list.appendChild(d);
   }
@@ -3309,17 +3313,6 @@ async function wsLike(id){
     const arr=wsLocal(it.type),l=arr.find(x=>x.id===id);
     if(l){l.likes=it.likes;wsLocalSave(it.type,arr);}
   }
-}
-/* удалить только у себя: из локальных + скрыть чужие (на сервере остаётся) */
-async function wsDelete(id){
-  if(!confirm('Убрать только у себя? (у других останется)'))return;
-  for(const t of ['proj','build','down']){const arr=wsLocal(t).filter(x=>x.id!==id);wsLocalSave(t,arr);}
-  try{
-    const hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');
-    if(!hid.includes(id)){hid.push(id);localStorage.setItem('ws_hidden',JSON.stringify(hid));}
-  }catch(e){}
-  wsItems=wsItems.filter(x=>x.id!==id);
-  wsRender();
 }
 $('wstab-proj').onclick=()=>{wsTab='proj';wsFetchList();};
 $('wstab-build').onclick=()=>{wsTab='build';wsFetchList();};
