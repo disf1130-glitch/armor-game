@@ -2155,13 +2155,20 @@ function detonateAt(x,y,power){
         kickSpin(j,(Math.random()-.5)*9*f); // взрыв закручивает осколки
         let hv=Tv[j]+3.5*f*power;if(hv>40)hv=40;Tv[j]=hv;
         if(d<R*.35){
-          // воронка: рвём 3-4 связи, блок крошится и разлетается
+          // воронка: рвём только связи, обращённые к взрыву — кусок отлетает целиком
           bendBlast(j,dx,dy,d,f);
           if(deg[j]>0){
             const base=j*SL;
-            for(let t=0;t<4;t++){
-              const k=pb[base+((Math.random()*SL)|0)];
-              if(k>=0&&bAlive[k]&&Math.random()<.85){breakBond(k,true);if(Math.random()<.5)break;}
+            let broken=0;
+            for(let s=0;s<SL&&broken<2;s++){
+              const k=pb[base+s];
+              if(k<0||!bAlive[k])continue;
+              const o=bA[k]===j?bB[k]:bA[k];
+              if(!(flg[o]&ALIVE))continue;
+              const bx=px[o]-px[j],by=py[o]-py[j];
+              const bl=Math.hypot(bx,by)||.001;
+              const along=(bx*dx+by*dy)/(bl*d);
+              if(along>0.3){breakBond(k,true);broken++;}
             }
           }
         }else if(d<R*.75){
