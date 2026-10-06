@@ -1,29 +1,77 @@
 // Воркшоп-сервер: общий для всех в локалке.
 // Запуск: node workshop-server.js  (или start-workshop.bat)
 // Открыть: http://localhost:3000  (с другого ПК: http://<IP-этого-ПК>:3000)
-// Без зависимостей, только встроенные модули Node.
+// База: PostgreSQL (DATABASE_URL) → JSON-файл (фолбэк)
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
-// путь базы: WORKSHOP_DB (диск Render) → /data (примонтированный диск) → локальный файл
 const DB = process.env.WORKSHOP_DB
   || (fs.existsSync('/data') ? '/data/workshop-db.json' : path.join(ROOT, 'workshop-db.json'));
 
-function loadDB() {
-  try {
-    const raw = fs.readFileSync(DB, 'utf8');
-    const d = JSON.parse(raw);
-    if (Array.isArray(d)) return { seq: d.length, items: d };
+// --- Слой данных: PostgreSQL или JSON ---
+let pgPool=null;
+if(process.env.DATABASE_URL){
+  try{
+    const {Pool}=require('pg');
+    pgPool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});
+    pgPool.query(`CREATE TABLE IF NOT EXISTS items(
+      id TEXT PRIMARY KEY, type TEXT, name TEXT, author TEXT,
+      date BIGINT, likes INT DEFAULT 0, key TEXT, data JSONB
+    )`).catch(e=>console.log('pg init:',e.message));
+  }catch(e){console.log('pg недоступен, работаем на JSON:',e.message);pgPool=null;}
+}
+function loadDB(){
+  if(pgPool)return {pg:true,seq:0,items:[]};
+  try{
+    const raw=fs.readFileSync(DB,'utf8');
+    const d=JSON.parse(raw);
+    if(Array.isArray(d))return{seq:d.length,items:d};
     return d;
-  } catch (e) { return { seq: 0, items: [] }; }
+  }catch(e){return{seq:0,items:[]};}
 }
-function saveDB(db) {
-  fs.writeFileSync(DB, JSON.stringify(db, null, 1), 'utf8');
+let db=loadDB();
+function saveDB(){
+  if(db.pg)return; // pg пишет сам
+  fs.writeFileSync(DB,JSON.stringify({seq:db.seq,items:db.items},null,1),'utf8');
 }
-let db = loadDB();
+async function dbAll(type){
+  if(db.pg){
+    const r=await pgPool.query('SELECT * FROM items WHERE type=$1 ORDER BY date DESC LIMIT 300',[type]);
+    return r.rows.map(r=>({id:r.id,type:r.type,name:r.name,author:r.author,date:r.date,likes:r.likes,key:r.key,data:r.data}));
+  }
+  return db.items.filter(i=>i.type===type).slice(-300);
+}
+async function dbAdd(item){
+  if(db.pg){
+    await pgPool.query('INSERT INTO items(id,type,name,author,date,likes,key,data) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(id) DO NOTHING',
+      [item.id,item.type,item.name,item.author,item.date,item.likes||0,item.key||'',JSON.stringify(item.data)]);
+    return;
+  }
+  db.items.push(item);
+  if(db.items.length>1000)db.items=db.items.slice(-1000);
+  saveDB();
+}
+async function dbLike(id){
+  if(db.pg){
+    const r=await pgPool.query('UPDATE items SET likes=likes+1 WHERE id=$1 RETURNING *',[id]);
+    return r.rows[0]||null;
+  }
+  const it=db.items.find(i=>i.id===id);
+  if(!it)return null;
+  it.likes=(it.likes||0)+1;saveDB();
+  return it;
+}
+async function dbDelete(id){
+  if(db.pg){
+    await pgPool.query('DELETE FROM items WHERE id=$1',[id]);
+    return;
+  }
+  db.items=db.items.filter(i=>i.id!==id);
+  saveDB();
+}
 
 // --- Мультиплеер: комнаты с кодом ---
 const rooms = new Map(); // code -> {code, players:Map<id,{id,name,x,y,last}>, blocks:[], seq}
@@ -93,10 +141,10 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 204, '', 'text/plain');
 
   // --- API ---
-  if (url.pathname === '/api/ping') return send(res, 200, JSON.stringify({ ok: true, n: db.items.length }));
+  if (url.pathname === '/api/ping') return send(res, 200, JSON.stringify({ ok: true, n: db.pg ? -1 : db.items.length }));
   if (url.pathname === '/api/items' && req.method === 'GET') {
     const type = url.searchParams.get('type');
-    const items = (type ? db.items.filter((i) => i.type === type) : db.items).slice(-300);
+    const items = await dbAll(type);
     return send(res, 200, JSON.stringify(items.map(({ key, ...i }) => i)));
   }
   if (url.pathname === '/api/items' && req.method === 'POST') {
@@ -112,29 +160,25 @@ const server = http.createServer(async (req, res) => {
         key: String(o.key || '').slice(0, 64),
         data: o.data,
       };
-      db.items.push(item);
-      if (db.items.length > 1000) db.items = db.items.slice(-1000);
-      saveDB(db);
+      await dbAdd(item);
       const { key, ...pub } = item;
       return send(res, 200, JSON.stringify(pub));
     } catch (e) { return send(res, 400, JSON.stringify({ error: 'bad json' })); }
   }
   let m = url.pathname.match(/^\/api\/items\/([^/]+)\/like$/);
   if (m && req.method === 'POST') {
-    const it = db.items.find((i) => i.id === m[1]);
+    const it = await dbLike(m[1]);
     if (!it) return send(res, 404, JSON.stringify({ error: 'not found' }));
-    it.likes = (it.likes || 0) + 1; saveDB(db);
     const { key, ...pub } = it;
     return send(res, 200, JSON.stringify(pub));
   }
   m = url.pathname.match(/^\/api\/items\/([^/]+)$/);
   if (m && req.method === 'DELETE') {
-    const it = db.items.find((i) => i.id === m[1]);
-    if (!it) return send(res, 404, JSON.stringify({ error: 'not found' }));
-    if (it.key && url.searchParams.get('key') !== it.key)
+    const it = db.pg ? null : db.items.find((i) => i.id === m[1]);
+    if (!it && !db.pg) return send(res, 404, JSON.stringify({ error: 'not found' }));
+    if (it && it.key && url.searchParams.get('key') !== it.key)
       return send(res, 403, JSON.stringify({ error: 'not yours' }));
-    db.items = db.items.filter((i) => i.id !== m[1]);
-    saveDB(db);
+    await dbDelete(m[1]);
     return send(res, 200, JSON.stringify({ ok: true }));
   }
 
