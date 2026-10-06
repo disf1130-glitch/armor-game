@@ -3001,7 +3001,7 @@ function setQ(q,man){
   if(man){qManual=q;qHoldUntil=performance.now()+8000;}
   caption(['Картошка: физика ×2, эффекты 40%.','Баланс: физика ×3, эффекты 75%.','Максимум: физика ×4, все эффекты.'][q]);
 }
-document.querySelectorAll('#quals button').forEach(b=>b.onclick=()=>setQ(+b.dataset.q,true));
+document.querySelectorAll('#quals button').forEach(b=>b.onclick=()=>{Q.auto=false;setQ(+b.dataset.q,true);syncQBtns();});
 function syncQBtns(){
   $('qGlow').classList.toggle('on',Q.glow);
   $('qSmoke').classList.toggle('on',Q.smoke);
