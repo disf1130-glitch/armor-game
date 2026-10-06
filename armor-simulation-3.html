@@ -141,10 +141,11 @@
   <div class="row" style="margin-top:4px"><button id="pause">⏸ пауза</button><button id="snd" class="on">Звук</button></div>
 
   <h3>Настройки</h3>
-  <div class="row" id="quals"><button data-q="0" title="Минимум физики и эффектов">Низк.</button><button data-q="1" class="on" title="Баланс">Сред.</button><button data-q="2" title="Максимум качества">Высок.</button></div>
+  <div class="row" id="quals"><button data-q="0" title="Минимум физики и эффектов">Низк.</button><button data-q="1" class="on" title="Баланс">Сред.</button><button data-q="2" title="Максимум физики + чёткие грани">Высок.</button></div>
   <div class="row" style="margin-top:4px"><button id="qGlow" class="on" title="Свечение bloom">Свечение</button><button id="qSmoke" class="on" title="Дым и пыль">Дым</button></div>
   <div class="row" style="margin-top:4px"><button id="qSpark" class="on" title="Искры">Искры</button><button id="qFire" class="on" title="Огонь">Огонь</button></div>
   <div class="row" style="margin-top:4px"><button id="qAuto" class="on" title="Само снижает качество при лагах">Авто</button></div>
+  <div class="row" style="margin-top:4px"><button id="qShape" title="Вид частиц: связанные — квадраты, летящие осколки — кувыркаются">Частицы: смесь</button></div>
   <label>Эффекты <b id="fxv"></b></label>
   <input type="range" id="fxr" min="20" max="100" step="5" value="75">
 
@@ -397,7 +398,7 @@ function makePuffSpr(r,g,b){
 const sprSmoke=makePuffSpr(72,72,80),sprDust=makePuffSpr(140,114,88);
 
 /* качество раньше resize: иначе resize() падает в TDZ */
-var Q={q:1,glow:true,smoke:true,spark:true,fire:true,fx:.75,maxSub:12,iter:3,auto:true};
+var Q={q:1,glow:true,smoke:true,spark:true,fire:true,fx:.75,maxSub:12,iter:3,auto:true,shape:2};
 let cw=1,ch=1,sc=1,ox=0,oy=0,dpr=1;
 function resize(){
   const cap=(Q.q===0?1:(Q.q===1?1.5:2));
@@ -416,6 +417,7 @@ const T=new Float32Array(MAXP),pres=new Float32Array(MAXP),prD=new Float32Array(
 const Tv=new Float32Array(MAXP); // визуальный жар: остывает ~10 с, физику (плавление/поджог) не трогает
 const str=new Float32Array(MAXP),strD=new Float32Array(MAXP);
 const pm=new Uint8Array(MAXP),flg=new Uint8Array(MAXP),awake=new Uint8Array(MAXP),deg=new Uint8Array(MAXP),shade=new Uint8Array(MAXP);
+const pAng=new Float32Array(MAXP),pSpin=new Float32Array(MAXP); // угол и угловая скорость осколка (кувыркание)
 const home=new Int32Array(MAXP).fill(-1),fuse=new Int16Array(MAXP);
 const fix=new Uint8Array(MAXP),vis=new Uint8Array(MAXP),lst=new Int32Array(MAXP);
 let supMode=1;
@@ -530,9 +532,11 @@ function newP(x,y,mat){
   px[i]=qx[i]=x;py[i]=qy[i]=y;vx[i]=vy[i]=0;im[i]=1/MAT[mat].d;
   pm[i]=mat;flg[i]=ALIVE;if(mat===M.WATER)flg[i]|=LIQ;awake[i]=0;deg[i]=0;T[i]=0;Tv[i]=0;pres[i]=prD[i]=str[i]=strD[i]=0;
   shade[i]=(Math.random()*256)|0;  home[i]=-1;fuse[i]=0;sup[i]=1;fix[i]=0;wasP[i]=0;pin[i]=0;
+  pAng[i]=Math.random()*6.283;pSpin[i]=0;
   const b=i*SL;for(let s=0;s<SL;s++)pb[b+s]=-1;
   return i;
 }
+function kickSpin(i,v){let s=pSpin[i]+v;if(s>10)s=10;else if(s<-10)s=-10;pSpin[i]=s;}
 function link(a,b){
   const ba=a*SL,bb=b*SL;let sa=-1,sb=-1;
   for(let s=0;s<SL;s++){if(sa<0&&pb[ba+s]<0)sa=s;if(sb<0&&pb[bb+s]<0)sb=s;}
@@ -561,6 +565,9 @@ function breakBond(k,fx){
     brkF++;
     const h=MAT[pm[a]].bh;T[a]+=h;T[b]+=h;
     wake(a);wake(b);
+    const svx=vx[b]-vx[a],svy=vy[b]-vy[a];
+    kickSpin(a,svy*0.6-svx*0.4+(Math.random()-.5)*5);
+    kickSpin(b,-svy*0.6+svx*0.4+(Math.random()-.5)*5);
     if(sparkN<MAXS*.9&&Math.random()<.45){
       const mx=(px[a]+px[b])*.5,my=(py[a]+py[b])*.5;
       spark(mx,my,(vx[a]+vx[b])*.5+(Math.random()-.5)*3.2,(vy[a]+vy[b])*.5+(Math.random()-.5)*3.2,22+Math.random()*34);
@@ -2238,6 +2245,7 @@ function substep(dt){
         if(gasN<MAXG*.9&&Math.random()<.10)
           gas(nx,WH-5,(Math.random()-.5)*1.2,-.5-Math.random(),30+Math.random()*30,1.6+Math.random(),2);
         T[i]+=Math.min(.12,nvy*.004);
+        kickSpin(i,(Math.random()-.5)*8+nvx*0.3);
       }
       if(nvy>0)nvy=-nvy*(0.32-mu*0.25);
       if(nvy<0.25&&nvy>-0.25)nvy=0;
@@ -2384,6 +2392,13 @@ function postFrame(n){
     }else if(t!==0)T[i]=0;
     // визуальный жар: медленное остывание ~10 сек (0.4/сек от 40)
     if(Tv[i]>0){Tv[i]-=0.4*inv;if(Tv[i]<0)Tv[i]=0;}
+    // кувыркание осколков: интегрируем угол, гасим спин (в связке — быстро)
+    const sp0=pSpin[i];
+    if(sp0!==0){
+      pAng[i]+=sp0*ts*0.12;
+      const ns=sp0*(deg[i]>0?0.9:0.995);
+      pSpin[i]=(ns<.05&&ns>-.05)?0:ns;
+    }
     if(t<MELT[pm[i]]*.55)flg[i]&=~LIQ;
     const pp=pres[i];
     if(pp!==0||prD[i]>1e-4){
@@ -2607,9 +2622,20 @@ function drawParticles(){
     }
     const c=0xFF000000|((b|0)<<16)|((g|0)<<8)|(r|0);
     let o=iy*WW+ix;
-    buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
-    buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
-    buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;
+    const shm=Q.shape===2?(deg[i]>0?0:2):Q.shape; // 0 квадрат, 1 круг, 2 кувыркающийся осколок
+    if(shm===1){ // круг: плюс 3x3
+      buf32[o+1]=c;buf32[o+WW]=c;buf32[o+WW+1]=c;buf32[o+WW+2]=c;buf32[o+2*WW+1]=c;
+    }else if(shm===2){ // осколок: ориентация из угла поворота
+      const oo=((pAng[i]*1.2732+8)|0)&3,cc=o+WW+1;
+      if(oo===0){buf32[cc-1]=c;buf32[cc]=c;buf32[cc+1]=c;}
+      else if(oo===2){buf32[cc-WW]=c;buf32[cc]=c;buf32[cc+WW]=c;}
+      else if(oo===1){buf32[cc-WW-1]=c;buf32[cc]=c;buf32[cc+WW+1]=c;}
+      else{buf32[cc-WW+1]=c;buf32[cc]=c;buf32[cc+WW-1]=c;}
+    }else{ // чёткий квадрат 3x3
+      buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
+      buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
+      buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;
+    }
     if((t>.3||Tv[i]>.5)&&(v===0||v===3)){
       const heat=Math.max(t,Tv[i]/40);
       const h=Math.min(255,(heat*102)|0)*4,k=Math.min(1,(heat-.2)*.9)*.25;
@@ -2693,7 +2719,7 @@ function render(){
   drawWaves();
   if(Q.glow){g1x.putImageData(g1i,0,0);g2x.putImageData(g2i,0,0);}
   ctx.fillStyle='#030508';ctx.fillRect(0,0,cw,ch);
-  ctx.imageSmoothingEnabled=Q.q>0;ctx.imageSmoothingQuality=Q.q===0?'low':'high';
+  ctx.imageSmoothingEnabled=Q.q===1;ctx.imageSmoothingQuality=Q.q===0?'low':'high';
   camUpdate();
   const W=WW*effS,H=WH*effS;
   ctx.drawImage(off,effX,effY,W,H);
@@ -2984,6 +3010,10 @@ $('qGlow').onclick=()=>{Q.glow=!Q.glow;syncQBtns();};
 $('qSmoke').onclick=()=>{Q.smoke=!Q.smoke;syncQBtns();};
 $('qSpark').onclick=()=>{Q.spark=!Q.spark;syncQBtns();};
 $('qFire').onclick=()=>{Q.fire=!Q.fire;syncQBtns();};
+const SHN=['Частицы: квадраты','Частицы: круги','Частицы: смесь'];
+function syncShape(){const b=$('qShape');if(b)b.textContent=SHN[Q.shape];}
+$('qShape').onclick=()=>{Q.shape=(Q.shape+1)%3;syncShape();};
+syncShape();
 $('qAuto').onclick=()=>{Q.auto=!Q.auto;syncQBtns();caption(Q.auto?'Авто-качество вкл.':'Авто-качество выкл.');};
 function syncFx(){$('fxr').value=Math.round(Q.fx*100);$('fxv').textContent=Math.round(Q.fx*100)+'%';}
 $('fxr').oninput=e=>{Q.fx=+e.target.value/100;syncFx();};
