@@ -11,10 +11,10 @@
   html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;color:var(--txt);
     font-family:"Rajdhani","Segoe UI",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
   canvas#cv{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
-  #panel{position:fixed;left:10px;top:calc(10px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:302px;overflow-y:auto;padding:10px 12px 14px;
+  #panel{position:fixed;left:10px;top:calc(10px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:var(--pw,340px);overflow-y:auto;padding:10px 12px 14px;
     background:var(--panel);border:1px solid var(--line);border-radius:6px;backdrop-filter:blur(8px);
     scrollbar-width:thin;scrollbar-color:#3a3a3a transparent;transition:transform .25s}
-  #panel.hide{transform:translateX(-330px)}
+  #panel.hide{transform:translateX(calc(var(--pw,340px) + 28px))}
   #projs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
   #projs button{flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;text-align:center;position:relative}
   #projs .pdel{position:absolute;top:2px;right:5px;text-decoration:none;font-style:normal;color:#ff6b60;font-size:11px;cursor:pointer;display:none}
@@ -151,6 +151,8 @@
 
   <h3>Опора</h3>
   <div class="row"><button id="smE" class="on" title="Низ на земле, верх закреплён. Отлетают только обломки">По краям</button><button id="smG" title="Держится только то, что связано с землёй">Земля</button></div>
+  <label>Ширина панели <b id="pwv"></b></label>
+  <input type="range" id="pwr" min="260" max="520" step="10" value="340">
 </div>
 </div>
 <button id="tog" title="Показать панель">☰</button>
@@ -3014,6 +3016,15 @@ const SHN=['Частицы: квадраты','Частицы: круги','Ча
 function syncShape(){const b=$('qShape');if(b)b.textContent=SHN[Q.shape];}
 $('qShape').onclick=()=>{Q.shape=(Q.shape+1)%3;syncShape();};
 syncShape();
+function setPanelW(w){
+  w=Math.max(260,Math.min(520,Math.round(+w||340)));
+  document.documentElement.style.setProperty('--pw',w+'px');
+  const v=$('pwv');if(v)v.textContent=w+' px';
+  const r=$('pwr');if(r)r.value=w;
+  try{localStorage.setItem('panelW',w);}catch(e){}
+}
+$('pwr').oninput=e=>setPanelW(+e.target.value);
+try{const pw=+localStorage.getItem('panelW');setPanelW(pw||340);}catch(e){setPanelW(340);}
 $('qAuto').onclick=()=>{Q.auto=!Q.auto;syncQBtns();caption(Q.auto?'Авто-качество вкл.':'Авто-качество выкл.');};
 function syncFx(){$('fxr').value=Math.round(Q.fx*100);$('fxv').textContent=Math.round(Q.fx*100)+'%';}
 $('fxr').oninput=e=>{Q.fx=+e.target.value/100;syncFx();};
