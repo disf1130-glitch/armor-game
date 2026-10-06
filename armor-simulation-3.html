@@ -116,12 +116,12 @@
   <input id="projsearch" placeholder="Поиск…" maxlength="30" style="width:100%;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
   <div class="list" id="projs"></div>
   <label>Скорость <b id="spdv"></b></label>
-  <input type="range" id="spd" min="50" max="33462" step="50" value="2500">
+  <input type="range" id="spd" min="50" max="35342" step="50" value="2500">
   <div class="row" style="margin-top:4px">
-    <input id="spdnum" type="number" min="50" max="33462" step="10" value="2500" title="Впиши любую скорость до 33462, Enter — применить" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12.5px">
-    <button id="spdmax" title="Максимум 33462 — итог всё равно зависит от плотности материала">MAX</button>
+    <input id="spdnum" type="number" min="50" max="35342" step="10" value="2500" title="Впиши любую скорость до 35342, Enter — применить" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12.5px">
+    <button id="spdmax" title="Максимум 35342 — итог всё равно зависит от плотности материала">MAX</button>
   </div>
-  <div class="row" style="margin-top:4px"><button data-spd="800">800</button><button data-spd="2500">2500</button><button data-spd="8000">8000</button><button data-spd="15000">15k</button><button data-spd="33462">33k</button></div>
+  <div class="row" style="margin-top:4px"><button data-spd="800">800</button><button data-spd="2500">2500</button><button data-spd="8000">8000</button><button data-spd="15000">15k</button><button data-spd="35342">35k</button></div>
 </div>
 <div class="tabpage" id="tab-edit">
   <h3>Редактор</h3>
@@ -489,6 +489,7 @@ const Tv=new Float32Array(MAXP); // визуальный жар: остывае�
 const str=new Float32Array(MAXP),strD=new Float32Array(MAXP);
 const pm=new Uint8Array(MAXP),flg=new Uint8Array(MAXP),awake=new Uint8Array(MAXP),deg=new Uint8Array(MAXP),shade=new Uint8Array(MAXP);
 const pAng=new Float32Array(MAXP),pSpin=new Float32Array(MAXP); // угол и угловая скорость осколка (кувыркание)
+const pRad=new Float32Array(MAXP).fill(2.6); // радиус круга для отрисовки (слипшиеся растут)
 const freeList=new Int32Array(MAXP),pCol=new Uint32Array(MAXP);let freeN=0; // свободные частицы для векторной отрисовки
 const home=new Int32Array(MAXP).fill(-1),fuse=new Int16Array(MAXP);
 const fix=new Uint8Array(MAXP),vis=new Uint8Array(MAXP),lst=new Int32Array(MAXP);
@@ -602,7 +603,7 @@ function newP(x,y,mat){
   let i;
   if(freeP.length)i=freeP.pop();else{if(nP>=MAXP)return -1;i=nP++;}
   px[i]=qx[i]=x;py[i]=qy[i]=y;vx[i]=vy[i]=0;im[i]=1/MAT[mat].d;
-  pm[i]=mat;flg[i]=ALIVE;if(mat===M.WATER)flg[i]|=LIQ;awake[i]=0;deg[i]=0;T[i]=0;Tv[i]=0;pres[i]=prD[i]=str[i]=strD[i]=0;
+  pm[i]=mat;flg[i]=ALIVE;if(mat===M.WATER)flg[i]|=LIQ;awake[i]=0;deg[i]=0;T[i]=0;Tv[i]=0;pres[i]=prD[i]=str[i]=strD[i]=0;pRad[i]=2.6;
   shade[i]=(Math.random()*256)|0;  home[i]=-1;fuse[i]=0;sup[i]=1;fix[i]=0;wasP[i]=0;pin[i]=0;
   pAng[i]=Math.random()*6.283;pSpin[i]=0;
   const b=i*SL;for(let s=0;s<SL;s++)pb[b+s]=-1;
@@ -1910,7 +1911,7 @@ const PROJ_DEF=[
  {id:'nuc',n:'Ядерный',info:'уран',spd:2200,type:'he',shape:['SSSSSSSSSSSSS','SSSSSSSSSSSSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSSSSSSSSSSSS','SSSSSSSSSSSSS']}
 ];
 let curProj=6,curSpeed=PROJ_DEF[6].spd;
-const SPD_MAX=33462; /* потолок скорости — итог всё равно зависит от плотности */
+const SPD_MAX=35342; /* потолок скорости — итог зависит от плотности и обтекаемости */
 function projDensity(def){
   let sum=0,n=0;
   for(const row of def.shape)for(const ch of row){
@@ -1922,10 +1923,18 @@ function projDensity(def){
 }
 /* плотнее стали — медленнее (вольфрам/свинец), лёгкие — быстрее; потолок SPD_MAX */
 function effSpeed(def,base){
-  const d=projDensity(def);
-  const v=Math.round(base*(7.8/d));
+  const v=Math.round(base*projQ(def));
   return Math.max(50,Math.min(SPD_MAX,v));
 }
+/* обтекаемость: вытянутый снаряд летит лучше, круглый — хуже */
+function projStreamline(def){
+  const sh=def.shape,F=sh[0].length/sh.length;
+  return Math.max(0.25,Math.min(1.33,F/6));
+}
+/* качество снаряда: плотность × обтекаемость (сталь-стрела ≈ 1) */
+function projQ(def){return (7.8/projDensity(def))*projStreamline(def);}
+/* личный максимум снаряда: тяжёлый тупой — низкий, лёгкий острый — 35342 */
+function projCap(def){return Math.round(SPD_MAX*Math.min(1,projQ(def)));}
 function projLen(def){return def.shape[0].length;}
 function spawnProj(def,nx,ny,ang,mps){
   const sh=def.shape,h=sh.length,w=sh[0].length,ca=Math.cos(ang),sa=Math.sin(ang);
@@ -1941,7 +1950,7 @@ function spawnProj(def,nx,ny,ang,mps){
   }
   linkGroup(ids);
   for(const i of ids)wake(i);
-  const p={def,type:def.type,ids,v0:sp,dx:ca,dy:sa,armed:-1,sp:mps};
+  const p={def,type:def.type,ids,v0:Math.min(sp,40),dx:ca,dy:sa,armed:-1,sp:mps};
   projs.push(p);
   lastShotSpeed=mps;shotFrames=0;peakT=0;
   return p;
@@ -2133,8 +2142,10 @@ function detonateAt(x,y,power){
           const cr=mj===M.FUEL?CHAIN*1.8:CHAIN;
           if(d2<cr*cr)igniteE(j,1+((Math.random()*2)|0));
         }
-        // разлёт: радиальный импульс + турбулентность, лёгкие осколки летят дальше
-        const dv=IMP*(f*f+.25*f)/Math.pow(1/im[j],.6);
+        // разлёт: радиальный импульс + турбулентность, лёгкие осколки летят дальше;
+        // снаряды тоже откидывает (тяжёлым считаем плотность максимум 8)
+        const dens=1/im[j],effD=((flg[j]&PROJ)&&dens>8)?8:dens;
+        const dv=IMP*(f*f+.25*f)/Math.pow(effD,.6);
         const turb=(Math.random()-.5)*dv*.7;
         vx[j]+=dx/d*dv-turb*dy/d;
         vy[j]+=dy/d*dv+turb*dx/d-(Math.random()*.9)*f;
@@ -2408,6 +2419,24 @@ function pair(a,b,dt,stat){
     qx[a]-=tx*f*wa/w;qy[a]-=ty*f*wa/w;qx[b]+=tx*f*wb/w;qy[b]+=ty*f*wb/w;
   }
   const pI=ov/w*.6;pres[a]+=pI;pres[b]+=pI;
+  // слипание: медленные свободные осколки сливаются в круг покрупнее (снаряды не трогаем)
+  if(deg[a]===0&&deg[b]===0&&!((flg[a]|flg[b])&PROJ)&&!pin[a]&&!pin[b]&&rn<1.5&&rn>-0.5&&tl<2){
+    const ra=pRad[a],rb=pRad[b];
+    if(ra+rb<16&&d<(ra+rb)*0.55){
+      const w1=ra*ra,w2=rb*rb,ws=w1+w2;
+      const keep=w1>=w2?a:b,drop=w1>=w2?b:a;
+      px[keep]=(px[keep]*w1+px[drop]*w2)/ws;py[keep]=(py[keep]*w1+py[drop]*w2)/ws;
+      vx[keep]=(vx[keep]*w1+vx[drop]*w2)/ws;vy[keep]=(vy[keep]*w1+vy[drop]*w2)/ws;
+      qx[keep]=px[keep];qy[keep]=py[keep];
+      pRad[keep]=Math.sqrt(ws);pAng[keep]+=pSpin[drop]*0.1;
+      pSpin[keep]+=pSpin[drop]*0.3;
+      if(T[drop]>T[keep])T[keep]=T[drop];
+      if(Tv[drop]>Tv[keep])Tv[keep]=Tv[drop];
+      kill(drop);
+      wake(keep);
+      return;
+    }
+  }
   if(rn>1){
     const e=.5*rn*rn/w*.0125;
     hitE+=e;
@@ -3058,15 +3087,15 @@ function drawFree(){
   ctx.setTransform(effS,0,0,effS,effX,effY);
   if(Q.shape===1){
     for(let k=0;k<freeN;k++){
-      const i=freeList[k],c=pCol[i];
-      ctx.drawImage(circSprite(c&255,(c>>8)&255,(c>>16)&255),px[i]-2.6,py[i]-2.6,5.2,5.2);
+      const i=freeList[k],c=pCol[i],sz=pRad[i]*2;
+      ctx.drawImage(circSprite(c&255,(c>>8)&255,(c>>16)&255),px[i]-sz/2,py[i]-sz/2,sz,sz);
     }
   }else{
     for(let k=0;k<freeN;k++){
-      const i=freeList[k],c=pCol[i];
+      const i=freeList[k],c=pCol[i],ks=pRad[i]/2.6;
       ctx.fillStyle='rgb('+(c&255)+','+((c>>8)&255)+','+((c>>16)&255)+')';
       ctx.beginPath();
-      ctx.ellipse(px[i],py[i],2.3,1.6,pAng[i],0,7);
+      ctx.ellipse(px[i],py[i],2.3*ks,1.6*ks,pAng[i],0,7);
       ctx.fill();
     }
   }
@@ -3341,7 +3370,7 @@ function resetAll(){
     b.onclick=()=>setView(i);vl.appendChild(b);
   });
   const tl=$('times');
-  [['1×',1],['½',.5],['¼',.25],['⅒',.1]].forEach(t=>{
+  [['1×',1],['½',.5],['¼',.25],['⅒',.1],['1/20',.05]].forEach(t=>{
     const b=document.createElement('button');b.textContent=t[0];b.dataset.t=t[1];
     b.onclick=()=>setTs(t[1]);tl.appendChild(b);
   });
@@ -3357,9 +3386,12 @@ function syncSpeed(){
   const n=$('spdnum');if(n)n.value=curSpeed;
   const def=PROJ_DEF[curProj];
   let txt=curSpeed+' м/с';
-  if(def){const e=effSpeed(def,curSpeed);if(e!==curSpeed)txt=curSpeed+' → '+e+' м/с';}
+  if(def){
+    const e=effSpeed(def,curSpeed),cap=projCap(def);
+    if(e!==curSpeed||cap<SPD_MAX)txt=curSpeed+' → '+e+' м/с · макс '+cap;
+  }
   $('spdv').textContent=txt;
-  $('spdv').title='Итог зависит от плотности материала снаряда (вольфрам — медленнее, лёгкие — быстрее), потолок '+SPD_MAX;
+  $('spdv').title='Итог зависит от плотности (тяжёлые — медленнее) и обтекаемости (вытянутые — быстрее). Тяжёлый тупой: и скорость, и максимум низкие; лёгкий острый: максимум '+SPD_MAX;
 }
 $('spd').oninput=e=>setSpeed(+e.target.value);
 $('spdnum').oninput=e=>{const v=+e.target.value;if(v>=50&&v<=SPD_MAX){curSpeed=Math.round(v);syncSpeed();}};
@@ -3504,7 +3536,7 @@ function projPreview(d){
     if(!m||!MAT[m])continue;
     const cc=MAT[m].c;
     g.fillStyle='rgb('+(cc[0]|0)+','+(cc[1]|0)+','+(cc[2]|0)+')';
-    g.fillRect(x*px,y*px,px,px);
+    g.beginPath();g.arc(x*px+px/2,y*px+px/2,px/2,0,7);g.fill();
   }
   return c;
 }
