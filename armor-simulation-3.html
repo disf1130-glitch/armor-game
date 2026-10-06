@@ -3951,12 +3951,17 @@ async function wsFetchList(){
   const list=$('wslist');
   if(list)list.innerHTML='<div style="color:var(--dim);font-size:12px">Загрузка…</div>';
   if(wsTab==='down'){wsItems=wsLocal('down');wsRender();return;}
+  let server=[];
   if(wsBase){
     try{
       const r=await fetch(wsBase+'/api/items?type='+wsTab,{cache:'no-store'});
-      wsItems=await r.json();
-    }catch(e){wsItems=wsLocal(wsTab);}
-  }else wsItems=wsLocal(wsTab);
+      server=await r.json();
+    }catch(e){server=[];}
+  }
+  // подтягиваем свои публикации из localStorage — сервер мог сбросить базу
+  const mine=wsLocal(wsTab).filter(x=>wsMineIds().includes(x.id));
+  const ids=new Set(server.map(x=>x.id));
+  wsItems=server.concat(mine.filter(x=>!ids.has(x.id)));
   wsRender();
 }
 function wsPreviewCanvas(item){
