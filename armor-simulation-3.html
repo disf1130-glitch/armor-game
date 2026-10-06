@@ -101,6 +101,7 @@
   <div class="tabs">
     <button id="tabB-targets" class="on">ЦЕЛИ</button>
     <button id="tabB-shells">СНАРЯДЫ</button>
+    <button id="tabB-edit">РЕДАКТОР</button>
     <button id="tabB-setup">НАСТРОЙКА</button>
   </div>
 <div class="tabpage on" id="tab-targets">
@@ -121,10 +122,12 @@
     <button id="spdmax" title="Максимум 33462 — итог всё равно зависит от плотности материала">MAX</button>
   </div>
   <div class="row" style="margin-top:4px"><button data-spd="800">800</button><button data-spd="2500">2500</button><button data-spd="8000">8000</button><button data-spd="15000">15k</button><button data-spd="33462">33k</button></div>
-  <div class="row" style="margin-top:4px"><button id="edopen">✎ Редактор снаряда</button></div>
+</div>
+<div class="tabpage" id="tab-edit">
+  <h3>Редактор</h3>
+  <div class="row"><button id="edopen">✎ Редактор снаряда</button></div>
   <div class="row" style="margin-top:4px"><button id="bedopen">▦ Редактор блоков</button><button id="wsopen">Воркшоп</button></div>
   <div class="row" style="margin-top:4px"><button id="mpopen">Мультиплеер</button></div>
-
 </div>
 <div class="tabpage" id="tab-setup">
   <h3>Вид</h3>
@@ -3046,9 +3049,10 @@ $('load').onclick=()=>{
 };
 $('hide').onclick=()=>$('panel').classList.add('hide');
 $('tog').onclick=()=>$('panel').classList.remove('hide');
-function setTab(t){['targets','shells','setup'].forEach(k=>{const p=$('tab-'+k),b=$('tabB-'+k);if(p)p.classList.toggle('on',k===t);if(b)b.classList.toggle('on',k===t);});}
+function setTab(t){['targets','shells','edit','setup'].forEach(k=>{const p=$('tab-'+k),b=$('tabB-'+k);if(p)p.classList.toggle('on',k===t);if(b)b.classList.toggle('on',k===t);});}
 $('tabB-targets').onclick=()=>setTab('targets');
 $('tabB-shells').onclick=()=>setTab('shells');
+$('tabB-edit').onclick=()=>setTab('edit');
 $('tabB-setup').onclick=()=>setTab('setup');
 
 /* ================= камера (зум + панорама) ================= */
