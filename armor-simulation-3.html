@@ -2996,11 +2996,12 @@ $('spdnum').onchange=e=>setSpeed(+e.target.value);
 $('spdmax').onclick=()=>setSpeed(SPD_MAX);
 document.querySelectorAll('button[data-spd]').forEach(b=>b.onclick=()=>setSpeed(+b.dataset.spd));
 
-function setQ(q){
+function setQ(q,man){
   Q.q=q;applyQuality();resize();
+  if(man){qManual=q;qHoldUntil=performance.now()+8000;}
   caption(['Картошка: физика ×2, эффекты 40%.','Баланс: физика ×3, эффекты 75%.','Максимум: физика ×4, все эффекты.'][q]);
 }
-document.querySelectorAll('#quals button').forEach(b=>b.onclick=()=>setQ(+b.dataset.q));
+document.querySelectorAll('#quals button').forEach(b=>b.onclick=()=>setQ(+b.dataset.q,true));
 function syncQBtns(){
   $('qGlow').classList.toggle('on',Q.glow);
   $('qSmoke').classList.toggle('on',Q.smoke);
@@ -3856,6 +3857,7 @@ function updateHUD(fps){
 
 /* ================= главный цикл ================= */
 let last=performance.now(),acc=0,hudT=0,frames=0,fpsT=0,fpsV=60,autoT=0;
+let qManual=1,qHoldUntil=0; // ручной выбор качества + передышка от автоснижения
 function loop(t){
   let dt=Math.min(.1,(t-last)/1000);last=t;
   acc+=dt;
@@ -3866,12 +3868,14 @@ function loop(t){
   frames++;fpsT+=dt;
   if(fpsT>.5){fpsV=Math.round(frames/fpsT);frames=0;fpsT=0;}
   hudT+=dt;if(hudT>.1){hudT=0;updateHUD(fpsV);}
-  // авто-качество: при просадке ниже 27 fps за 2 сек — шаг вниз
+  // авто-качество: ручной выбор держится 8 сек; вниз — при просадке, вверх — к выбранному при хорошем fps
   if(Q.auto){
     autoT+=dt;
     if(autoT>2){
       autoT=0;
-      if(fpsV<27&&Q.q>0){setQ(Q.q-1);if(Q.fx>.4){Q.fx=Math.max(.2,Q.fx-.2);syncFx();}}
+      if(performance.now()<qHoldUntil){}
+      else if(fpsV<27&&Q.q>0){setQ(Q.q-1);if(Q.fx>.4){Q.fx=Math.max(.2,Q.fx-.2);syncFx();}}
+      else if(fpsV>45&&Q.q<qManual){setQ(Q.q+1);}
     }
   }else autoT=0;
   requestAnimationFrame(loop);
