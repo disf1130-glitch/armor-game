@@ -427,6 +427,7 @@ const Tv=new Float32Array(MAXP); // визуальный жар: остывае�
 const str=new Float32Array(MAXP),strD=new Float32Array(MAXP);
 const pm=new Uint8Array(MAXP),flg=new Uint8Array(MAXP),awake=new Uint8Array(MAXP),deg=new Uint8Array(MAXP),shade=new Uint8Array(MAXP);
 const pAng=new Float32Array(MAXP),pSpin=new Float32Array(MAXP); // угол и угловая скорость осколка (кувыркание)
+const freeList=new Int32Array(MAXP),pCol=new Uint32Array(MAXP);let freeN=0; // свободные частицы для векторной отрисовки
 const home=new Int32Array(MAXP).fill(-1),fuse=new Int16Array(MAXP);
 const fix=new Uint8Array(MAXP),vis=new Uint8Array(MAXP),lst=new Int32Array(MAXP);
 let supMode=1;
@@ -1842,6 +1843,7 @@ function detonateAt(x,y,power){
         vy[j]+=dy/d*dv+turb*dx/d-(Math.random()*.9)*f;
         // топливо даёт больше огня, меньше осколков
         T[j]+=(mj===M.FUEL?.8:.35)*f*power;
+        kickSpin(j,(Math.random()-.5)*9*f); // взрыв закручивает осколки
         let hv=Tv[j]+3.5*f*power;if(hv>40)hv=40;Tv[j]=hv;
         if(d<R*.35){
           // воронка: рвём 3-4 связи, блок крошится и разлетается
@@ -2604,6 +2606,7 @@ function glowAdd(buf,w,sx,sy,x,y,r,g,b){
 }
 function drawParticles(){
   const v=view,pInv=1/pScale;
+  freeN=0;
   for(let i=0;i<nP;i++){
     if(!(flg[i]&ALIVE))continue;
     const x=px[i],y=py[i];
@@ -2640,7 +2643,9 @@ function drawParticles(){
     const c=0xFF000000|((b|0)<<16)|((g|0)<<8)|(r|0);
     let o=iy*WW+ix;
     const shm=Q.shape===2?(deg[i]>0?0:2):Q.shape; // 0 квадрат, 1 круг, 2 кувыркающийся осколок
-    if(shm===1){ // круг: плюс 3x3 + мягкий ореол по углам (бленд) — гладко, не сливается
+    if(shm>0&&deg[i]===0&&freeN<8000){ // свободные — гладкие векторные круги/эллипсы на канвасе
+      freeList[freeN++]=i;pCol[i]=c;
+    }else if(shm===1){ // круг: плюс 3x3 + мягкий ореол по углам (бленд) — гладко, не сливается
       buf32[o+1]=c;buf32[o+WW]=c;buf32[o+WW+1]=c;buf32[o+WW+2]=c;buf32[o+2*WW+1]=c;
       const hr=r*.38,hg=g*.38,hb=b*.38;
       let d0=buf32[o];
@@ -2734,6 +2739,23 @@ function drawSmoke(){
   }
   octx.globalAlpha=1;
 }
+/* свободные частицы — настоящие гладкие круги/эллипсы поверх буфера */
+function drawFree(){
+  if(!freeN)return;
+  ctx.save();
+  ctx.setTransform(effS,0,0,effS,effX,effY);
+  const round=Q.shape===1;
+  for(let k=0;k<freeN;k++){
+    const i=freeList[k],c=pCol[i];
+    ctx.fillStyle='rgb('+(c&255)+','+((c>>8)&255)+','+((c>>16)&255)+')';
+    ctx.beginPath();
+    if(round)ctx.arc(px[i],py[i],1.7,0,7);
+    else ctx.ellipse(px[i],py[i],2.0,1.3,pAng[i],0,7);
+    ctx.fill();
+  }
+  ctx.restore();
+  freeN=0;
+}
 function render(){
   buf32.set(bg32);
   if(Q.glow){g1u.fill(0xFF000000);g2u.fill(0xFF000000);}
@@ -2749,6 +2771,7 @@ function render(){
   camUpdate();
   const W=WW*effS,H=WH*effS;
   ctx.drawImage(off,effX,effY,W,H);
+  drawFree();
   if(Q.glow){
     ctx.globalCompositeOperation='lighter';
     ctx.globalAlpha=Q.q===2?.42:.35;ctx.drawImage(g1c,effX,effY,W,H);
