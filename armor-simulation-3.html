@@ -2645,7 +2645,7 @@ function drawParticles(){
     const shm=Q.shape===2?(deg[i]>0?0:2):Q.shape; // 0 квадрат, 1 круг, 2 кувыркающийся осколок
     if(shm>0&&deg[i]===0&&freeN<8000){ // свободные — гладкие векторные круги/эллипсы на канвасе
       freeList[freeN++]=i;pCol[i]=c;
-    }else if(shm===1){ // всё из кругов: диск 5x5 с перекрытием — плотно и кругло
+    }else if(shm===1){ // всё из кругов: диск 5x5 с перекрытием + мягкий край — плотно и кругло
       if(ix>0&&iy>0&&ix<WW-3&&iy<WH-3){
         const oo=o-WW-1;
         buf32[oo+2]=c;
@@ -2653,6 +2653,11 @@ function drawParticles(){
         buf32[oo+2*WW]=c;buf32[oo+2*WW+1]=c;buf32[oo+2*WW+2]=c;buf32[oo+2*WW+3]=c;buf32[oo+2*WW+4]=c;
         buf32[oo+3*WW+1]=c;buf32[oo+3*WW+2]=c;buf32[oo+3*WW+3]=c;
         buf32[oo+4*WW+2]=c;
+        const hc=0xFF000000|(((b*.5)|0)<<16)|(((g*.5)|0)<<8)|((r*.5)|0);
+        buf32[oo+1]=hc;buf32[oo+3]=hc;
+        buf32[oo+WW]=hc;buf32[oo+WW+4]=hc;
+        buf32[oo+3*WW]=hc;buf32[oo+3*WW+4]=hc;
+        buf32[oo+4*WW+1]=hc;buf32[oo+4*WW+3]=hc;
       }else{
         buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
         buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
@@ -2769,7 +2774,7 @@ function render(){
   drawWaves();
   if(Q.glow){g1x.putImageData(g1i,0,0);g2x.putImageData(g2i,0,0);}
   ctx.fillStyle='#030508';ctx.fillRect(0,0,cw,ch);
-  ctx.imageSmoothingEnabled=Q.q===1;ctx.imageSmoothingQuality=Q.q===0?'low':'high';
+  ctx.imageSmoothingEnabled=(Q.q===1||Q.shape!==0);ctx.imageSmoothingQuality=Q.q===0?'low':'high';
   camUpdate();
   const W=WW*effS,H=WH*effS;
   ctx.drawImage(off,effX,effY,W,H);
