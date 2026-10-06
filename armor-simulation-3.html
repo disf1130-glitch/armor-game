@@ -78,7 +78,7 @@
     background:#000;max-width:100%}
   #edpal,#bedpal{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;max-width:560px}
   #edpal button,#bedpal button{display:flex;align-items:center;gap:6px;padding:4px 6px;font-size:11.5px}
-  #edpal i,#bedpal i{width:12px;height:12px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+  #edpal i,#bedpal i,#edpal canvas.mprev,#bedpal canvas.mprev{width:12px;height:12px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
   #wslist{display:flex;flex-direction:column;gap:6px;max-width:560px;max-height:44vh;overflow-y:auto}
   #mp input{text-transform:uppercase}
   #mpname{text-transform:none}
@@ -830,13 +830,13 @@ const SCENES={
     rectC(124,156,3,20,M.RUB);rectC(264,156,3,20,M.RUB);
     rectC(132,150,128,5,M.STEEL);
     rectC(126,134,8,22,M.STEEL);
-    rotRect(148,132,42,5,-1.0,M.STEEL);
-    rotRect(150,128,38,4,-1.0,M.HHA);
+    rotRect(148,132,42,8,-1.0,M.STEEL);
+    rotRect(150,128,38,7,-1.0,M.HHA);
     rotRect(248,134,36,5,0.9,M.STEEL);
     rectC(140,114,46,3,M.STEEL);rectC(200,114,56,3,M.STEEL);
-    for(let r=0;r<10;r++){const w=Math.round(40-r*0.8),x0=193-(w>>1);for(let x=0;x<w;x++)putCell(x0+x,92+r,M.HHA);}
-    for(let r=0;r<12;r++){const w=Math.round(32+r*0.5),x0=193-(w>>1);for(let x=0;x<w;x++)putCell(x0+x,102+r,M.STEEL);}
-    rectC(180,90,28,2,M.STEEL);
+    for(let r=0;r<14;r++){const w=Math.round(40-r*0.8),x0=193-(w>>1);for(let x=0;x<w;x++)putCell(x0+x,92+r,M.HHA);}
+    for(let r=0;r<16;r++){const w=Math.round(32+r*0.5),x0=193-(w>>1);for(let x=0;x<w;x++)putCell(x0+x,102+r,M.STEEL);}
+    rectC(180,88,28,4,M.STEEL);
     for(let y=94;y<110;y++)for(let x=186;x<204;x++){const o=occ[y*LX+x];if(o>=0)kill(o);}
     rectC(128,97,52,4,M.STEEL);rectC(128,96,7,6,M.HHA);
     boxShell(176,94,10,12,M.HHA,M.STEEL,2);
@@ -911,12 +911,12 @@ const SCENES={
     rectC(126,152,138,5,M.HHA);
     rectC(122,136,10,20,M.HHA);
     rotRect(146,133,42,7,-0.65,M.HHA);
-    rotRect(146,141,38,5,-0.65,M.U);
+    rotRect(146,141,38,5,-0.65,M.W);
     rectC(258,110,8,46,M.HHA);
     rectC(132,110,58,4,M.STEEL);rectC(206,110,58,4,M.STEEL);
     for(let r=0;r<26;r++){
       const w=Math.round(54-r*0.6),x0=198-(w>>1);
-      for(let x=0;x<w;x++)putCell(x0+x,84+r,r<10?M.U:M.HHA);
+      for(let x=0;x<w;x++)putCell(x0+x,84+r,r<10?M.W:M.HHA);
     }
     rectC(70,97,118,4,M.STEEL);
     rectC(120,95,22,8,M.STEEL);rectC(70,96,8,6,M.U);
@@ -1043,12 +1043,12 @@ const SCENES={
     rectC(126,152,128,5,M.HHA);
     rectC(122,136,10,20,M.HHA);
     rotRect(146,133,44,8,-0.6,M.HHA);
-    rotRect(146,141,40,5,-0.6,M.U);
+    rotRect(146,141,40,5,-0.6,M.W);
     rectC(250,108,8,48,M.HHA);
     rectC(132,110,56,4,M.STEEL);rectC(200,110,50,4,M.STEEL);
     for(let r=0;r<24;r++){
       const w=Math.round(56-r*0.7),x0=200-(w>>1);
-      for(let x=0;x<w;x++)putCell(x0+x,84+r,r<9?M.U:M.HHA);
+      for(let x=0;x<w;x++)putCell(x0+x,84+r,r<9?M.W:M.HHA);
     }
     rectC(80,97,110,4,M.STEEL);
     rectC(130,95,20,8,M.STEEL);rectC(80,96,8,6,M.U);
@@ -1438,19 +1438,19 @@ const SCENES={
     boxShell(236,150,24,6,M.STEEL,M.FUEL,2);
     boxShell(234,118,22,28,M.TI,M.ALU,3);
     rectC(237,122,4,20,M.STEEL);rectC(244,122,4,20,M.STEEL);
-    // БАШНЯ-САРАЙ — толстая броня 7 блоков
-    rectC(168,146,64,4,M.HHA);
-    rectC(168,106,7,40,M.HHA);
-    rectC(225,106,7,40,M.HHA);
-    rectC(168,99,64,7,M.HHA);
-    rectC(182,97,8,2,M.STEEL);rectC(206,97,8,2,M.STEEL);
+    // БАШНЯ-САРАЙ — толстая броня 10 блоков
+    rectC(168,146,64,6,M.HHA);
+    rectC(168,106,10,40,M.HHA);
+    rectC(222,106,10,40,M.HHA);
+    rectC(168,96,64,9,M.HHA);
+    rectC(182,94,8,2,M.STEEL);rectC(206,94,8,2,M.STEEL);
     // 152 мм гаубица
     rectC(70,124,100,6,M.STEEL);
     rectC(62,122,10,10,M.HHA);
     boxShell(168,120,16,12,M.HHA,M.STEEL,2);
     rectC(184,126,30,4,M.STEEL);
     // БК в башне
-    for(let x=176;x<=200;x+=4){putCell(x,110,M.BRASS);putCell(x,111,M.EXP);putCell(x,138,M.BRASS);putCell(x,139,M.EXP);}
+    for(let x=180;x<=200;x+=4){putCell(x,110,M.BRASS);putCell(x,111,M.EXP);putCell(x,138,M.BRASS);putCell(x,139,M.EXP);}
     boxShell(204,108,20,32,M.BRASS,M.EXP,2);
     // экипаж
     rectC(176,130,7,12,M.OAK);rectC(218,130,7,12,M.OAK);
@@ -2099,8 +2099,9 @@ function bendBlast(j,dx,dy,d,f){
 }
 let flash=0; // вспышка экрана от взрывов, гаснет сама
 function detonate(i){
-  const m=pm[i];
-  detonateAt(px[i],py[i],blastPower(m));
+  const m=pm[i],pw=blastPower(m);
+  detonateAt(px[i],py[i],pw);
+  flash=Math.min(1,flash+Math.max(.3,pw*0.12)); // малый заряд тоже даёт видимую вспышку
   if(m===M.U)flash=1; // уран — яркая вспышка
   shrapnel(i);
 }
@@ -2182,8 +2183,8 @@ function detonateAt(x,y,power){
   // трещины веером от эпицентра + вмятина (масштаб от мощности)
   crackBurst(x,y,(Math.random()-.5),-1,(.9+Math.random()*.6)*Math.min(3,power));
   dentBurst(x,y,0,-1,1.2*Math.min(3,power));
-  // вспышка: яркое ядро + огонь по радиусу
-  const nF=Math.min(30,Math.round(6*power));
+  // вспышка: яркое ядро + огонь по радиусу (малый заряд — компактный разрыв минимум 10 языков)
+  const nF=Math.min(30,Math.max(power<1.5?10:0,Math.round(6*power)));
   for(let g=0;g<nF;g++){
     const ang=Math.random()*6.283,sp=(.8+Math.random()*3.2)*Math.min(2.5,power);
     gas(x+(Math.random()-.5)*6*power,y+(Math.random()-.5)*6*power,Math.cos(ang)*sp,Math.sin(ang)*sp,24+Math.random()*26,3.5+Math.random()*3.5,0);
@@ -2419,24 +2420,6 @@ function pair(a,b,dt,stat){
     qx[a]-=tx*f*wa/w;qy[a]-=ty*f*wa/w;qx[b]+=tx*f*wb/w;qy[b]+=ty*f*wb/w;
   }
   const pI=ov/w*.6;pres[a]+=pI;pres[b]+=pI;
-  // слипание: медленные свободные осколки сливаются в круг покрупнее (снаряды не трогаем)
-  if(deg[a]===0&&deg[b]===0&&!((flg[a]|flg[b])&PROJ)&&!pin[a]&&!pin[b]&&rn<1.5&&rn>-0.5&&tl<2){
-    const ra=pRad[a],rb=pRad[b];
-    if(ra+rb<16&&d<(ra+rb)*0.55){
-      const w1=ra*ra,w2=rb*rb,ws=w1+w2;
-      const keep=w1>=w2?a:b,drop=w1>=w2?b:a;
-      px[keep]=(px[keep]*w1+px[drop]*w2)/ws;py[keep]=(py[keep]*w1+py[drop]*w2)/ws;
-      vx[keep]=(vx[keep]*w1+vx[drop]*w2)/ws;vy[keep]=(vy[keep]*w1+vy[drop]*w2)/ws;
-      qx[keep]=px[keep];qy[keep]=py[keep];
-      pRad[keep]=Math.sqrt(ws);pAng[keep]+=pSpin[drop]*0.1;
-      pSpin[keep]+=pSpin[drop]*0.3;
-      if(T[drop]>T[keep])T[keep]=T[drop];
-      if(Tv[drop]>Tv[keep])Tv[keep]=Tv[drop];
-      kill(drop);
-      wake(keep);
-      return;
-    }
-  }
   if(rn>1){
     const e=.5*rn*rn/w*.0125;
     hitE+=e;
@@ -2720,7 +2703,7 @@ function postFrame(n){
     if(!(flg[i]&ALIVE))continue;
     let t=T[i];
     if(t>.002){
-      t*=.985;if(t>3)t=3;T[i]=t;if(t>mT)mT=t;
+      t*=.993;if(t>3)t=3;T[i]=t;if(t>mT)mT=t;
       const m=pm[i];
       if(deg[i]>0&&t>MELT[m]&&Math.random()<.4){
         const base=i*SL;for(let s=0;s<SL;s++){const k=pb[base+s];if(k>=0)breakBond(k,false);}
@@ -3087,15 +3070,15 @@ function drawFree(){
   ctx.setTransform(effS,0,0,effS,effX,effY);
   if(Q.shape===1){
     for(let k=0;k<freeN;k++){
-      const i=freeList[k],c=pCol[i],sz=pRad[i]*2;
-      ctx.drawImage(circSprite(c&255,(c>>8)&255,(c>>16)&255),px[i]-sz/2,py[i]-sz/2,sz,sz);
+      const i=freeList[k],c=pCol[i];
+      ctx.drawImage(circSprite(c&255,(c>>8)&255,(c>>16)&255),px[i]-2.6,py[i]-2.6,5.2,5.2);
     }
   }else{
     for(let k=0;k<freeN;k++){
-      const i=freeList[k],c=pCol[i],ks=pRad[i]/2.6;
+      const i=freeList[k],c=pCol[i];
       ctx.fillStyle='rgb('+(c&255)+','+((c>>8)&255)+','+((c>>16)&255)+')';
       ctx.beginPath();
-      ctx.ellipse(px[i],py[i],2.3*ks,1.6*ks,pAng[i],0,7);
+      ctx.ellipse(px[i],py[i],2.3,1.6,pAng[i],0,7);
       ctx.fill();
     }
   }
@@ -3692,11 +3675,20 @@ edc.addEventListener('pointermove',e=>{if(!edDown)return;const c=edCell(e);if(c<
 edc.addEventListener('pointerup',e=>{if(edPlate&&edAnchor>=0){const c=edCell(e);if(c>=0)edFillRect(edAnchor,c);edAnchor=-1;edDraw();}edDown=false;});
 edc.addEventListener('pointercancel',()=>{edDown=false;edAnchor=-1;});
 $('edplate').onclick=e=>{edPlate=!edPlate;e.target.classList.toggle('on',edPlate);};
+/* миниатюра материала: базовый цвет + зерно, как в игре */
+function paintMatPrev(cv,m){
+  const x=cv.getContext('2d'),c=MAT[m].c;
+  x.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';x.fillRect(0,0,12,12);
+  for(let k=0;k<16;k++){
+    x.fillStyle=Math.random()<.5?'rgba(0,0,0,.28)':'rgba(255,255,255,.24)';
+    x.fillRect((Math.random()*12)|0,(Math.random()*12)|0,1,1);
+  }
+}
 (function buildEdPal(){
   const pal=$('edpal');
   for(const m of PAINT_MATS){
     const b=document.createElement('button');b.dataset.m=m;
-    b.innerHTML='<i style="background:rgb('+MAT[m].c.join(',')+')"></i>'+MAT[m].n;
+    const mc=document.createElement('canvas');mc.width=mc.height=12;mc.className='mprev';paintMatPrev(mc,m);b.appendChild(mc);b.appendChild(document.createTextNode(MAT[m].n));
     if(m===edMat)b.classList.add('on');
     b.onclick=()=>{edMat=m;document.querySelectorAll('#edpal button').forEach(x=>x.classList.toggle('on',x===b));};
     pal.appendChild(b);
@@ -3900,7 +3892,7 @@ $('bedplate').onclick=e=>{bedPlate=!bedPlate;e.target.classList.toggle('on',bedP
   const pal=$('bedpal');if(!pal)return;
   for(const m of PAINT_MATS){
     const b=document.createElement('button');b.dataset.m=m;
-    b.innerHTML='<i style="background:rgb('+MAT[m].c.join(',')+')"></i>'+MAT[m].n;
+    const mc=document.createElement('canvas');mc.width=mc.height=12;mc.className='mprev';paintMatPrev(mc,m);b.appendChild(mc);b.appendChild(document.createTextNode(MAT[m].n));
     if(m===bedMat)b.classList.add('on');
     b.onclick=()=>{bedMat=m;document.querySelectorAll('#bedpal button').forEach(x=>x.classList.toggle('on',x===b));};
     pal.appendChild(b);
