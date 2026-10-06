@@ -42,6 +42,11 @@
   .list button small{color:var(--dim);font-size:10.5px}
   .row{display:flex;gap:4px;flex-wrap:wrap}
   .row button{flex:1;white-space:nowrap}
+  .tabs{display:flex;gap:4px;margin:8px 0 2px}
+  .tabs button{flex:1;letter-spacing:1.5px;font-weight:700;font-size:12px;padding:7px 4px}
+  .tabpage{display:none}
+  .tabpage.on{display:block}
+  .tabpage>h3:first-child{margin-top:8px}
   .sw{display:grid;grid-template-columns:1fr 1fr;gap:4px}
   .sw button{display:flex;align-items:center;gap:6px;padding:4px 6px}
   .sw i{width:12px;height:12px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
@@ -93,12 +98,21 @@
 <div id="panel">
   <button id="hide" title="Скрыть панель">✕</button>
   <div class="brand">ARMOR SIMULATION<small>УДАР, А НЕ АНИМАЦИЯ</small></div>
-
+  <div class="tabs">
+    <button id="tabB-targets" class="on">ЦЕЛИ</button>
+    <button id="tabB-shells">СНАРЯДЫ</button>
+    <button id="tabB-setup">НАСТРОЙКА</button>
+  </div>
+<div class="tabpage on" id="tab-targets">
   <h3>Цель</h3>
   <div class="grid2" id="scenes"></div>
-
+  <h3>Сцена</h3>
+  <div class="row"><button id="reset">↺ Сброс</button><button id="clear">Очистить</button></div>
+  <div class="row" style="margin-top:4px"><button id="save">Save</button><button id="load">Load</button></div>
+</div>
+<div class="tabpage" id="tab-shells">
   <h3>Снаряд</h3>
-  <input id="projsearch" placeholder="🔍 Поиск…" maxlength="30" style="width:100%;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
+  <input id="projsearch" placeholder="Поиск…" maxlength="30" style="width:100%;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
   <div class="list" id="projs"></div>
   <label>Скорость <b id="spdv"></b></label>
   <input type="range" id="spd" min="50" max="33462" step="50" value="2500">
@@ -108,9 +122,11 @@
   </div>
   <div class="row" style="margin-top:4px"><button data-spd="800">800</button><button data-spd="2500">2500</button><button data-spd="8000">8000</button><button data-spd="15000">15k</button><button data-spd="33462">33k</button></div>
   <div class="row" style="margin-top:4px"><button id="edopen">✎ Редактор снаряда</button></div>
-  <div class="row" style="margin-top:4px"><button id="bedopen">▦ Редактор блоков</button><button id="wsopen">🛠 Воркшоп</button></div>
-  <div class="row" style="margin-top:4px"><button id="mpopen">👥 Мультиплеер</button></div>
+  <div class="row" style="margin-top:4px"><button id="bedopen">▦ Редактор блоков</button><button id="wsopen">Воркшоп</button></div>
+  <div class="row" style="margin-top:4px"><button id="mpopen">Мультиплеер</button></div>
 
+</div>
+<div class="tabpage" id="tab-setup">
   <h3>Вид</h3>
   <div class="grid2" id="views"></div>
 
@@ -119,21 +135,19 @@
 
   <h3>Время</h3>
   <div class="row" id="times"></div>
-  <div class="row" style="margin-top:4px"><button id="pause">⏸ пауза</button><button id="snd">🔊</button></div>
+  <div class="row" style="margin-top:4px"><button id="pause">⏸ пауза</button><button id="snd" class="on">Звук</button></div>
 
   <h3>Настройки</h3>
-  <div class="row" id="quals"><button data-q="0" title="Минимум физики и эффектов">🥔 Низк.</button><button data-q="1" class="on" title="Баланс">Сред.</button><button data-q="2" title="Максимум качества">Высок.</button></div>
-  <div class="row" style="margin-top:4px"><button id="qGlow" class="on" title="Свечение bloom">✨ Свечение</button><button id="qSmoke" class="on" title="Дым и пыль">💨 Дым</button></div>
-  <div class="row" style="margin-top:4px"><button id="qSpark" class="on" title="Искры">⚡ Искры</button><button id="qFire" class="on" title="Огонь">🔥 Огонь</button></div>
-  <div class="row" style="margin-top:4px"><button id="qAuto" class="on" title="Само снижает качество при лагах">🤖 Авто</button></div>
+  <div class="row" id="quals"><button data-q="0" title="Минимум физики и эффектов">Низк.</button><button data-q="1" class="on" title="Баланс">Сред.</button><button data-q="2" title="Максимум качества">Высок.</button></div>
+  <div class="row" style="margin-top:4px"><button id="qGlow" class="on" title="Свечение bloom">Свечение</button><button id="qSmoke" class="on" title="Дым и пыль">Дым</button></div>
+  <div class="row" style="margin-top:4px"><button id="qSpark" class="on" title="Искры">Искры</button><button id="qFire" class="on" title="Огонь">Огонь</button></div>
+  <div class="row" style="margin-top:4px"><button id="qAuto" class="on" title="Само снижает качество при лагах">Авто</button></div>
   <label>Эффекты <b id="fxv"></b></label>
   <input type="range" id="fxr" min="20" max="100" step="5" value="75">
 
   <h3>Опора</h3>
   <div class="row"><button id="smE" class="on" title="Низ на земле, верх закреплён. Отлетают только обломки">По краям</button><button id="smG" title="Держится только то, что связано с землёй">Земля</button></div>
-  <h3>Сцена</h3>
-  <div class="row"><button id="reset">↺ Сброс</button><button id="clear">Очистить</button></div>
-  <div class="row" style="margin-top:4px"><button id="save">💾 Save</button><button id="load">📂 Load</button></div>
+</div>
 </div>
 <button id="tog" title="Показать панель">☰</button>
 
@@ -153,7 +167,7 @@
     <button data-edscale="2" title="40×20">×2</button>
     <button data-edscale="3" title="60×30">×3</button>
     <button data-edscale="4" title="80×40">×4</button>
-    <label style="margin:0 0 0 auto"><input id="edpin" type="checkbox" checked style="accent-color:var(--acc)"> 📌 в воздухе</label>
+    <label style="margin:0 0 0 auto"><input id="edpin" type="checkbox" checked style="accent-color:var(--acc)"> в воздухе</label>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <label style="margin:0">Кисть</label>
@@ -165,7 +179,7 @@
   <canvas id="edc"></canvas>
   <div id="edpal"></div>
   <div class="row"><button id="edmirror">MIRROR</button><button id="edoutline" title="Обвести контур текущим материалом">OUTLINE</button><button id="edplate" title="Тяни прямоугольник — зальёт материалом">▦ PLATE</button><button id="edclear">CLEAR</button></div>
-  <div class="row" style="margin-top:4px"><button id="edfire">ADD TO FIRE →</button><button id="edws" title="Выложить снаряд в воркшоп">⬆ ВОРКШОП</button></div>
+  <div class="row" style="margin-top:4px"><button id="edfire">ADD TO FIRE →</button><button id="edws" title="Выложить снаряд в воркшоп">ВОРКШОП</button></div>
   <div class="row" style="margin-top:4px"><button id="edmap" title="Поставить рисунок на карту как броню (в центр камеры)">⌖ НА КАРТУ</button></div>
 </div>
 
@@ -186,7 +200,7 @@
     <button data-bedscale="3" title="66×39">×3</button>
     <button data-bedscale="4" title="88×52">×4</button>
     <button data-bedscale="5" title="110×65">×5</button>
-    <label style="margin:0 0 0 auto"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> 📌 в воздухе</label>
+    <label style="margin:0 0 0 auto"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> в воздухе</label>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <label style="margin:0">Кисть</label>
@@ -207,7 +221,7 @@
   <canvas id="bedc"></canvas>
   <div id="bedpal"></div>
   <div class="row"><button id="bedmirror">MIRROR</button><button id="bedoutline" title="Обвести контур текущим материалом">OUTLINE</button><button id="bedplate" title="Тяни прямоугольник — зальёт материалом">▦ PLATE</button><button id="bedclear">CLEAR</button></div>
-  <div class="row" style="margin-top:4px"><button id="bedmap" title="Поставить постройку на карту в центр камеры">⌖ НА КАРТУ</button><button id="bedws" title="Выложить постройку в воркшоп">⬆ ВОРКШОП</button></div>
+  <div class="row" style="margin-top:4px"><button id="bedmap" title="Поставить постройку на карту в центр камеры">⌖ НА КАРТУ</button><button id="bedws" title="Выложить постройку в воркшоп">ВОРКШОП</button></div>
 </div>
 
 <div id="mp">
@@ -226,7 +240,7 @@
     <div class="row" style="margin-bottom:6px;align-items:center">
       <label style="margin:0">Комната</label>
       <b id="mpcodeview" style="color:var(--acc2);letter-spacing:3px;font-size:16px"></b>
-      <button id="mpcopy" title="Скопировать код" style="margin-left:auto">📋</button>
+      <button id="mpcopy" title="Скопировать код" style="margin-left:auto">Копия</button>
       <button id="mpleave" title="Выйти">✕</button>
     </div>
     <div id="mplayers" style="color:var(--dim);font-size:12px;margin-bottom:4px"></div>
@@ -239,14 +253,14 @@
   <div class="row" style="margin-bottom:6px">
     <button id="wstab-proj" class="on">Снаряды</button>
     <button id="wstab-build" class="">Постройки</button>
-    <button id="wstab-down" class="">⬇ Скачанные</button>
+    <button id="wstab-down" class="">Скачанные</button>
     <button id="wsrefresh" title="Обновить список">↻</button>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <input id="wsname" placeholder="Название…" maxlength="40" style="flex:2;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
     <input id="wsauthor" placeholder="Автор…" maxlength="20" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
   </div>
-  <div class="row" style="margin-bottom:8px"><button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">⬆ ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button></div>
+  <div class="row" style="margin-bottom:8px"><button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button></div>
   <div id="wslist"></div>
 </div>
 
@@ -1023,7 +1037,7 @@ const SCENES={
       if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(260,142,10,2,M.STEEL);
   }},
-  btr82:{n:'БТР-82 в разрезе ★',f(){
+  btr82:{n:'БТР-82 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
         if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.RUB);
@@ -1190,7 +1204,7 @@ const SCENES={
     boxShell(183,112,30,12,M.BRASS,M.C4,2);
     rectC(140,142,116,4,M.OAK);
   }},
-  monolit:{n:'Монолит 🛡',f(){
+  monolit:{n:'Монолит',f(){
     // почти непробиваемый: сталь + HHA + уран + керамика + карбид + HHA + бетон
     rectC(160,44,6,90,M.STEEL);
     rectC(166,44,5,90,M.HHA);
@@ -1210,7 +1224,7 @@ const SCENES={
     rectC(139,48,3,86,M.STEEL);
     rectC(150,136,48,4,M.CONC);
   }},
-  usphere:{n:'Сфера Уран ☢',f(){
+  usphere:{n:'Сфера Уран',f(){
     // круг: корка HHA, кольцо урана, внутри взрывчатка + ядро C4 — рвёт в две стадии
     const cx=210,cy=98,R=26;
     for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++){
@@ -1229,7 +1243,7 @@ const SCENES={
     rectC(204,128,12,22,M.CONC);
     rectC(198,150,24,4,M.CONC);
   }},
-  bldg:{n:'Пятиэтажка 🏢',f(){
+  bldg:{n:'Пятиэтажка',f(){
     // фундамент и подвал с бойлерной
     rectC(116,168,158,5,M.CONC);
     rectC(116,158,6,10,M.CONC);rectC(268,158,6,10,M.CONC);
@@ -1282,7 +1296,7 @@ const SCENES={
     rectC(150,92,90,10,M.HHA);
     boxShell(176,110,16,14,M.BRASS,M.EXP,2);
   }},
-  rszo:{n:'РСЗО 🚀',f(){
+  rszo:{n:'РСЗО',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
         if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.RUB);
@@ -1296,7 +1310,7 @@ const SCENES={
     for(let r=0;r<2;r++)for(let t=0;t<6;t++)boxShell(184+t*12,118+r*14,10,12,M.STEEL,M.EXP,2);
     rectC(180,112,76,3,M.HHA);
   }},
-  radar:{n:'РЛС 📡',f(){
+  radar:{n:'РЛС',f(){
     rectC(170,140,80,6,M.CONC);
     rectC(200,100,8,46,M.STEEL);
     rotRect(204,86,44,4,0.5,M.STEEL);
@@ -1304,7 +1318,7 @@ const SCENES={
     boxShell(176,120,20,20,M.STEEL,M.FUEL,2);
     boxShell(216,120,20,20,M.BRASS,M.EXP,2);
   }},
-  fortress:{n:'Крепость 🏰',f(){
+  fortress:{n:'Крепость',f(){
     rectC(110,140,170,6,M.CONC);
     rectC(110,80,16,66,M.CONC);
     rectC(264,80,16,66,M.CONC);
@@ -1316,7 +1330,7 @@ const SCENES={
     boxShell(230,84,20,16,M.BRASS,M.EXP,2);
     rectC(150,96,90,4,M.OAK);
   }},
-  kv2:{n:'КВ-2 💥',f(){
+  kv2:{n:'КВ-2',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
         if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
@@ -1360,7 +1374,7 @@ const SCENES={
     putCell(179,129,M.GLASS);putCell(221,129,M.GLASS);
     rectC(258,106,10,3,M.STEEL);
   }},
-  mi24:{n:'Ми-24 🐊',f(){
+  mi24:{n:'Ми-24',f(){
     // лыжи и стойки
     rectC(140,166,100,3,M.STEEL);
     rectC(160,154,4,12,M.STEEL);rectC(216,154,4,12,M.STEEL);
@@ -1399,7 +1413,7 @@ const SCENES={
     boxShell(190,159,14,7,M.STEEL,M.EXP,1);
   }},
   /* ===== три сверхпрочные цели ===== */
-  uber1:{n:'Бронекуб 🟥',f(){
+  uber1:{n:'Бронекуб',f(){
     /* многослойный куб: HHA / керамика / карбид / вольфрам / уран / ядро */
     const x0=170,y0=40,w=110,h=100;
     rectC(x0,y0,w,h,M.HHA);
@@ -1412,7 +1426,7 @@ const SCENES={
     rectC(x0,y0+(h>>1)-3,w,6,M.HHA);
     rectC(x0+(w>>1)-3,y0,6,h,M.HHA);
   }},
-  uber2:{n:'Сейф 💰',f(){
+  uber2:{n:'Сейф',f(){
     /* двойные стены + пустота + ядро: пробивай как хочешь */
     const X0=150,Y0=30,X1=280,Y1=150;
     rectC(X0,Y0,X1-X0,10,M.HHA);
@@ -1433,7 +1447,7 @@ const SCENES={
     rectC(X0+30,Y0+90,X1-X0-60,3,M.STEEL);
     for(let i=0;i<5;i++)putCell(X0+34+i*7,Y0+86,M.BRASS);
   }},
-  uber3:{n:'Монолит 🗿',f(){
+  uber3:{n:'Монолит',f(){
     /* сферический многослойный щит перед боеукладкой */
     const cx=205,cy=90;
     const lay=[[54,M.HHA],[44,M.CER],[36,M.SIC],[26,M.W],[16,M.U]];
@@ -1452,7 +1466,7 @@ const SCENES={
     /* боеукладка позади */
     boxShell(268,60,44,60,M.HHA,M.EXP,3);
   }},
-  chess:{n:'Шахматный щит ♟',f(){
+  chess:{n:'Шахматный щит',f(){
     const X0=150,Y0=36,T=10,W=9,H=10;
     for(let i=0;i<W;i++)for(let j=0;j<H;j++)
       rectC(X0+i*T,Y0+j*T,T,T,(i+j)%2?M.CER:M.HHA);
@@ -1461,7 +1475,7 @@ const SCENES={
     rectC(X0-6,Y0,6,H*T,M.STEEL);
     rectC(X0+W*T,Y0,6,H*T,M.STEEL);
   }},
-  pipe:{n:'Трубопровод 🔧',f(){
+  pipe:{n:'Трубопровод',f(){
     const y0=64,h=52,x0=70,len=180;
     rectC(x0,y0,len,8,M.STEEL);
     rectC(x0,y0+h-8,len,8,M.STEEL);
@@ -1470,7 +1484,7 @@ const SCENES={
     for(let i=0;i<5;i++)boxShell(x0+14+i*34,y0+10,26,h-20,M.STEEL,M.CU,3);
     rectC(x0,y0+h/2-3,len,6,M.W);
   }},
-  honey:{n:'Сотовый щит 🍯',f(){
+  honey:{n:'Сотовый щит',f(){
     const X0=128,Y0=34,T=13;
     for(let i=0;i<7;i++)for(let j=0;j<8;j++){
       const x=X0+i*T*2,y=Y0+j*T+(i%2?T/2:0);
@@ -1479,7 +1493,7 @@ const SCENES={
     rectC(X0-8,Y0-8,7*T*2+16,5,M.HHA);
     rectC(X0-8,Y0+8*T+4,7*T*2+16,5,M.HHA);
   }},
-  dome:{n:'Купол 🛰',f(){
+  dome:{n:'Купол',f(){
     const cx=210,cy=150;
     const lay=[[74,M.CONC],[66,M.CER],[58,M.W],[50,M.HHA],[42,M.SIC]];
     for(const [R,m] of lay)
@@ -1492,7 +1506,7 @@ const SCENES={
     rectC(cx-90,cy,180,6,M.STEEL);
     for(let i=0;i<4;i++)rectC(cx-70+i*44,cy+6,8,20,M.STEEL);
   }},
-  crystal:{n:'Кристалл 💎',f(){
+  crystal:{n:'Кристалл',f(){
     const cx=205,cy=92;
     for(let dy=-64;dy<=64;dy++)for(let dx=-52;dx<=52;dx++){
       const a=Math.abs(dx)/52,b=Math.abs(dy)/64;
@@ -1506,7 +1520,7 @@ const SCENES={
     rectC(cx-6,cy+62,12,26,M.STEEL);
     rectC(cx-26,152,52,5,M.STEEL);
   }},
-  gate:{n:'Ворота 🚪',f(){
+  gate:{n:'Ворота',f(){
     rectC(120,36,12,124,M.CONC);
     rectC(268,36,12,124,M.CONC);
     rectC(120,26,160,10,M.HHA);
@@ -1519,7 +1533,7 @@ const SCENES={
     /* зубцы */
     for(let i=0;i<6;i++)rectC(126+i*26,6,10,14,M.HHA);
   }},
-  reactor:{n:'Реактор ⚛',f(){
+  reactor:{n:'Реактор',f(){
     const cx=210,cy=92;
     boxShell(cx-46,cy-58,92,116,M.CONC,M.STEEL,8);
     boxShell(cx-30,cy-42,60,84,M.HHA,M.CER,5);
@@ -1532,7 +1546,7 @@ const SCENES={
     rectC(cx-54,cy+64,108,8,M.STEEL);
     for(let i=0;i<4;i++)rectC(cx-48+i*30,cy+72,10,14,M.STEEL);
   }},
-  stack:{n:'Штабель плит 🧱',f(){
+  stack:{n:'Штабель плит',f(){
     const good=[M.HHA,M.CER,M.W,M.SIC,M.STEEL,M.ALU,M.U];
     let y=34;
     for(let i=0;i<5;i++){
@@ -1544,7 +1558,7 @@ const SCENES={
     }
     rectC(130,y+2,170,6,M.CONC);
   }},
-  barrels:{n:'Бочки 💥',f(){
+  barrels:{n:'Бочки',f(){
     rectC(90,150,150,6,M.STEEL);
     for(let i=0;i<6;i++){
       const x=96+i*24;
@@ -1555,7 +1569,7 @@ const SCENES={
     rectC(246,64,40,84,M.STEEL);
     for(let i=0;i<3;i++)rectC(250,70+i*28,32,20,M.EXP);
   }},
-  maze:{n:'Лабиринт 🌀',f(){
+  maze:{n:'Лабиринт',f(){
     const X0=120,Y0=30,W=170,H=140,t=6;
     rectC(X0,Y0,W,t,M.CONC);
     rectC(X0,Y0+H-t,W,t,M.CONC);
@@ -1580,18 +1594,18 @@ const PCH={S:M.STEEL,B:M.BRASS,W:M.W,E:M.EXP,C:M.CU,L:M.LEAD,T:M.TI,
 const CH2MAT=PCH, MAT2CH={};
 for(const ch in PCH)MAT2CH[PCH[ch]]=ch;
 const PROJ_DEF=[
- {id:'goroh',n:'Горох 🌱',info:'слабый',spd:700,type:'kin',shape:['.OO.','OOOO','.OO.']},
- {id:'hlope',n:'Хлопушка 🎉',info:'слабая',spd:1000,type:'he',shape:['.SS.','SEES','.SS.']},
- {id:'strela',n:'Стрела 🎯',info:'латунь · не взрыв',spd:2200,type:'kin',shape:['....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSS','...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSS','..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSS','.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSS','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSSS','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSSS','.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSS','..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSS','...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSS','....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSS']},
+ {id:'goroh',n:'Горох',info:'слабый',spd:700,type:'kin',shape:['.OO.','OOOO','.OO.']},
+ {id:'hlope',n:'Хлопушка',info:'слабая',spd:1000,type:'he',shape:['.SS.','SEES','.SS.']},
+ {id:'strela',n:'Стрела',info:'латунь · не взрыв',spd:2200,type:'kin',shape:['....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSS','...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSS','..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSS','.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSS','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSSS','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSSS','.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSSS','..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSSS','...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSSS','....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSSS']},
  {id:'bolvanka',n:'Болванка',info:'сталь · не взрыв',spd:2600,type:'kin',shape:['....SSS....','..SSSSSSS..','SSSSSSSSSSS','..SSSSSSS..','....SSS....']},
  {id:'dart',n:'Подкалиберный',info:'вольфрам',spd:3600,type:'kin',shape:['WWWWWWWWWWWWWWWW..','SWWWWWWWWWWWWWWWWW','WWWWWWWWWWWWWWWW..']},
  {id:'he',n:'Фугас',info:'взрыв',spd:1700,type:'he',shape:['.SSSSSSSS..','SEEEEEEEES.','SEEEEEEEESS','SEEEEEEEES.','.SSSSSSSS..']},
- {id:'kinzhal',n:'Кинжал 🗡',info:'вольфрам · 7000',spd:7000,type:'kin',shape:['WWWWWWWWWWWWWWWWWWWWWWWWWW..','HWWWWWWWWWWWWWWWWWWWWWWWWWWS','WWWWWWWWWWWWWWWWWWWWWWWWWW..']},
- {id:'malysh',n:'Малыш 💥',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
- {id:'tsar2',n:'Царь-бомба ☢',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS.......','....SSSSSSSS.....','...SSNNNNNNSS....','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS....','....SSSSSSSS.....','......SSSS.......']},
- {id:'kopyo',n:'Копьё ⚔️',info:'вольфрам · бронебойное',spd:4200,type:'kin',shape:['....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS','..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSS','....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS']},
- {id:'kumul',n:'Кумулятив 💥',info:'медь · фугас',spd:1900,type:'he',shape:['SSSSSSSSSSSSSSSSSSSSSEEE................','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEEEEEECCCC','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEE................']},
- {id:'svinec',n:'Свинец 🩶',info:'свинец · медленный',spd:900,type:'kin',shape:['....SSSSSSS....','..SSLLLLLLLSS..','.SSLLLLLLLLLSS.','..SSLLLLLLLSS..','....SSSSSSS....']},
+ {id:'kinzhal',n:'Кинжал',info:'вольфрам · 7000',spd:7000,type:'kin',shape:['WWWWWWWWWWWWWWWWWWWWWWWWWW..','HWWWWWWWWWWWWWWWWWWWWWWWWWWS','WWWWWWWWWWWWWWWWWWWWWWWWWW..']},
+ {id:'malysh',n:'Малыш',info:'мини-царь',spd:2800,type:'tsar',blast:3.0,shape:['...SSS...','..SNNNS..','.SNEEENS.','SNEYYYENS','.SNEEENS.','..SNNNS..','...SSS...']},
+ {id:'tsar2',n:'Царь-бомба',info:'мега · 50Мт',spd:2500,type:'tsar',blast:8.0,shape:['......SSSS.......','....SSSSSSSS.....','...SSNNNNNNSS....','..SSNNEEEEENNSS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SNEYYYYYYYENS..','..SSNNEEEEENNSS..','...SSNNNNNNSS....','....SSSSSSSS.....','......SSSS.......']},
+ {id:'kopyo',n:'Копьё',info:'вольфрам · бронебойное',spd:4200,type:'kin',shape:['....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS','..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSS','....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS']},
+ {id:'kumul',n:'Кумулятив',info:'медь · фугас',spd:1900,type:'he',shape:['SSSSSSSSSSSSSSSSSSSSSEEE................','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEEEEEECCCC','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEE................']},
+ {id:'svinec',n:'Свинец',info:'свинец · медленный',spd:900,type:'kin',shape:['....SSSSSSS....','..SSLLLLLLLSS..','.SSLLLLLLLLLSS.','..SSLLLLLLLSS..','....SSSSSSS....']},
 ];
 let curProj=6,curSpeed=PROJ_DEF[6].spd;
 const SPD_MAX=33462; /* потолок скорости — итог всё равно зависит от плотности */
@@ -1689,7 +1703,7 @@ function updateProjectiles(){
           for(const i of p.ids)if((flg[i]&ALIVE))fuse[i]=0;
           detonateAt(cx,cy,mult);
           for(const i of p.ids)if((flg[i]&ALIVE)&&isBoom(pm[i])){kill(i);}
-          caption(mult>=7?'ЦАРЬ-БОМБА ☢':'ЦАРЬ 20К 💥');
+          caption(mult>=7?'ЦАРЬ-БОМБА':'ЦАРЬ 20К');
           sndBoom(1);
         }else{
           for(const i of p.ids)if(isBoom(pm[i]))igniteE(i,1+((Math.random()*3)|0));
@@ -1875,7 +1889,7 @@ function detonateAt(x,y,power){
     }
   }
   if(power>=4){
-    caption(power>=7?'ЦАРЬ-БОМБА ☢':'МОЩНЫЙ ВЗРЫВ');
+    caption(power>=7?'ЦАРЬ-БОМБА':'МОЩНЫЙ ВЗРЫВ');
     thump(70,24,.9,.9);noise(1.2,180,.6,1,'lowpass',2);
   }
 }
@@ -2982,7 +2996,7 @@ function setTs(t){
 }
 function togglePause(){paused=!paused;$('pause').textContent=paused?'▶ пуск':'⏸ пауза';$('pause').classList.toggle('on',paused);}
 $('pause').onclick=togglePause;
-$('snd').onclick=e=>{soundOn=!soundOn;e.target.textContent=soundOn?'🔊':'🔇';audioInit();};
+$('snd').onclick=e=>{soundOn=!soundOn;e.target.textContent='Звук';e.target.classList.toggle('on',soundOn);audioInit();};
 $('reset').onclick=()=>loadScene(sceneName);
 $('smE').onclick=$('smG').onclick=e=>{supMode=e.target.id==='smE'?1:0;$('smE').classList.toggle('on',supMode===1);$('smG').classList.toggle('on',supMode===0);recomputeSupport();};
 $('clear').onclick=()=>{resetAll();sceneName='empty';document.querySelectorAll('#scenes button').forEach(b=>b.classList.toggle('on',b.dataset.s==='empty'));};
@@ -3032,6 +3046,10 @@ $('load').onclick=()=>{
 };
 $('hide').onclick=()=>$('panel').classList.add('hide');
 $('tog').onclick=()=>$('panel').classList.remove('hide');
+function setTab(t){['targets','shells','setup'].forEach(k=>{const p=$('tab-'+k),b=$('tabB-'+k);if(p)p.classList.toggle('on',k===t);if(b)b.classList.toggle('on',k===t);});}
+$('tabB-targets').onclick=()=>setTab('targets');
+$('tabB-shells').onclick=()=>setTab('shells');
+$('tabB-setup').onclick=()=>setTab('setup');
 
 /* ================= камера (зум + панорама) ================= */
 const cam={x:WW/2,y:WH/2,z:1};
@@ -3250,9 +3268,9 @@ $('edfire').onclick=()=>{
   const rows=edShapeRows();if(!rows)return;
   let hasBoom=false;
   for(const r of rows)for(const ch of r){const m=CH2MAT[ch];if(m&&isBoom(m)){hasBoom=true;break;}}
-  const def={id:'custom'+Date.now(),n:'Свой ⚙',info:hasBoom?'фугас':'кастом',spd:curSpeed,type:hasBoom?'he':'kin',shape:rows};
+  const def={id:'custom'+Date.now(),n:'Свой',info:hasBoom?'фугас':'кастом',spd:curSpeed,type:hasBoom?'he':'kin',shape:rows};
   PROJ_DEF.push(def);
-  addProjButton(def,PROJ_DEF.length-1,'★');
+  addProjButton(def,PROJ_DEF.length-1,'СВОЙ');
   curProj=PROJ_DEF.length-1;tool='fire';refreshActive();
   $('editor').classList.remove('open');
   caption('Свой снаряд.');
@@ -3270,7 +3288,7 @@ $('edmap').onclick=()=>{
   }
   markAnchors();recomputeSupport();
   $('editor').classList.remove('open');
-  caption('На карте: '+w+'×'+h+(hold?' · в воздухе 📌':'')+'.');
+  caption('На карте: '+w+'×'+h+(hold?' · в воздухе':'')+'.');
 };
 $('edws').onclick=()=>wsPublishFromEditor('proj');
 
@@ -3378,7 +3396,7 @@ function doPlaceBuild(p){
   }
   markAnchors();recomputeSupport();
   tool='fire';refreshActive();
-  caption('Поставлено: '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе 📌':'')+'.');
+  caption('Поставлено: '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе':'')+'.');
   wsAutosaveBuild(b.base);
   if(mp.on){
     /* абсолютные координаты — иначе у друга постройка встанет в углу */
@@ -3520,7 +3538,7 @@ function wsRender(){
     const d=document.createElement('div');d.className='wsitem';
     const top=document.createElement('div');top.className='wstop';
     const n=it.data&&it.data.shape?it.data.shape.length+' рядов':(it.data&&it.data.cells?it.data.cells.length+' бл.':'');
-    top.innerHTML='<b></b><small></small><span class="likes">♥ '+(it.likes||0)+'</span>';
+    top.innerHTML='<b></b><small></small><span class="likes">Лайки: '+(it.likes||0)+'</span>';
     top.querySelector('b').textContent=it.name||'Без названия';
     top.querySelector('small').textContent=(it.author||'anon')+' · '+n;
     d.appendChild(top);
@@ -3537,7 +3555,7 @@ function wsRender(){
       bUse.title=already?'Уже в «Скачанных»':'Скачать в «Скачанные»';
       bUse.onclick=()=>wsDownload(it.id);
     }
-    const bLike=document.createElement('button');bLike.textContent='♥';bLike.title='Лайк';
+    const bLike=document.createElement('button');bLike.textContent='Лайк';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
     if(wsTab==='down'){
