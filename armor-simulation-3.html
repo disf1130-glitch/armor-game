@@ -2643,26 +2643,15 @@ function drawParticles(){
     const c=0xFF000000|((b|0)<<16)|((g|0)<<8)|(r|0);
     let o=iy*WW+ix;
     const shm=Q.shape===2?(deg[i]>0?0:2):Q.shape; // 0 квадрат, 1 круг, 2 кувыркающийся осколок
-    if(shm>0&&deg[i]===0&&freeN<8000){ // свободные — гладкие векторные круги/эллипсы на канвасе
-      freeList[freeN++]=i;pCol[i]=c;
-    }else if(shm===1){ // всё из кругов: диск 5x5 с перекрытием + мягкий край — плотно и кругло
-      if(ix>0&&iy>0&&ix<WW-3&&iy<WH-3){
-        const oo=o-WW-1;
-        buf32[oo+2]=c;
-        buf32[oo+WW+1]=c;buf32[oo+WW+2]=c;buf32[oo+WW+3]=c;
-        buf32[oo+2*WW]=c;buf32[oo+2*WW+1]=c;buf32[oo+2*WW+2]=c;buf32[oo+2*WW+3]=c;buf32[oo+2*WW+4]=c;
-        buf32[oo+3*WW+1]=c;buf32[oo+3*WW+2]=c;buf32[oo+3*WW+3]=c;
-        buf32[oo+4*WW+2]=c;
-        const hc=0xFF000000|(((b*.5)|0)<<16)|(((g*.5)|0)<<8)|((r*.5)|0);
-        buf32[oo+1]=hc;buf32[oo+3]=hc;
-        buf32[oo+WW]=hc;buf32[oo+WW+4]=hc;
-        buf32[oo+3*WW]=hc;buf32[oo+3*WW+4]=hc;
-        buf32[oo+4*WW+1]=hc;buf32[oo+4*WW+3]=hc;
-      }else{
+    if(shm===1){ // всё из кругов: спрайтовые круги — и тела, и осколки
+      if(freeN<16000){freeList[freeN++]=i;pCol[i]=c;}
+      else{ // перегруз сверх 16к: квадрат в буфер
         buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
         buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
         buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;
       }
+    }else if(shm===2&&deg[i]===0&&freeN<8000){ // свободные осколки смеси — векторные эллипсы
+      freeList[freeN++]=i;pCol[i]=c;
     }else if(shm===2){ // осколок: ориентация из угла поворота
       const oo=((pAng[i]*1.2732+8)|0)&3,cc=o+WW+1;
       if(oo===0){buf32[cc-1]=c;buf32[cc]=c;buf32[cc+1]=c;}
@@ -2746,19 +2735,42 @@ function drawSmoke(){
   }
   octx.globalAlpha=1;
 }
+/* круглые спрайты частиц: тонированный радиальный градиент, кэш по квантованному цвету */
+const circCache=new Map();
+function circSprite(r,g,b){
+  const key=((r>>4)<<8)|((g>>4)<<4)|(b>>4);
+  let c2=circCache.get(key);
+  if(!c2){
+    if(circCache.size>1500)circCache.clear();
+    c2=document.createElement('canvas');c2.width=c2.height=16;
+    const x=c2.getContext('2d'),R=(r>>4)*16,G=(g>>4)*16,B=(b>>4)*16;
+    const gr=x.createRadialGradient(8,8,1,8,8,7.5);
+    gr.addColorStop(0,'rgb('+R+','+G+','+B+')');
+    gr.addColorStop(0.55,'rgb('+R+','+G+','+B+')');
+    gr.addColorStop(1,'rgba('+R+','+G+','+B+',0)');
+    x.fillStyle=gr;x.fillRect(0,0,16,16);
+    circCache.set(key,c2);
+  }
+  return c2;
+}
 /* свободные частицы — настоящие гладкие круги/эллипсы поверх буфера */
 function drawFree(){
   if(!freeN)return;
   ctx.save();
   ctx.setTransform(effS,0,0,effS,effX,effY);
-  const round=Q.shape===1;
-  for(let k=0;k<freeN;k++){
-    const i=freeList[k],c=pCol[i];
-    ctx.fillStyle='rgb('+(c&255)+','+((c>>8)&255)+','+((c>>16)&255)+')';
-    ctx.beginPath();
-    if(round)ctx.arc(px[i],py[i],2.1,0,7);
-    else ctx.ellipse(px[i],py[i],2.3,1.6,pAng[i],0,7);
-    ctx.fill();
+  if(Q.shape===1){
+    for(let k=0;k<freeN;k++){
+      const i=freeList[k],c=pCol[i];
+      ctx.drawImage(circSprite(c&255,(c>>8)&255,(c>>16)&255),px[i]-2.6,py[i]-2.6,5.2,5.2);
+    }
+  }else{
+    for(let k=0;k<freeN;k++){
+      const i=freeList[k],c=pCol[i];
+      ctx.fillStyle='rgb('+(c&255)+','+((c>>8)&255)+','+((c>>16)&255)+')';
+      ctx.beginPath();
+      ctx.ellipse(px[i],py[i],2.3,1.6,pAng[i],0,7);
+      ctx.fill();
+    }
   }
   ctx.restore();
   freeN=0;
