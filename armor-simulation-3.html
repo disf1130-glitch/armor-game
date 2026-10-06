@@ -6,35 +6,35 @@
 <title>Armor Simulation</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#05070b;--panel:rgba(10,13,20,.86);--line:#252c3d;--acc:#f5a623;--acc2:#ffd27a;--txt:#d7dcea;--dim:#7d869c}
+  :root{--bg:#000;--panel:#000;--line:#232323;--acc:#f5a623;--acc2:#ffd27a;--txt:#d7dcea;--dim:#7d869c}
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;color:var(--txt);
     font-family:"Rajdhani","Segoe UI",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
   canvas#cv{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
   #panel{position:fixed;left:10px;top:calc(10px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:302px;overflow-y:auto;padding:10px 12px 14px;
     background:var(--panel);border:1px solid var(--line);border-radius:6px;backdrop-filter:blur(8px);
-    scrollbar-width:thin;scrollbar-color:#2b3347 transparent;transition:transform .25s}
+    scrollbar-width:thin;scrollbar-color:#3a3a3a transparent;transition:transform .25s}
   #panel.hide{transform:translateX(-330px)}
   #projs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
   #projs button{flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;text-align:center;position:relative}
   #projs .pdel{position:absolute;top:2px;right:5px;text-decoration:none;font-style:normal;color:#ff6b60;font-size:11px;cursor:pointer;display:none}
   #projs button:hover .pdel{display:block}
-  #projs button canvas{flex:none;background:#070a10;border:1px solid var(--line);border-radius:3px;max-width:100%}
+  #projs button canvas{flex:none;background:#000;border:1px solid var(--line);border-radius:3px;max-width:100%}
   #projs .pi{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0;flex:none}
   #projs .pi span{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   #projs .tag{font-style:normal;font-size:9.5px;letter-spacing:1px;color:var(--acc2);border:1px solid var(--acc);border-radius:3px;padding:1px 5px;flex:none}
   #tog{position:fixed;left:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:5;width:30px;height:30px;border-radius:6px;border:1px solid var(--line);
     background:var(--panel);color:var(--acc);font-size:16px;cursor:pointer;display:none}
   #panel.hide ~ #tog{display:block}
-  .brand{font-weight:700;letter-spacing:2.5px;font-size:15px;color:#fff;margin:0 0 2px;text-shadow:0 0 14px rgba(245,166,35,.5)}
+  .brand{font-weight:700;letter-spacing:2.5px;font-size:15px;color:#fff;margin:0 0 2px}
   .brand small{display:block;letter-spacing:1.5px;font-size:10px;color:var(--dim);font-weight:500;margin-top:1px}
   #hide{position:absolute;right:8px;top:8px;background:none;border:0;color:var(--dim);cursor:pointer;font-size:15px}
   h3{margin:13px 0 6px;font-size:10px;letter-spacing:2.2px;color:var(--acc);font-weight:600;text-transform:uppercase;
      display:flex;align-items:center;gap:6px}
   h3::after{content:"";flex:1;height:1px;background:var(--line)}
-  button{font:inherit;color:var(--txt);background:#141a28;border:1px solid var(--line);border-radius:4px;padding:5px 7px;
+  button{font:inherit;color:var(--txt);background:#0b0b0b;border:1px solid var(--line);border-radius:4px;padding:5px 7px;
     font-size:12.5px;cursor:pointer;transition:background .12s,border-color .12s}
-  button:hover{background:#1c2438;border-color:#3a4562}
+  button:hover{background:#1c1c1c;border-color:#3d3d3d}
   button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
   .list{display:flex;flex-direction:column;gap:4px}
@@ -62,7 +62,7 @@
   @keyframes cap{0%{opacity:0;transform:scale(1.08)}12%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0}}
   #fps{position:fixed;right:16px;top:10px;font:10px ui-monospace,monospace;color:#4d566b;pointer-events:none}
   #editor,#beditor,#workshop,#mp{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;display:none;
-    background:rgba(10,13,20,.96);border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+    background:#000;border:1px solid var(--line);border-radius:8px;padding:12px 14px;
     box-shadow:0 12px 60px rgba(0,0,0,.7);max-width:94vw;max-height:92vh;overflow-y:auto}
   #editor.open,#beditor.open,#workshop.open,#mp.open{display:block}
   #editor .edhead,#beditor .edhead,#workshop .edhead,#mp .edhead{font-size:12px;letter-spacing:2.5px;color:var(--acc);font-weight:600;margin-bottom:8px;
@@ -70,19 +70,19 @@
   #editor .edhead small,#beditor .edhead small,#workshop .edhead small,#mp .edhead small{color:var(--dim);letter-spacing:1px;font-size:10.5px}
   #editor .edhead button,#beditor .edhead button,#workshop .edhead button,#mp .edhead button{margin-left:auto}
   #edc,#bedc{border:1px solid var(--line);border-radius:4px;cursor:crosshair;touch-action:none;display:block;
-    background:#070a10;max-width:100%}
+    background:#000;max-width:100%}
   #edpal,#bedpal{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;max-width:560px}
   #edpal button,#bedpal button{display:flex;align-items:center;gap:6px;padding:4px 6px;font-size:11.5px}
   #edpal i,#bedpal i{width:12px;height:12px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
   #wslist{display:flex;flex-direction:column;gap:6px;max-width:560px;max-height:44vh;overflow-y:auto}
   #mp input{text-transform:uppercase}
   #mpname{text-transform:none}
-  .wsitem{background:#141a28;border:1px solid var(--line);border-radius:6px;padding:7px 9px;display:flex;flex-direction:column;gap:5px}
+  .wsitem{background:#0b0b0b;border:1px solid var(--line);border-radius:6px;padding:7px 9px;display:flex;flex-direction:column;gap:5px}
   .wsitem .wstop{display:flex;align-items:baseline;gap:8px}
   .wsitem .wstop b{color:#fff;font-size:13px}
   .wsitem .wstop small{color:var(--dim);font-size:11px}
   .wsitem .wstop .likes{margin-left:auto;color:var(--acc2);font-size:12px;white-space:nowrap}
-  .wsitem canvas{border:1px solid var(--line);border-radius:4px;background:#070a10;max-width:100%}
+  .wsitem canvas{border:1px solid var(--line);border-radius:4px;background:#000;max-width:100%}
   .wsitem .wsrow{display:flex;gap:4px;flex-wrap:wrap}
   @media (max-width:640px){#panel{width:244px}}
 </style>
@@ -98,12 +98,12 @@
   <div class="grid2" id="scenes"></div>
 
   <h3>Снаряд</h3>
-  <input id="projsearch" placeholder="🔍 Поиск…" maxlength="30" style="width:100%;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
+  <input id="projsearch" placeholder="🔍 Поиск…" maxlength="30" style="width:100%;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 8px;font:inherit;font-size:12.5px;margin-bottom:5px;box-sizing:border-box">
   <div class="list" id="projs"></div>
   <label>Скорость <b id="spdv"></b></label>
   <input type="range" id="spd" min="50" max="33462" step="50" value="2500">
   <div class="row" style="margin-top:4px">
-    <input id="spdnum" type="number" min="50" max="33462" step="10" value="2500" title="Впиши любую скорость до 33462, Enter — применить" style="flex:1;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12.5px">
+    <input id="spdnum" type="number" min="50" max="33462" step="10" value="2500" title="Впиши любую скорость до 33462, Enter — применить" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12.5px">
     <button id="spdmax" title="Максимум 33462 — итог всё равно зависит от плотности материала">MAX</button>
   </div>
   <div class="row" style="margin-top:4px"><button data-spd="800">800</button><button data-spd="2500">2500</button><button data-spd="8000">8000</button><button data-spd="15000">15k</button><button data-spd="33462">33k</button></div>
@@ -141,9 +141,9 @@
   <div class="edhead">РЕДАКТОР СНАРЯДА <small>нос справа · колесо не зумит</small><button id="edclose" title="Закрыть">✕</button></div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <label style="margin:0">Размер</label>
-    <input id="edw" type="number" min="4" max="80" step="1" value="40" title="Ширина сетки" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="edw" type="number" min="4" max="80" step="1" value="40" title="Ширина сетки" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <span style="color:var(--dim)">×</span>
-    <input id="edh" type="number" min="4" max="40" step="1" value="20" title="Высота сетки" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="edh" type="number" min="4" max="40" step="1" value="20" title="Высота сетки" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <button id="edresize" title="Применить размер">⤢</button>
     <button id="edsnap" title="Прижать рисунок к сетке (убрать пустые края)">SNAP</button>
   </div>
@@ -173,9 +173,9 @@
   <div class="edhead">РЕДАКТОР БЛОКОВ <small>размер · строй и ставь на карту</small><button id="bedclose" title="Закрыть">✕</button></div>
   <div class="row" style="margin-bottom:6px;align-items:center">
     <label style="margin:0">Размер</label>
-    <input id="bedw" type="number" min="4" max="150" step="1" value="44" title="Ширина в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="bedw" type="number" min="4" max="150" step="1" value="44" title="Ширина в блоках" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <span style="color:var(--dim)">×</span>
-    <input id="bedh" type="number" min="4" max="90" step="1" value="26" title="Высота в блоках" style="width:56px;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
+    <input id="bedh" type="number" min="4" max="90" step="1" value="26" title="Высота в блоках" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
     <button id="bedresize" title="Применить размер">⤢</button>
     <button id="bedsnap" title="Прижать рисунок к сетке">SNAP</button>
   </div>
@@ -214,11 +214,11 @@
   <div class="edhead">МУЛЬТИПЛЕЕР <small>строй вместе с другом</small><button id="mpclose" title="Закрыть">✕</button></div>
   <div id="mpmenu">
     <div class="row" style="margin-bottom:6px;align-items:center">
-      <input id="mpname" placeholder="Твоё имя…" maxlength="16" style="flex:1;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
+      <input id="mpname" placeholder="Твоё имя…" maxlength="16" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
     </div>
     <div class="row" style="margin-bottom:6px"><button id="mpcreate" style="flex:1">＋ Создать комнату</button></div>
     <div class="row" style="margin-bottom:6px;align-items:center">
-      <input id="mpcode" placeholder="КОД КОМНАТЫ" maxlength="5" style="flex:1;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px;text-transform:uppercase;letter-spacing:2px;text-align:center">
+      <input id="mpcode" placeholder="КОД КОМНАТЫ" maxlength="5" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px;text-transform:uppercase;letter-spacing:2px;text-align:center">
       <button id="mpjoin" title="Войти по коду">Войти</button>
     </div>
   </div>
@@ -243,8 +243,8 @@
     <button id="wsrefresh" title="Обновить список">↻</button>
   </div>
   <div class="row" style="margin-bottom:6px;align-items:center">
-    <input id="wsname" placeholder="Название…" maxlength="40" style="flex:2;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
-    <input id="wsauthor" placeholder="Автор…" maxlength="20" style="flex:1;min-width:0;background:#141a28;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
+    <input id="wsname" placeholder="Название…" maxlength="40" style="flex:2;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
+    <input id="wsauthor" placeholder="Автор…" maxlength="20" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
   </div>
   <div class="row" style="margin-bottom:8px"><button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">⬆ ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button></div>
   <div id="wslist"></div>
@@ -2870,7 +2870,7 @@ const $=id=>document.getElementById(id);
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
-function caption(t){const c=$('cap');c.textContent=t;c.classList.remove('go');void c.offsetWidth;c.classList.add('go');}
+function caption(t){return;}
 function setToolLabel(){
   const el=$('tool');
   if(tool==='fire')el.innerHTML='ОГОНЬ · <b>'+PROJ_DEF[curProj].n+'</b>';
@@ -3063,7 +3063,7 @@ function projPreview(d){
   const px=Math.max(2,Math.min(6,Math.floor(120/w),Math.floor(36/h)));
   c.width=Math.max(1,w*px);c.height=Math.max(1,h*px);
   const g=c.getContext('2d');
-  g.fillStyle='#070a10';g.fillRect(0,0,c.width,c.height);
+  g.fillStyle='#000';g.fillRect(0,0,c.width,c.height);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const m=CH2MAT[sh[y][x]];
     if(!m||!MAT[m])continue;
@@ -3133,12 +3133,12 @@ function edLayout(){
   edc.width=EW*ECS;edc.height=EH*ECS;
 }
 function edDraw(){
-  ex.fillStyle='#070a10';ex.fillRect(0,0,edc.width,edc.height);
+  ex.fillStyle='#000';ex.fillRect(0,0,edc.width,edc.height);
   for(let y=0;y<EH;y++)for(let x=0;x<EW;x++){
     const m=edGrid[y*EW+x];
     if(m){const c=MAT[m].c;ex.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';ex.fillRect(x*ECS+1,y*ECS+1,ECS-2,ECS-2);}
   }
-  ex.strokeStyle='#232b3e';ex.lineWidth=1;ex.beginPath();
+  ex.strokeStyle='#2e2e2e';ex.lineWidth=1;ex.beginPath();
   for(let x=0;x<=EW;x++){ex.moveTo(x*ECS+.5,0);ex.lineTo(x*ECS+.5,edc.height);}
   for(let y=0;y<=EH;y++){ex.moveTo(0,y*ECS+.5);ex.lineTo(edc.width,y*ECS+.5);}
   ex.stroke();
@@ -3284,12 +3284,12 @@ function bedLayout(){
   bedc.width=BW*BCS;bedc.height=BH*BCS;
 }
 function bedDraw(){
-  bedx.fillStyle='#070a10';bedx.fillRect(0,0,bedc.width,bedc.height);
+  bedx.fillStyle='#000';bedx.fillRect(0,0,bedc.width,bedc.height);
   for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){
     const m=bedGrid[y*BW+x];
     if(m){const c=MAT[m].c;bedx.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';bedx.fillRect(x*BCS+1,y*BCS+1,BCS-2,BCS-2);}
   }
-  bedx.strokeStyle='#232b3e';bedx.lineWidth=1;bedx.beginPath();
+  bedx.strokeStyle='#2e2e2e';bedx.lineWidth=1;bedx.beginPath();
   for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
   for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
   bedx.stroke();
@@ -3503,7 +3503,7 @@ function wsPreviewCanvas(item){
   }else{w=item.data.w;h=item.data.h;cells=item.data.cells;}
   c.width=Math.max(1,w*Ui);c.height=Math.max(1,h*Ui);
   const g=c.getContext('2d');
-  g.fillStyle='#070a10';g.fillRect(0,0,c.width,c.height);
+  g.fillStyle='#000';g.fillRect(0,0,c.width,c.height);
   for(const [x,y,m] of cells){const cc=MAT[m]?MAT[m].c:[200,200,200];g.fillStyle='rgb('+(cc[0]|0)+','+(cc[1]|0)+','+(cc[2]|0)+')';g.fillRect(x*Ui+1,y*Ui+1,Ui-2,Ui-2);}
   c.style.maxWidth='100%';c.style.height='auto';
   return c;
