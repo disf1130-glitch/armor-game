@@ -7,6 +7,6 @@
     "start": "node workshop-server.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

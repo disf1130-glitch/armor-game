@@ -188,8 +188,20 @@ const server = http.createServer(async (req, res) => {
   }
 
   // --- статика: раздаём папку das ---
+  // Приватное: базу с ключами владельцев, исходник сервера, служебные файлы наружу не отдаём
+  const PRIVATE = new Set([
+    'workshop-db.json', 'workshop-server.js', 'package.json', 'package-lock.json',
+    'render.yaml', 'start-workshop.bat', '.gitignore', '.dockerignore', 'Dockerfile',
+  ]);
   let p = decodeURIComponent(url.pathname);
   if (p === '/') p = '/armor-simulation-3.html';
+  const rel = p.replace(/^\/+/, '');
+  const first = rel.split('/')[0];
+  if (!rel || PRIVATE.has(rel) || PRIVATE.has(first) ||
+      first === '.git' || first === 'node_modules' || first.startsWith('.') ||
+      /\.(bat|yaml|yml|env|log)$/i.test(rel)) {
+    return send(res, 404, 'not found', 'text/plain');
+  }
   const file = path.normalize(path.join(ROOT, p));
   if (!file.startsWith(ROOT)) return send(res, 403, 'forbidden', 'text/plain');
   fs.readFile(file, (err, data) => {

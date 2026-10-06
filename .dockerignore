@@ -1,0 +1,15 @@
+node_modules/
+.git/
+.gitignore
+armor-simulation (1).html
+armor-simulation-2.html
+*.zip
+*.rar
+*.exe
+*.crdownload
+*.index
+*.iso
+*.msi
+*.log
+start-workshop.bat
+render.yaml
