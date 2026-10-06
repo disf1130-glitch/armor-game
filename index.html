@@ -115,6 +115,44 @@
   .brand img{width:52px;height:auto;flex:none;filter:drop-shadow(0 0 8px rgba(245,166,35,.4))}
   .brand .bt{font-weight:700;letter-spacing:2.5px;font-size:15px;color:#fff;line-height:1.1}
   .brand .bt small{display:block;letter-spacing:1.5px;font-size:10px;color:var(--dim);font-weight:500;margin-top:1px}
+  /* ===== РЕДАКТОР БЛОКОВ v2 (как на макете) ===== */
+  #beditor{width:min(1240px,97vw);padding:0;overflow:hidden}
+  .bed-top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);
+    font-size:12px;letter-spacing:2.5px;color:var(--acc);font-weight:600}
+  .bed-top small{color:var(--dim);letter-spacing:1px;font-size:10.5px}
+  .bed-top button{margin-left:auto}
+  .bed3{display:grid;grid-template-columns:264px minmax(0,1fr) 264px;min-height:480px;max-height:78vh}
+  .bed-left{border-right:1px solid var(--line);padding:10px;overflow-y:auto;scrollbar-width:thin}
+  .bed-center{background:#0b0f16;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0}
+  .bed-right{border-left:1px solid var(--line);padding:10px 12px;overflow-y:auto;scrollbar-width:thin}
+  .tools4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
+  .tools4 button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;font-size:14px}
+  .tools4 button small{font-size:9px;letter-spacing:1px;color:var(--dim);font-weight:600}
+  .tools4 button.on small{color:var(--acc2)}
+  .bed-actions{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+  .bed-actions button{font-size:11.5px;padding:5px 7px}
+  .bed-actions button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
+  .bed-size{display:flex;align-items:center;gap:4px;margin:8px 0}
+  .bed-size input{width:52px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px}
+  .matsec{margin:10px 0 2px;font-size:9.5px;letter-spacing:2px;color:var(--acc);font-weight:700;text-transform:uppercase}
+  .matsec::after{content:"";display:block;height:1px;background:var(--line);margin-top:3px}
+  #bedpal{display:flex;flex-direction:column;gap:2px;max-width:none;margin:4px 0}
+  #bedpal button{display:flex;align-items:center;gap:8px;padding:4px 6px;font-size:12px;text-align:left;width:100%}
+  #bedpal button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
+  .holdlist{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+  .holdlist button{text-align:left;font-size:12px;padding:7px 9px}
+  .holdlist button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
+  .hullrow{display:flex;gap:8px;align-items:flex-start;background:#0b0b0b;border:1px solid var(--line);border-radius:6px;padding:8px 9px;margin:8px 0;font-size:12px}
+  .hullrow input{margin-top:2px;accent-color:var(--acc)}
+  .hullrow small{display:block;color:var(--dim);font-size:10.5px;margin-top:2px;line-height:1.35}
+  .sheetgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+  .sheetgrid button{font-size:11.5px}
+  .cellrow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:6px 0}
+  .cellrow input{width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px;text-align:center}
+  #bedlib{width:100%;text-align:left;color:var(--dim)}
+  #bedsize2{font-size:12px;color:var(--dim);letter-spacing:1px;margin-bottom:2px}
+  #bedsize2 b{color:var(--acc2)}
+  @media (max-width:920px){.bed3{grid-template-columns:1fr;max-height:86vh}.bed-left{border-right:0;border-bottom:1px solid var(--line)}.bed-right{border-left:0;border-top:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -238,44 +276,76 @@
 </div>
 
 <div id="beditor">
-  <div class="edhead">РЕДАКТОР БЛОКОВ <small>размер · строй и ставь на карту</small><button id="bedclose" title="Закрыть">✕</button></div>
-  <div class="row" style="margin-bottom:6px;align-items:center">
-    <label style="margin:0">Размер</label>
-    <input id="bedw" type="number" min="4" max="150" step="1" value="44" title="Ширина в блоках" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
-    <span style="color:var(--dim)">×</span>
-    <input id="bedh" type="number" min="4" max="90" step="1" value="26" title="Высота в блоках" style="width:56px;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:4px 6px;font:inherit;font-size:12px">
-    <button id="bedresize" title="Применить размер">⤢</button>
-    <button id="bedsnap" title="Прижать рисунок к сетке">SNAP</button>
+  <div class="bed-top">РЕДАКТОР БЛОКОВ <small id="bedsize">44 × 26</small><button id="bedclose" title="Закрыть">✕</button></div>
+  <div class="bed3">
+    <div class="bed-left">
+      <div class="tools4">
+        <button id="tBrush" class="on" title="Кисть — рисовать материалом">🖌<small>brush</small></button>
+        <button id="tBucket" title="Заливка области (Bucket)">🪣<small>bucket</small></button>
+        <button id="tPick" title="Пипетка — взять материал (Eyedropper)">💧<small>eyedrop</small></button>
+        <button id="tMove" title="Переместить рисунок (Move)">✥<small>move</small></button>
+        <button id="tErase" title="Ластик (eraser)">⌫<small>eraser</small></button>
+        <button id="tPlate" title="Тяни прямоугольник — зальёт материалом">▦<small>plate</small></button>
+      </div>
+      <label>Кисть <b id="bedbrushV">1</b></label>
+      <input type="range" id="bedbrushR" min="1" max="8" step="1" value="1" title="Размер кисти">
+      <div class="bed-actions">
+        <button id="bedoutline" title="Обвести контур текущим материалом">outline</button>
+        <button id="bedreplace" title="Заменить материал, взятый пипеткой, на текущий">replace</button>
+        <button id="bedmirror" title="Отразить по горизонтали">mirror ↔</button>
+        <button id="bedmirrorV" title="Отразить по вертикали">mirror ↕</button>
+        <button id="bedgrid" class="on" title="Показать сетку">grid</button>
+        <button id="bedclear" title="Очистить всё">clear</button>
+      </div>
+      <div class="bed-size">
+        <input id="bedw" type="number" min="4" max="150" step="1" value="44" title="Ширина в блоках">
+        <span style="color:var(--dim)">×</span>
+        <input id="bedh" type="number" min="4" max="90" step="1" value="26" title="Высота в блоках">
+        <button id="bedresize" title="Применить размер">⤢</button>
+        <button id="bedsnap" title="Прижать рисунок к сетке">SNAP</button>
+      </div>
+      <div id="bedpal"></div>
+    </div>
+    <div class="bed-center"><canvas id="bedc"></canvas></div>
+    <div class="bed-right">
+      <h3>Цель</h3>
+      <div id="bedsize2">—</div>
+      <h3>Как держится</h3>
+      <div class="holdlist">
+        <button id="holdEdge" class="on">Held at the edges</button>
+        <button id="holdGround">Standing on the ground</button>
+        <button id="holdSolid">Solid block</button>
+        <button id="holdFree">Free</button>
+      </div>
+      <div class="hullrow"><input type="checkbox" id="bedhull"><div><b>Vehicle hull</b><small>Сечение танка/БТР. Держится целиком за края, как корпус, а не тонкий лист.</small></div></div>
+      <h3>Sheet</h3>
+      <div class="sheetgrid">
+        <button data-bedscale="1" title="22×13">Плита S</button>
+        <button data-bedscale="2" title="44×26">Плита 44×26</button>
+        <button data-bedscale="3" title="66×39">Башня</button>
+        <button data-bedscale="4" title="88×52">Экраны</button>
+        <button data-bedscale="5" title="110×65">Корпус</button>
+        <button id="bedcustom" title="Свой размер из полей слева">Свой…</button>
+      </div>
+      <div class="cellrow">cell <input id="bedcell" type="number" min="1" max="50" value="2" title="Размер клетки в мм (для подписи)"> mm</div>
+      <h3>Start from</h3>
+      <button id="bedlib">Choose an item from the library…</button>
+      <h3>Масштаб на карте</h3>
+      <div class="bed-actions">
+        <button data-bscale="0" class="on" title="Подобрать автоматически">АВТО</button>
+        <button data-bscale="1" title="Как нарисовано">1×</button>
+        <button data-bscale="2" title="В 2 раза больше">2×</button>
+        <button data-bscale="3" title="В 3 раза больше">3×</button>
+      </div>
+      <div class="bed-actions">
+        <label style="margin:0;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--dim)"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> в воздухе</label>
+      </div>
+      <div class="bed-actions">
+        <button id="bedmap" title="Поставить постройку на карту в центр камеры">⌖ НА КАРТУ</button>
+        <button id="bedws" title="Выложить постройку в воркшоп">ВОРКШОП</button>
+      </div>
+    </div>
   </div>
-  <div class="row" style="margin-bottom:6px;align-items:center">
-    <label style="margin:0">Холст</label>
-    <button data-bedscale="1" title="22×13">×1</button>
-    <button data-bedscale="2" title="44×26">×2</button>
-    <button data-bedscale="3" title="66×39">×3</button>
-    <button data-bedscale="4" title="88×52">×4</button>
-    <button data-bedscale="5" title="110×65">×5</button>
-    <label style="margin:0 0 0 auto"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> в воздухе</label>
-  </div>
-  <div class="row" style="margin-bottom:6px;align-items:center">
-    <label style="margin:0">Кисть</label>
-    <button data-bedbrush="1" class="on" title="1 блок">1</button>
-    <button data-bedbrush="2" title="2×2 блока">2</button>
-    <button data-bedbrush="3" title="3×3 блока">3</button>
-    <button data-bedbrush="4" title="4×4 блока">4</button>
-  </div>
-  <div class="row" style="margin-bottom:6px;align-items:center">
-    <label style="margin:0">Масштаб</label>
-    <button data-bscale="0" class="on" title="Подобрать автоматически — постройка крупная на карте">АВТО</button>
-    <button data-bscale="1" title="Как нарисовано">1×</button>
-    <button data-bscale="2" title="В 2 раза больше">2×</button>
-    <button data-bscale="3" title="В 3 раза больше">3×</button>
-    <button data-bscale="4" title="В 4 раза больше">4×</button>
-    <button data-bscale="5" title="В 5 раз больше">5×</button>
-  </div>
-  <canvas id="bedc"></canvas>
-  <div id="bedpal"></div>
-  <div class="row"><button id="bedmirror">MIRROR</button><button id="bedoutline" title="Обвести контур текущим материалом">OUTLINE</button><button id="bedplate" title="Тяни прямоугольник — зальёт материалом">▦ PLATE</button><button id="bedclear">CLEAR</button></div>
-  <div class="row" style="margin-top:4px"><button id="bedmap" title="Поставить постройку на карту в центр камеры">⌖ НА КАРТУ</button><button id="bedws" title="Выложить постройку в воркшоп">ВОРКШОП</button></div>
 </div>
 
 <div id="mp">
@@ -3794,19 +3864,27 @@ let bedGrid=new Uint8Array(BW*BH);
 let bedMat=M.STEEL,bedDown=false;
 const bedc=document.getElementById('bedc'),bedx=bedc.getContext('2d');
 function bedLayout(){
-  BCS=Math.max(5,Math.min(13,Math.floor(560/BW),Math.floor(300/BH)));
+  BCS=Math.max(5,Math.min(14,Math.floor(720/BW),Math.floor(520/BH)));
   bedc.width=BW*BCS;bedc.height=BH*BCS;
 }
 function bedDraw(){
-  bedx.fillStyle='#000';bedx.fillRect(0,0,bedc.width,bedc.height);
+  bedx.fillStyle='#0b0f16';bedx.fillRect(0,0,bedc.width,bedc.height);
   for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){
     const m=bedGrid[y*BW+x];
     if(m){const c=MAT[m].c;bedx.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';bedx.fillRect(x*BCS+1,y*BCS+1,BCS-2,BCS-2);}
   }
-  bedx.strokeStyle='#2e2e2e';bedx.lineWidth=1;bedx.beginPath();
-  for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
-  for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
-  bedx.stroke();
+  if(bedGridOn){
+    bedx.strokeStyle='rgba(130,150,180,.16)';bedx.lineWidth=1;bedx.beginPath();
+    for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
+    for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
+    bedx.stroke();
+  }
+  bedx.save();bedx.strokeStyle='rgba(245,166,35,.22)';bedx.setLineDash([6,5]);bedx.lineWidth=1;bedx.beginPath();
+  bedx.moveTo(bedc.width/2+.5,0);bedx.lineTo(bedc.width/2+.5,bedc.height);
+  bedx.moveTo(0,bedc.height/2+.5);bedx.lineTo(bedc.width,bedc.height/2+.5);bedx.stroke();bedx.restore();
+  const _cb=$('bedcell');const cmm=Math.max(1,+((_cb&&_cb.value)||2)||2);
+  const sx=$('bedsize');if(sx)sx.textContent=BW+' × '+BH;
+  const s2=$('bedsize2');if(s2)s2.innerHTML='<b>'+((BW*cmm)/1000).toFixed(1)+' × '+((BH*cmm)/1000).toFixed(1)+' м</b> нарисовано<br>cell '+cmm+' мм';
 }
 function bedCell(e){
   const r=bedc.getBoundingClientRect();
@@ -3918,7 +3996,8 @@ function wsAutosaveBuild(build){
     wsLocalSave('build',arr);
   }catch(e){}
 }
-let bedPlate=false,bedAnchor=-1;
+let bedAnchor=-1;
+let bedTool='brush',bedGridOn=true,bedPickMat=-1,bedMoveGrab=null,bedHoldSel='edge';
 function bedStrokeRect(a,b){
   const ax=a%BW,ay=(a/BW)|0,bx=b%BW,by=(b/BW)|0;
   const x=Math.min(ax,bx),y=Math.min(ay,by),w=Math.abs(ax-bx)+1,h=Math.abs(ay-by)+1;
@@ -3930,38 +4009,139 @@ function bedFillRect(a,b){
   for(let y=Math.min(ay,by);y<=Math.max(ay,by);y++)for(let x=Math.min(ax,bx);x<=Math.max(ax,bx);x++)bedGrid[y*BW+x]=bedMat;
 }
 let bedBrush=1;
-function bedPaint(c){
+function bedPaint(c,mat){
   const cx=c%BW,cy=(c/BW)|0;let ch=false;
   for(let y=cy;y<Math.min(BH,cy+bedBrush);y++)for(let x=cx;x<Math.min(BW,cx+bedBrush);x++){
-    if(bedGrid[y*BW+x]!==bedMat){bedGrid[y*BW+x]=bedMat;ch=true;}
+    if(bedGrid[y*BW+x]!==mat){bedGrid[y*BW+x]=mat;ch=true;}
   }
   return ch;
 }
-document.querySelectorAll('button[data-bedbrush]').forEach(b=>b.onclick=()=>{bedBrush=+b.dataset.bedbrush;document.querySelectorAll('button[data-bedbrush]').forEach(x=>x.classList.toggle('on',x===b));});
-bedc.addEventListener('pointerdown',e=>{e.preventDefault();try{bedc.setPointerCapture(e.pointerId);}catch(_){}bedDown=true;const c=bedCell(e);if(c<0){bedDown=false;return;}if(bedPlate){bedAnchor=c;bedDraw();bedStrokeRect(c,c);}else{bedPaint(c);bedDraw();}});
-bedc.addEventListener('pointermove',e=>{if(!bedDown)return;const c=bedCell(e);if(c<0)return;if(bedPlate&&bedAnchor>=0){bedDraw();bedStrokeRect(bedAnchor,c);}else if(!bedPlate&&bedPaint(c)){bedDraw();}});
-bedc.addEventListener('pointerup',e=>{if(bedPlate&&bedAnchor>=0){const c=bedCell(e);if(c>=0)bedFillRect(bedAnchor,c);bedAnchor=-1;bedDraw();}bedDown=false;});
-bedc.addEventListener('pointercancel',()=>{bedDown=false;bedAnchor=-1;});
-$('bedplate').onclick=e=>{bedPlate=!bedPlate;e.target.classList.toggle('on',bedPlate);};
+function bedFlood(c,mat){
+  const src=bedGrid[c];if(src===mat)return;
+  const st=[c];bedGrid[c]=mat;
+  while(st.length){
+    const i=st.pop(),x=i%BW,y=(i/BW)|0;
+    if(x>0&&bedGrid[i-1]===src){bedGrid[i-1]=mat;st.push(i-1);}
+    if(x<BW-1&&bedGrid[i+1]===src){bedGrid[i+1]=mat;st.push(i+1);}
+    if(y>0&&bedGrid[i-BW]===src){bedGrid[i-BW]=mat;st.push(i-BW);}
+    if(y<BH-1&&bedGrid[i+BW]===src){bedGrid[i+BW]=mat;st.push(i+BW);}
+  }
+}
+const BED_TOOLS={tBrush:'brush',tBucket:'bucket',tPick:'pick',tMove:'move',tErase:'erase',tPlate:'plate'};
+function setBedTool(t){
+  bedTool=t;
+  for(const id in BED_TOOLS)document.getElementById(id).classList.toggle('on',BED_TOOLS[id]===t);
+  bedc.style.cursor=t==='pick'?'copy':t==='move'?'move':'crosshair';
+}
+for(const id in BED_TOOLS)document.getElementById(id).onclick=()=>setBedTool(BED_TOOLS[id]);
+function syncBedPal(){
+  document.querySelectorAll('#bedpal button').forEach(x=>x.classList.toggle('on',+x.dataset.m===bedMat&&bedMat!==0));
+}
+$('bedbrushR').oninput=e=>{bedBrush=Math.max(1,Math.min(8,+e.target.value||1));$('bedbrushV').textContent=bedBrush;};
+bedc.addEventListener('pointerdown',e=>{
+  e.preventDefault();try{bedc.setPointerCapture(e.pointerId);}catch(_){}
+  const c=bedCell(e);if(c<0)return;
+  if(bedTool==='pick'){
+    const m=bedGrid[c];
+    if(m){bedMat=m;bedPickMat=m;syncBedPal();caption('Пипетка: '+MAT[m].n+'. REPLACE заменит его на новый.');}
+    else caption('Тут пусто — пипетке нечего взять.');
+    setBedTool('brush');return;
+  }
+  if(bedTool==='bucket'){bedFlood(c,bedMat);bedDraw();return;}
+  bedDown=true;
+  if(bedTool==='move'){bedMoveGrab={g:bedGrid.slice(),sx:c%BW,sy:(c/BW)|0};return;}
+  if(bedTool==='plate'){bedAnchor=c;bedDraw();bedStrokeRect(c,c);return;}
+  bedPaint(c,bedTool==='erase'?0:bedMat);bedDraw();
+});
+bedc.addEventListener('pointermove',e=>{
+  if(!bedDown)return;const c=bedCell(e);if(c<0)return;
+  if(bedTool==='move'&&bedMoveGrab){
+    const dx=c%BW-bedMoveGrab.sx,dy=((c/BW)|0)-bedMoveGrab.sy,g=bedMoveGrab.g;
+    bedGrid.fill(0);
+    for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){const m=g[y*BW+x];if(m){const nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<BW&&ny<BH)bedGrid[ny*BW+nx]=m;}}
+    bedDraw();return;
+  }
+  if(bedTool==='plate'&&bedAnchor>=0){bedDraw();bedStrokeRect(bedAnchor,c);return;}
+  if(bedTool==='bucket'||bedTool==='pick')return;
+  if(bedPaint(c,bedTool==='erase'?0:bedMat))bedDraw();
+});
+bedc.addEventListener('pointerup',e=>{
+  if(bedTool==='plate'&&bedAnchor>=0){const c=bedCell(e);if(c>=0)bedFillRect(bedAnchor,c);bedAnchor=-1;bedDraw();}
+  bedMoveGrab=null;bedDown=false;bedAnchor=-1;
+});
+bedc.addEventListener('pointercancel',()=>{bedDown=false;bedAnchor=-1;bedMoveGrab=null;});
 (function buildBedPal(){
-  const pal=$('bedpal');if(!pal)return;
+  const pal=$('bedpal');if(!pal)return;pal.innerHTML='';
+  const GROUPS=[
+    ['Стали',[M.STEEL,M.HHA,M.INOX,M.CAST,M.SPR,M.MANG,M.TOOL,M.NICH]],
+    ['Лёгкие и цветные',[M.ALU,M.DUR,M.MG,M.BE,M.TI,M.CU,M.BRASS,M.BRZ,M.ZN,M.SN,M.NI,M.CO,M.CR,M.MO,M.TA,M.LI]],
+    ['Тяжёлые',[M.W,M.U,M.AU,M.PT,M.AG,M.OS,M.IR,M.HG,M.PU]],
+    ['Керамика и стекло',[M.CER,M.ALUM,M.SIC,M.BOR,M.NITR,M.ZRO,M.GLASS,M.PORC,M.FILL]],
+    ['Камень и бетон',[M.CONC,M.BAS,M.GRAN,M.BRICK,M.MARB,M.SAND,M.LIME,M.GYPS,M.ASPH]],
+    ['Взрывчатка и топливо',[M.EXP,M.CMPB,M.C4,M.POWD,M.DYNA,M.TNT,M.FUEL,M.OIL,M.PETR]],
+    ['Неметаллы',[M.RUB,M.OAK,M.PINE,M.BIRCH,M.PLY,M.CHIP,M.LEATH,M.BONE,M.POLY,M.PVC,M.TEFL,M.ACRY,M.NYL,M.EBON,M.KEV,M.GLP,M.CARB,M.FOAM,M.WATER]],
+  ];
+  const seen=new Set();
+  for(const [title,mats] of GROUPS){
+    const h=document.createElement('div');h.className='matsec';h.textContent=title;pal.appendChild(h);
+    for(const m of mats){
+      if(!PAINT_MATS.includes(m)||seen.has(m))continue;seen.add(m);
+      const b=document.createElement('button');b.dataset.m=m;
+      const mc=document.createElement('canvas');mc.width=mc.height=12;mc.className='mprev';paintMatPrev(mc,m);b.appendChild(mc);b.appendChild(document.createTextNode(MAT[m].n));
+      if(m===bedMat)b.classList.add('on');
+      b.onclick=()=>{bedMat=m;syncBedPal();if(bedTool==='erase')setBedTool('brush');};
+      pal.appendChild(b);
+    }
+  }
   for(const m of PAINT_MATS){
+    if(seen.has(m))continue;
     const b=document.createElement('button');b.dataset.m=m;
     const mc=document.createElement('canvas');mc.width=mc.height=12;mc.className='mprev';paintMatPrev(mc,m);b.appendChild(mc);b.appendChild(document.createTextNode(MAT[m].n));
-    if(m===bedMat)b.classList.add('on');
-    b.onclick=()=>{bedMat=m;document.querySelectorAll('#bedpal button').forEach(x=>x.classList.toggle('on',x===b));};
+    b.onclick=()=>{bedMat=m;syncBedPal();if(bedTool==='erase')setBedTool('brush');};
     pal.appendChild(b);
   }
-  const e=document.createElement('button');e.textContent='⌫ ластик';
-  e.onclick=()=>{bedMat=0;document.querySelectorAll('#bedpal button').forEach(x=>x.classList.remove('on'));e.classList.add('on');};
-  pal.appendChild(e);
 })();
 $('bedmirror').onclick=()=>{for(let y=0;y<BH;y++)for(let x=0;x<BW/2;x++){const a=y*BW+x,b=y*BW+BW-1-x,t=bedGrid[a];bedGrid[a]=bedGrid[b];bedGrid[b]=t;}bedDraw();};
+$('bedmirrorV').onclick=()=>{for(let y=0;y<BH/2;y++)for(let x=0;x<BW;x++){const a=y*BW+x,b=(BH-1-y)*BW+x,t=bedGrid[a];bedGrid[a]=bedGrid[b];bedGrid[b]=t;}bedDraw();};
+$('bedgrid').onclick=e=>{bedGridOn=!bedGridOn;e.target.classList.toggle('on',bedGridOn);bedDraw();};
+$('bedreplace').onclick=()=>{
+  if(bedPickMat<0){caption('Сначала пипеткой 💧 кликни материал для замены.');return;}
+  if(bedPickMat===bedMat){caption('Пипетка и кисть — один материал, менять нечего.');return;}
+  let n=0;for(let i=0;i<BW*BH;i++)if(bedGrid[i]===bedPickMat){bedGrid[i]=bedMat;n++;}
+  caption('Заменено: '+n+' → '+MAT[bedMat].n+'.');bedDraw();
+};
 $('bedclear').onclick=()=>{bedGrid.fill(0);bedDraw();};
 $('bedresize').onclick=bedResize;
 document.querySelectorAll('button[data-bedscale]').forEach(b=>b.onclick=()=>{const t=BED_TIERS[+b.dataset.bedscale-1];bedApplySize(t[0],t[1]);caption('Холст: '+t[0]+'×'+t[1]+'.');});
+$('bedcustom').onclick=()=>{bedResize();};
+$('bedcell').oninput=()=>bedDraw();
 $('bedsnap').onclick=bedSnap;
 $('bedoutline').onclick=bedOutline;
+function bedHoldSelSync(){
+  $('holdEdge').classList.toggle('on',bedHoldSel==='edge');
+  $('holdGround').classList.toggle('on',bedHoldSel==='ground');
+  $('holdSolid').classList.toggle('on',bedHoldSel==='solid');
+  $('holdFree').classList.toggle('on',bedHoldSel==='free');
+}
+function bedHoldApply(sel){
+  bedHoldSel=sel;bedHoldSelSync();
+  if(sel==='edge'){supMode=1;$('bedpin').checked=true;}
+  else if(sel==='ground'){supMode=0;}
+  else if(sel==='solid'){supMode=1;$('bedpin').checked=true;}
+  else{supMode=0;$('bedpin').checked=false;}
+  $('smE').classList.toggle('on',supMode===1);$('smG').classList.toggle('on',supMode===0);
+  recomputeSupport();
+  caption({edge:'Держится по краям.',ground:'Стоит на земле.',solid:'Монолит — держится целиком.',free:'Свободно — ничто не закреплено.'}[sel]);
+}
+$('holdEdge').onclick=()=>bedHoldApply('edge');
+$('holdGround').onclick=()=>bedHoldApply('ground');
+$('holdSolid').onclick=()=>bedHoldApply('solid');
+$('holdFree').onclick=()=>bedHoldApply('free');
+$('bedhull').onchange=e=>{
+  if(e.target.checked){bedHoldApply('solid');caption('Vehicle hull: сечение корпуса, держится целиком.');}
+  else caption('Vehicle hull выкл.');
+};
+$('bedlib').onclick=()=>{$('workshop').classList.add('open');const t=$('wstab-build');if(t)t.click();};
 $('bedopen').onclick=()=>{$('beditor').classList.add('open');$('editor').classList.remove('open');bedLayout();bedDraw();};
 $('bedclose').onclick=()=>$('beditor').classList.remove('open');
 $('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;startPlaceBuild(b);$('beditor').classList.remove('open');};
