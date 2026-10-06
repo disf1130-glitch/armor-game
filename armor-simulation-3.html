@@ -2183,41 +2183,41 @@ function detonateAt(x,y,power){
   // трещины веером от эпицентра + вмятина (масштаб от мощности)
   crackBurst(x,y,(Math.random()-.5),-1,(.9+Math.random()*.6)*Math.min(3,power));
   dentBurst(x,y,0,-1,1.2*Math.min(3,power));
-  // вспышка: яркое ядро + огонь по радиусу (малый заряд — компактный разрыв минимум 10 языков)
-  const nF=Math.min(30,Math.max(power<1.5?10:0,Math.round(6*power)));
+  // вспышка: компактный разрыв — мало огня, много дыма и искр (как на фото 2)
+  const nF=Math.min(14,Math.max(power<1.5?5:0,Math.round(3*power)));
   for(let g=0;g<nF;g++){
-    const ang=Math.random()*6.283,sp=(.8+Math.random()*3.2)*Math.min(2.5,power);
-    gas(x+(Math.random()-.5)*6*power,y+(Math.random()-.5)*6*power,Math.cos(ang)*sp,Math.sin(ang)*sp,24+Math.random()*26,3.5+Math.random()*3.5,0);
+    const ang=Math.random()*6.283,sp=(.5+Math.random()*2)*Math.min(2,power);
+    gas(x+(Math.random()-.5)*3*power,y+(Math.random()-.5)*3*power,Math.cos(ang)*sp,Math.sin(ang)*sp,18+Math.random()*18,2+Math.random()*2.5,0);
   }
-  puff(x,y,0,0,1.2+power);
+  puff(x,y,0,0,0.8+power*0.5);
   // кольцо ударной волны из пыли — разлетается и гаснет о стены (коллизия в postFrame)
-  const nR=Math.min(22,Math.round(6+power*2));
+  const nR=Math.min(16,Math.round(4+power*1.5));
   for(let g=0;g<nR;g++){
     const ang=g/nR*6.283+Math.random()*.4;
-    const sp=(3.5+Math.random()*2)*Math.min(2.5,power);
-    gas(x+Math.cos(ang)*6,y+Math.sin(ang)*6,Math.cos(ang)*sp,Math.sin(ang)*sp,16+Math.random()*10,2.5+power*0.4,2,1);
+    const sp=(2.5+Math.random()*1.5)*Math.min(2,power);
+    gas(x+Math.cos(ang)*4,y+Math.sin(ang)*4,Math.cos(ang)*sp,Math.sin(ang)*sp,12+Math.random()*8,2+power*0.3,2,1);
   }
   // разлёт дыма: густые клубы, выброшенные взрывом во все стороны
-  const nB=Math.min(46,Math.round(16+power*6));
+  const nB=Math.min(30,Math.round(10+power*4));
   for(let k=0;k<nB;k++){
-    const ang=Math.random()*6.283,sp=(6+Math.random()*9)*Math.min(2.2,power);
-    gas(x+(Math.random()-.5)*10,y+(Math.random()-.5)*10,Math.cos(ang)*sp,Math.sin(ang)*sp,90+Math.random()*90,3.5+Math.random()*3.5,Math.random()<0.55?1:2,1);
+    const ang=Math.random()*6.283,sp=(4+Math.random()*6)*Math.min(1.8,power);
+    gas(x+(Math.random()-.5)*6,y+(Math.random()-.5)*6,Math.cos(ang)*sp,Math.sin(ang)*sp,60+Math.random()*60,2.5+Math.random()*2.5,Math.random()<0.6?1:2,1);
   }
   // огненный шар + густой дым после взрыва
-  const nS=Math.min(26,Math.round(5+power*3));
+  const nS=Math.min(14,Math.round(2+power*2));
   for(let k=0;k<nS;k++){
-    const a2=Math.random()*6.283,s2=(.6+Math.random()*2)*Math.min(2,power);
-    gas(x+(Math.random()-.5)*10*power,y+(Math.random()-.5)*8*power,Math.cos(a2)*s2-.5,Math.sin(a2)*s2-1,60+Math.random()*80,2.5+Math.random()*3+power*0.5,2);
+    const a2=Math.random()*6.283,s2=(.4+Math.random()*1.2)*Math.min(1.5,power);
+    gas(x+(Math.random()-.5)*5*power,y+(Math.random()-.5)*4*power,Math.cos(a2)*s2-.3,Math.sin(a2)*s2-.5,40+Math.random()*50,2+Math.random()*2+power*0.3,2);
   }
-  gas(x,y,0,-1.2,90+Math.random()*60,4+Math.random()*2+power,1);
+  gas(x,y,0,-0.8,60+Math.random()*40,3+Math.random()*1.5+power*0.5,1);
   // дымовая завеса держится дольше у больших взрывов
-  for(let k=0;k<power*2;k++)
-    gas(x+(Math.random()-.5)*R,y+(Math.random()-.5)*R*0.6,(Math.random()-.5)*1.5,-.5-Math.random(),100+Math.random()*80,3+Math.random()*3,1);
+  for(let k=0;k<power*1.5;k++)
+    gas(x+(Math.random()-.5)*R*0.6,y+(Math.random()-.5)*R*0.4,(Math.random()-.5)*1.2,-.4-Math.random(),80+Math.random()*60,2.5+Math.random()*2.5,1);
   if(sparkN<MAXS*.85){
-    const nSp=Math.min(120,Math.round(26*power));
+    const nSp=Math.min(80,Math.round(18*power));
     for(let k=0;k<nSp;k++){
-      const a2=Math.random()*6.283,s2=(3+Math.random()*11)*Math.min(2,power);
-      spark(x,y,Math.cos(a2)*s2,Math.sin(a2)*s2-1.5,26+Math.random()*44);
+      const a2=Math.random()*6.283,s2=(2.5+Math.random()*8)*Math.min(1.8,power);
+      spark(x,y,Math.cos(a2)*s2,Math.sin(a2)*s2-1.2,20+Math.random()*34);
     }
   }
   if(power>=4){
