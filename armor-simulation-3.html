@@ -297,7 +297,7 @@ const WALL_R=2.2;                  // отступ стен/пола от кра
 
 /* ================= материалы ================= */
 const M={EMPTY:0,STEEL:1,ALU:2,TI:3,W:4,CER:5,BRASS:6,GLASS:7,CONC:8,EXP:9,CU:10,LEAD:11,
-  HHA:12,ALUM:13,SIC:14,CMPB:15,C4:16,RUB:17,OAK:18,WATER:19,FILL:20,U:21,FUEL:22};
+  HHA:12,ALUM:13,SIC:14,CMPB:15,C4:16,RUB:17,OAK:18,WATER:19,FILL:20,U:21,FUEL:22,INOX:23,CAST:24,SPR:25,MANG:26,TOOL:27,NI:28,CO:29,CR:30,MO:31,TA:32,DUR:33,MG:34,BE:35,LI:36,CARB:37,KEV:38,GLP:39,FOAM:40,AU:41,PT:42,AG:43,OS:44,IR:45,PU:46,BRZ:47,ZN:48,SN:49,NICH:50,PORC:51,BOR:52,NITR:53,ZRO:54,BAS:55,GRAN:56,BRICK:57,MARB:58,SAND:59,LIME:60,GYPS:61,ASPH:62,PINE:63,BIRCH:64,PLY:65,CHIP:66,LEATH:67,BONE:68,POLY:69,PVC:70,TEFL:71,ACRY:72,NYL:73,EBON:74,POWD:75,DYNA:76,TNT:77,OIL:78,PETR:79,HG:80};
 const MAT=[
  {n:'—',c:[0,0,0],d:1,k:.5,brk:1.5,yld:.05,pl:.1,melt:9,mu:.3,bh:.05},
  {n:'Сталь RHA',   c:[128,138,160],d:7.8,k:.85,brk:1.30,yld:.040,pl:.25,melt:1.15,mu:.25,bh:.09},
@@ -322,21 +322,83 @@ const MAT=[
    {n:'Керамокомпозит',c:[190,204,112],d:2.9,k:.95,brk:1.08,yld:9,pl:0,melt:2.3,mu:.5,bh:.12},
    {n:'Уран DU',c:[206,198,160],d:19.1,k:.92,brk:1.18,yld:.055,pl:.12,melt:1.9,mu:.2,bh:.12},
    {n:'Топливо',c:[235,130,30],d:.8,k:.30,brk:2.20,yld:.008,pl:.70,melt:.45,mu:.15,bh:.03},
+ {n:'Нержавейка 304',c:[176,184,198],d:7.9,k:0.82,brk:1.34,yld:0.045,pl:0.28,melt:1.2,mu:0.25,bh:0.09},
+ {n:'Чугун',c:[88,90,98],d:7.2,k:0.7,brk:1.15,yld:0.06,pl:0.12,melt:1,mu:0.3,bh:0.08},
+ {n:'Рессорная сталь',c:[132,118,104],d:7.8,k:0.88,brk:1.28,yld:0.055,pl:0.22,melt:1.15,mu:0.25,bh:0.09},
+ {n:'Марганцевая сталь',c:[140,128,110],d:7.9,k:0.85,brk:1.3,yld:0.05,pl:0.24,melt:1.2,mu:0.28,bh:0.09},
+ {n:'Инструментальная',c:[110,116,128],d:7.7,k:0.9,brk:1.26,yld:0.06,pl:0.2,melt:1.1,mu:0.25,bh:0.1},
+ {n:'Никель',c:[168,170,168],d:8.9,k:0.8,brk:1.4,yld:0.04,pl:0.3,melt:1.3,mu:0.25,bh:0.08},
+ {n:'Кобальт',c:[120,140,180],d:8.9,k:0.85,brk:1.32,yld:0.045,pl:0.25,melt:1.3,mu:0.25,bh:0.09},
+ {n:'Хром',c:[190,200,215],d:7.2,k:0.9,brk:1.25,yld:0.05,pl:0.2,melt:1.5,mu:0.2,bh:0.09},
+ {n:'Молибден',c:[160,160,170],d:10.2,k:0.88,brk:1.3,yld:0.05,pl:0.18,melt:1.8,mu:0.22,bh:0.09},
+ {n:'Тантал',c:[150,150,165],d:16.6,k:0.9,brk:1.28,yld:0.05,pl:0.15,melt:1.9,mu:0.2,bh:0.1},
+ {n:'Дюраль',c:[200,200,210],d:2.8,k:0.7,brk:1.7,yld:0.022,pl:0.32,melt:0.6,mu:0.3,bh:0.06},
+ {n:'Магний',c:[210,205,195],d:1.7,k:0.55,brk:1.9,yld:0.015,pl:0.4,melt:0.5,mu:0.3,bh:0.05},
+ {n:'Бериллий',c:[195,190,175],d:1.85,k:0.8,brk:1.3,yld:0.04,pl:0.2,melt:1,mu:0.25,bh:0.07},
+ {n:'Литий',c:[200,195,185],d:0.53,k:0.4,brk:2.2,yld:0.008,pl:0.5,melt:0.3,mu:0.3,bh:0.04},
+ {n:'Карбон',c:[40,40,44],d:1.6,k:0.95,brk:1.1,yld:0.03,pl:0.1,melt:2,mu:0.3,bh:0.08},
+ {n:'Кевлар',c:[210,190,120],d:1.44,k:0.7,brk:1.5,yld:0.02,pl:0.4,melt:1,mu:0.35,bh:0.05},
+ {n:'Стеклопластик',c:[150,180,160],d:1.9,k:0.75,brk:1.4,yld:0.025,pl:0.3,melt:1,mu:0.35,bh:0.06},
+ {n:'Пенопласт',c:[230,230,230],d:0.1,k:0.3,brk:2.5,yld:0.005,pl:0.6,melt:0.4,mu:0.4,bh:0.02},
+ {n:'Золото',c:[255,200,40],d:19.3,k:0.6,brk:2,yld:0.012,pl:0.5,melt:1,mu:0.2,bh:0.05},
+ {n:'Платина',c:[220,220,228],d:21.4,k:0.85,brk:1.5,yld:0.03,pl:0.2,melt:1.5,mu:0.2,bh:0.07},
+ {n:'Серебро',c:[215,215,225],d:10.5,k:0.65,brk:1.9,yld:0.012,pl:0.45,melt:1,mu:0.2,bh:0.05},
+ {n:'Осмий',c:[170,170,200],d:22.6,k:0.9,brk:1.4,yld:0.04,pl:0.15,melt:2,mu:0.2,bh:0.08},
+ {n:'Иридий',c:[200,200,210],d:22.5,k:0.9,brk:1.35,yld:0.04,pl:0.15,melt:2,mu:0.2,bh:0.08},
+ {n:'Плутоний',c:[180,170,150],d:19.8,k:0.9,brk:1.2,yld:0.05,pl:0.12,melt:1.8,mu:0.2,bh:0.12},
+ {n:'Бронза',c:[200,140,70],d:8.8,k:0.65,brk:1.7,yld:0.02,pl:0.35,melt:0.9,mu:0.22,bh:0.06},
+ {n:'Цинк',c:[170,180,190],d:7.1,k:0.6,brk:1.8,yld:0.02,pl:0.35,melt:0.6,mu:0.25,bh:0.05},
+ {n:'Олово',c:[190,195,205],d:7.3,k:0.55,brk:2,yld:0.012,pl:0.5,melt:0.5,mu:0.25,bh:0.04},
+ {n:'Нихром',c:[150,150,160],d:8.4,k:0.75,brk:1.5,yld:0.03,pl:0.25,melt:1.3,mu:0.25,bh:0.07},
+ {n:'Фарфор',c:[240,240,245],d:2.4,k:1,brk:1.05,yld:9,pl:0,melt:2.2,mu:0.4,bh:0.13},
+ {n:'Карбид бора',c:[60,70,75],d:2.5,k:1.05,brk:1.04,yld:9,pl:0,melt:2.6,mu:0.5,bh:0.14},
+ {n:'Нитрид кремния',c:[90,100,120],d:3.2,k:1,brk:1.06,yld:9,pl:0,melt:2.4,mu:0.5,bh:0.13},
+ {n:'Цирконий',c:[220,220,215],d:5.7,k:0.95,brk:1.08,yld:9,pl:0,melt:2.3,mu:0.5,bh:0.12},
+ {n:'Базальт',c:[80,80,88],d:2.9,k:0.85,brk:1.1,yld:9,pl:0,melt:2,mu:0.55,bh:0.1},
+ {n:'Гранит',c:[130,120,115],d:2.7,k:0.85,brk:1.1,yld:9,pl:0,melt:2.1,mu:0.55,bh:0.1},
+ {n:'Кирпич',c:[170,80,60],d:1.8,k:0.7,brk:1.2,yld:9,pl:0,melt:2,mu:0.6,bh:0.08},
+ {n:'Мрамор',c:[235,232,225],d:2.7,k:0.9,brk:1.08,yld:9,pl:0,melt:2.2,mu:0.5,bh:0.1},
+ {n:'Песчаник',c:[210,190,150],d:2.3,k:0.75,brk:1.15,yld:9,pl:0,melt:2,mu:0.6,bh:0.08},
+ {n:'Известняк',c:[215,210,195],d:2.6,k:0.8,brk:1.12,yld:9,pl:0,melt:2.1,mu:0.55,bh:0.09},
+ {n:'Гипс',c:[240,238,232],d:2.3,k:0.6,brk:1.3,yld:9,pl:0,melt:1.8,mu:0.5,bh:0.06},
+ {n:'Асфальт',c:[60,60,65],d:2.1,k:0.6,brk:1.4,yld:0.03,pl:0.4,melt:1.5,mu:0.6,bh:0.05},
+ {n:'Сосна',c:[210,180,130],d:0.6,k:0.5,brk:2,yld:0.008,pl:0.5,melt:0.5,mu:0.35,bh:0.03},
+ {n:'Берёза',c:[225,215,190],d:0.65,k:0.5,brk:1.95,yld:0.008,pl:0.5,melt:0.5,mu:0.35,bh:0.03},
+ {n:'Фанера',c:[195,165,115],d:0.7,k:0.55,brk:1.8,yld:0.01,pl:0.45,melt:0.5,mu:0.35,bh:0.04},
+ {n:'ДСП',c:[180,150,110],d:0.8,k:0.5,brk:1.7,yld:0.012,pl:0.4,melt:0.5,mu:0.4,bh:0.04},
+ {n:'Кожа',c:[150,100,60],d:0.9,k:0.45,brk:2.2,yld:0.008,pl:0.55,melt:0.4,mu:0.4,bh:0.03},
+ {n:'Кость',c:[235,228,205],d:1.9,k:0.7,brk:1.3,yld:0.03,pl:0.25,melt:1.5,mu:0.35,bh:0.05},
+ {n:'Полиэтилен',c:[230,230,235],d:0.95,k:0.4,brk:2.4,yld:0.006,pl:0.6,melt:0.4,mu:0.35,bh:0.02},
+ {n:'ПВХ',c:[200,210,220],d:1.4,k:0.5,brk:2,yld:0.01,pl:0.5,melt:0.5,mu:0.35,bh:0.03},
+ {n:'Тефлон',c:[245,245,245],d:2.2,k:0.5,brk:1.8,yld:0.012,pl:0.4,melt:1.2,mu:0.15,bh:0.04},
+ {n:'Оргстекло',c:[180,220,235],d:1.2,k:0.7,brk:1.3,yld:0.02,pl:0.35,melt:1,mu:0.3,bh:0.05},
+ {n:'Нейлон',c:[220,220,225],d:1.15,k:0.55,brk:1.9,yld:0.012,pl:0.5,melt:0.6,mu:0.3,bh:0.03},
+ {n:'Эбонит',c:[40,35,35],d:1.2,k:0.6,brk:1.5,yld:0.02,pl:0.3,melt:1,mu:0.3,bh:0.04},
+ {n:'Порох',c:[90,80,70],d:1.7,k:0.5,brk:1.4,yld:0.05,pl:0.2,melt:9,mu:0.3,bh:0.04},
+ {n:'Динамит',c:[200,80,50],d:1.6,k:0.5,brk:1.4,yld:0.05,pl:0.2,melt:9,mu:0.3,bh:0.04},
+ {n:'Тротил',c:[210,170,60],d:1.65,k:0.5,brk:1.4,yld:0.05,pl:0.2,melt:9,mu:0.3,bh:0.04},
+ {n:'Масло',c:[200,170,80],d:0.9,k:0.4,brk:2.5,yld:0.005,pl:0.6,melt:0.4,mu:0.3,bh:0.02},
+ {n:'Нефть',c:[50,45,40],d:0.85,k:0.4,brk:2.4,yld:0.006,pl:0.6,melt:0.4,mu:0.3,bh:0.02},
+ {n:'Ртуть',c:[190,195,205],d:13.5,k:0.5,brk:2.2,yld:0.008,pl:0.5,melt:0.5,mu:0.25,bh:0.03},
 ];
-function isEX(m){return m===M.EXP||m===M.CMPB||m===M.C4;}
+function isEX(m){return m===M.EXP||m===M.CMPB||m===M.C4||m===M.POWD||m===M.DYNA||m===M.TNT;}
 function isFuel(m){return m===M.FUEL;}
-function isBoom(m){return m===M.EXP||m===M.CMPB||m===M.C4||m===M.FUEL;}
-/* мощность взрыва по материалу: взрывчатка=1, композиция=1.7, C4=2.6, топливо=2.0 (объёмный взрыв) */
+function isBoom(m){return m===M.EXP||m===M.CMPB||m===M.C4||m===M.FUEL||m===M.U||m===M.POWD||m===M.DYNA||m===M.TNT;}
+/* мощность взрыва по материалу: взрывчатка=1, композиция=1.7, C4=2.6, топливо=2.0 (объёмный взрыв), уран=6.0 */
 function blastPower(m){
   if(m===M.C4)return 2.6;
   if(m===M.CMPB)return 1.7;
   if(m===M.FUEL)return 2.0;
+  if(m===M.U)return 6.0;
+  if(m===M.TNT)return 1.5;
+  if(m===M.DYNA)return 1.3;
+  if(m===M.POWD)return 0.8;
   return 1.0;
 }
 const BR=MAT.map(m=>m.c[0]),BG=MAT.map(m=>m.c[1]),BB=MAT.map(m=>m.c[2]);
 const MU=new Float32Array(MAT.map(m=>m.mu)); // трение в плоском массиве — быстро в pair()
 const MELT=MAT.map(m=>m.melt);
-const PAINT_MATS=[M.STEEL,M.HHA,M.ALU,M.TI,M.W,M.CER,M.ALUM,M.SIC,M.BRASS,M.GLASS,M.CONC,M.EXP,M.CMPB,M.C4,M.FUEL,M.CU,M.U,M.OAK,M.RUB,M.WATER,M.FILL];
+const PAINT_MATS=[M.STEEL,M.HHA,M.ALU,M.TI,M.W,M.CER,M.ALUM,M.SIC,M.BRASS,M.GLASS,M.CONC,M.EXP,M.CMPB,M.C4,M.FUEL,M.CU,M.U,M.OAK,M.RUB,M.WATER,M.FILL,M.INOX,M.CAST,M.SPR,M.MANG,M.TOOL,M.NI,M.CO,M.CR,M.MO,M.TA,M.DUR,M.MG,M.BE,M.LI,M.CARB,M.KEV,M.GLP,M.FOAM,M.AU,M.PT,M.AG,M.OS,M.IR,M.PU,M.BRZ,M.ZN,M.SN,M.NICH,M.PORC,M.BOR,M.NITR,M.ZRO,M.BAS,M.GRAN,M.BRICK,M.MARB,M.SAND,M.LIME,M.GYPS,M.ASPH,M.PINE,M.BIRCH,M.PLY,M.CHIP,M.LEATH,M.BONE,M.POLY,M.PVC,M.TEFL,M.ACRY,M.NYL,M.EBON,M.POWD,M.DYNA,M.TNT,M.OIL,M.PETR,M.HG];
 
 /* ================= таблицы цвета ================= */
 const hLUT=new Uint8Array(256*4);
@@ -1604,12 +1666,180 @@ const SCENES={
     boxShell(X0+40,Y0+20,20,20,M.STEEL,M.EXP,3);
     boxShell(X0+110,Y0+100,20,20,M.STEEL,M.EXP,3);
   }},
+  wall3:{n:'Стена тройная',f(){
+    rectC(120,30,12,130,M.CONC);
+    rectC(140,30,10,130,M.HHA);
+    rectC(158,30,14,130,M.W);
+    rectC(180,30,8,130,M.CER);
+    rectC(196,30,12,130,M.HHA);
+    rectC(150,20,60,10,M.STEEL);
+    for(let y=40;y<150;y+=22){rectC(112,y,8,8,M.STEEL);rectC(208,y,8,8,M.STEEL);}
+  }},
+  pyramid:{n:'Пирамида',f(){
+    for(let i=0;i<12;i++){
+      const w=160-i*12,y=152-i*10;
+      rectC(160-w/2,y,w,10,i%2?M.CONC:M.HHA);
+    }
+    boxShell(148,44,24,20,M.BRASS,M.EXP,3);
+  }},
+  target:{n:'Мишень',f(){
+    const cx=205,cy=95;
+    const lay=[[58,M.CONC],[46,M.BRASS],[34,M.CONC],[22,M.BRASS],[10,M.EXP]];
+    for(const [R,m] of lay)
+      for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++)
+        if(Math.max(Math.abs(dx),Math.abs(dy))<=R&&Math.max(Math.abs(dx),Math.abs(dy))>R-6)putCell(cx+dx,cy+dy,m);
+    for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++)putCell(cx+dx,cy+dy,M.EXP);
+    rectC(cx-3,cy+58,6,24,M.STEEL);
+    rectC(cx-20,158,40,5,M.STEEL);
+  }},
+  bunker2:{n:'Дот-2',f(){
+    boxShell(140,70,110,80,M.CONC,M.HHA,10);
+    for(let x=150;x<240;x+=12)rectC(x,96,6,10,M.STEEL);
+    rectC(140,60,110,10,M.HHA);
+    rectC(150,150,90,8,M.CONC);
+    boxShell(255,100,30,50,M.HHA,M.EXP,3);
+  }},
+  silo:{n:'Силос',f(){
+    boxShell(170,50,70,104,M.STEEL,M.CONC,5);
+    for(let i=0;i<5;i++)rectC(170,58+i*22,70,4,M.HHA);
+    for(let r=0;r<16;r++)rectC(Math.round(170+r*2.2),34+r,Math.max(2,Math.round(70-r*4.4)),2,M.HHA);
+    rectC(160,154,90,6,M.CONC);
+  }},
+  estak:{n:'Эстакада',f(){
+    rectC(50,80,220,8,M.STEEL);
+    rectC(50,88,220,5,M.CONC);
+    for(let i=0;i<4;i++){
+      const x=66+i*58;
+      rectC(x,93,12,60,M.CONC);
+      rectC(x-5,153,22,6,M.CONC);
+    }
+    for(let x=50;x<270;x+=10)rectC(x,70,3,10,M.STEEL);
+    boxShell(120,40,40,30,M.HHA,M.EXP,3);
+  }},
+  conta:{n:'Контейнеры',f(){
+    const cols=[M.HHA,M.CER,M.W];
+    for(let r=0;r<3;r++)for(let i=0;i<3-r;i++){
+      const x=110+i*52+r*26,y=120-r*26;
+      boxShell(x,y,48,22,cols[(r+i)%3],M.FILL,2);
+      for(let t=0;t<4;t++)rectC(x+6+t*11,y+2,3,18,M.STEEL);
+    }
+    rectC(100,146,180,6,M.STEEL);
+  }},
+  armor2:{n:'Бронепакет',f(){
+    const mats=[M.HHA,M.CER,M.ALU,M.W,M.SIC,M.HHA,M.CMPB];
+    let x=130;
+    for(const m of mats){rectC(x,40,8,100,m);x+=12;}
+    for(let y=44;y<140;y+=18)rectC(130,y,x-130,3,M.STEEL);
+    rectC(122,140,100,8,M.CONC);
+  }},
+  glassbox:{n:'Стеклянный куб',f(){
+    boxShell(160,60,90,90,M.STEEL,M.GLASS,4);
+    for(let i=0;i<4;i++){rectC(164,66+i*22,82,3,M.STEEL);rectC(164+i*22,64,3,82,M.STEEL);}
+    boxShell(185,85,40,40,M.BRASS,M.EXP,4);
+    rectC(155,150,100,6,M.CONC);
+  }},
+  furnace:{n:'Печь',f(){
+    boxShell(150,60,100,96,M.CONC,M.FUEL,8);
+    for(let x=166;x<234;x+=10)rectC(x,120,4,28,M.EXP);
+    rectC(140,50,120,10,M.HHA);
+    rectC(140,156,120,8,M.STEEL);
+    rectC(196,20,8,30,M.STEEL);
+  }},
+  tower2:{n:'Вышка',f(){
+    for(const dx of [0,44]){
+      rectC(170+dx,100,8,60,M.STEEL);
+      rotRect(196+dx-22,130,54,5,0.5,M.STEEL);
+      rotRect(196+dx-22,130,54,5,-0.5,M.STEEL);
+    }
+    boxShell(160,60,72,40,M.HHA,M.GLASS,3);
+    rectC(150,100,92,6,M.HHA);
+    rectC(188,30,16,30,M.STEEL);
+    for(let i=0;i<3;i++)rectC(190,34+i*9,12,3,M.EXP);
+  }},
+  vault:{n:'Хранилище',f(){
+    boxShell(160,70,90,80,M.HHA,M.W,8);
+    boxShell(182,92,46,44,M.U,M.BRASS,5);
+    rectC(196,60,18,10,M.STEEL);
+    for(let i=0;i<4;i++)putCell(198+i*3,62,M.BRASS);
+    rectC(150,150,110,6,M.CONC);
+  }},
+  truck:{n:'Грузовик',f(){
+    rectC(60,140,200,6,M.STEEL);
+    boxShell(70,92,104,48,M.HHA,M.FILL,3);
+    for(let t=0;t<5;t++)rectC(74,96+t*9,96,3,M.STEEL);
+    boxShell(190,102,52,38,M.HHA,M.GLASS,3);
+    rectC(190,92,52,10,M.HHA);
+    rectC(150,128,22,12,M.CU);
+    for(const wx of [92,148,228]){
+      for(let dy=-12;dy<=12;dy++)for(let dx=-12;dx<=12;dx++)
+        if(dx*dx+dy*dy<=144)putCell(wx+dx,152+dy,M.RUB);
+      for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+        if(dx*dx+dy*dy<=16)putCell(wx+dx,152+dy,M.STEEL);
+    }
+    putCell(243,112,M.BRASS);
+  }},
+  sau:{n:'САУ',f(){
+    rectC(80,140,120,16,M.RUB);
+    for(let i=0;i<6;i++){
+      const wx=92+i*20;
+      for(let dy=-6;dy<=6;dy++)for(let dx=-6;dx<=6;dx++)
+        if(dx*dx+dy*dy<=36)putCell(wx+dx,148+dy,M.STEEL);
+    }
+    boxShell(92,102,96,38,M.HHA,M.STEEL,4);
+    rotRect(120,100,70,8,-0.35,M.HHA);
+    rectC(188,110,72,9,M.HHA);
+    rectC(256,108,10,13,M.STEEL);
+    boxShell(120,88,26,16,M.HHA,M.GLASS,2);
+    rectC(100,156,90,6,M.CONC);
+  }},
+  boat:{n:'Катер',f(){
+    for(let r2=0;r2<34;r2++){
+      const hw=12+r2*2.4;
+      rectC(Math.round(200-hw),110+r2,Math.round(hw*2),1,r2>28?M.HHA:M.STEEL);
+    }
+    rectC(150,104,100,8,M.OAK);
+    boxShell(180,66,40,38,M.HHA,M.GLASS,3);
+    rectC(196,40,6,26,M.STEEL);
+    rectC(120,96,24,8,M.HHA);
+    boxShell(226,88,26,18,M.STEEL,M.EXP,2);
+    for(let i=0;i<3;i++)rectC(150,144,100,2,M.CU);
+  }},
+  zsu:{n:'ЗСУ',f(){
+    rectC(120,140,110,16,M.RUB);
+    for(let i=0;i<5;i++){
+      const wx=132+i*22;
+      for(let dy=-6;dy<=6;dy++)for(let dx=-6;dx<=6;dx++)
+        if(dx*dx+dy*dy<=36)putCell(wx+dx,148+dy,M.STEEL);
+    }
+    boxShell(140,108,70,32,M.HHA,M.STEEL,4);
+    for(const off of [-6,6]){
+      rotRect(200,84,64,5,-0.5+off*0.004,M.HHA);
+      rotRect(200,92,64,5,-0.5-off*0.004,M.HHA);
+    }
+    for(let dy=-8;dy<=8;dy++)for(let dx=-8;dx<=8;dx++)
+      if(dx*dx+dy*dy<=64)putCell(175+dx,80+dy,M.CER);
+    rectC(172,88,6,6,M.BRASS);
+  }},
+  plane:{n:'Самолёт',f(){
+    for(let r2=0;r2<10;r2++){
+      const hw=4+Math.sin(r2/9*Math.PI)*7;
+      rectC(Math.round(120+r2*9-hw),100,Math.round(hw*2),3,M.ALU);
+    }
+    rectC(105,97,120,4,M.HHA);
+    rectC(225,93,26,3,M.HHA);
+    boxShell(150,88,34,12,M.HHA,M.GLASS,2);
+    rectC(120,120,16,34,M.HHA);
+    rectC(112,148,32,5,M.HHA);
+    for(let i=0;i<3;i++)rectC(140+i*20,103,10,6,M.CU);
+    putCell(232,98,M.EXP);
+  }},
   empty:{n:'Пустая',f(){}},
 };
 
 /* ================= снаряды ================= */
 const PCH={S:M.STEEL,B:M.BRASS,W:M.W,E:M.EXP,C:M.CU,L:M.LEAD,T:M.TI,
-  A:M.ALU,H:M.HHA,D:M.ALUM,K:M.SIC,Q:M.CMPB,N:M.C4,R:M.RUB,O:M.OAK,U:M.WATER,F:M.FILL,G:M.GLASS,V:M.CER,M:M.CONC,J:M.U,Y:M.FUEL};
+  A:M.ALU,H:M.HHA,D:M.ALUM,K:M.SIC,Q:M.CMPB,N:M.C4,R:M.RUB,O:M.OAK,U:M.WATER,F:M.FILL,G:M.GLASS,V:M.CER,M:M.CONC,J:M.U,Y:M.FUEL,
+  'a':M.INOX,'b':M.CAST,'c':M.SPR,'e':M.MANG,'f':M.TOOL,'g':M.NI,'h':M.CO,'i':M.CR,'j':M.MO,'k':M.TA,'l':M.DUR,'m':M.MG,'n':M.BE,'o':M.LI,'p':M.CARB,'q':M.KEV,'r':M.GLP,'s':M.FOAM,'t':M.AU,'u':M.PT,'v':M.AG,'w':M.OS,'x':M.IR,'y':M.PU,'z':M.BRZ,'0':M.ZN,'1':M.SN,'2':M.NICH,'3':M.PORC,'4':M.BOR,'5':M.NITR,'6':M.ZRO,'7':M.BAS,'8':M.GRAN,'9':M.BRICK,'!':M.MARB,'@':M.SAND,'#':M.LIME,'$':M.GYPS,'%':M.ASPH,'&':M.PINE,'*':M.BIRCH,'+':M.PLY,'-':M.CHIP,'/':M.LEATH,':':M.BONE,';':M.POLY,'<':M.PVC,'=':M.TEFL,'>':M.ACRY,'?':M.NYL,'^':M.EBON,'_':M.POWD,'~':M.DYNA,'|':M.TNT,'(':M.OIL,')':M.PETR,',':M.HG};
 // материал -> символ (для редактора снарядов)
 const CH2MAT=PCH, MAT2CH={};
 for(const ch in PCH)MAT2CH[PCH[ch]]=ch;
@@ -1626,6 +1856,58 @@ const PROJ_DEF=[
  {id:'kopyo',n:'Копьё',info:'вольфрам · бронебойное',spd:4200,type:'kin',shape:['....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS','..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSS','....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS']},
  {id:'kumul',n:'Кумулятив',info:'медь · фугас',spd:1900,type:'he',shape:['SSSSSSSSSSSSSSSSSSSSSEEE................','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEEEEEECCCC','SSSSSSSSSSSSSSSSSSSSSEEEEEEEEEEECCCC....','SSSSSSSSSSSSSSSSSSSSSEEEEEEECCCC........','SSSSSSSSSSSSSSSSSSSSSEEECCCC............','SSSSSSSSSSSSSSSSSSSSSEEE................']},
  {id:'svinec',n:'Свинец',info:'свинец · медленный',spd:900,type:'kin',shape:['....SSSSSSS....','..SSLLLLLLLSS..','.SSLLLLLLLLLSS.','..SSLLLLLLLSS..','....SSSSSSS....']},
+ {id:'igla',n:'Игла',info:'вольфрам',spd:5200,type:'kin',shape:['....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS','..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSS','....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSSS']},
+ {id:'shilo',n:'Шило',info:'сталь',spd:3400,type:'kin',shape:['....SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS','..SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS','....SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS']},
+ {id:'gvozd',n:'Гвоздь',info:'чугун',spd:2400,type:'kin',shape:['....bbbbbbbbbbbbbbbbbbbbSSSS','..bbbbbbbbbbbbbbbbbbbbbbbbSS','....bbbbbbbbbbbbbbbbbbbbSSSS']},
+ {id:'spica',n:'Спица',info:'титан',spd:3800,type:'kin',shape:['....TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT','..TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT','....TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT']},
+ {id:'lom',n:'Лом',info:'нержавейка',spd:2000,type:'kin',shape:['....aaaaaaaaaaaaaaaaaaaaaaaaSSSS','..aaaaaaaaaaaaaaaaaaaaaaaaaaaaSS','....aaaaaaaaaaaaaaaaaaaaaaaaSSSS']},
+ {id:'prut',n:'Прут',info:'молибден',spd:3000,type:'kin',shape:['....jjjjjjjjjjjjjjjjjjjjjjjjjj','..jjjjjjjjjjjjjjjjjjjjjjjjjjjj','....jjjjjjjjjjjjjjjjjjjjjjjjjj']},
+ {id:'rapier',n:'Рапира',info:'серебро',spd:4500,type:'kin',shape:['....vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv','..vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv','....vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv']},
+ {id:'osa',n:'Оса',info:'тонкая',spd:6000,type:'kin',shape:['....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW','..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW','....WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW']},
+ {id:'yadro',n:'Ядро',info:'чугун',spd:1800,type:'kin',shape:['.....S.....','..SSSSSSS..','.SSbbbbbSS.','.SbbbbbbbS.','.SbbbbbbbS.','SSbbbbbbbSS','.SbbbbbbbS.','.SbbbbbbbS.','.SSbbbbbSS.','..SSSSSSS..','.....S.....']},
+ {id:'pulya',n:'Пуля',info:'свинец',spd:1500,type:'kin',shape:['....S....','..SSSSS..','.SSLLLSS.','.SLLLLLS.','SSLLLLLSS','.SLLLLLS.','.SSLLLSS.','..SSSSS..','....S....']},
+ {id:'marble',n:'Шарик',info:'стекло',spd:2200,type:'kin',shape:['...G...','.GGGGG.','.GGGGG.','GGGGGGG','.GGGGG.','.GGGGG.','...G...']},
+ {id:'goldb',n:'Золотой',info:'золото',spd:1200,type:'kin',shape:['....S....','..SSSSS..','.SStttSS.','.StttttS.','SStttttSS','.StttttS.','.SStttSS.','..SSSSS..','....S....']},
+ {id:'mercb',n:'Ртуть',info:'тяжёлая',spd:1000,type:'kin',shape:['....S....','..SSSSS..','.SS,,,SS.','.S,,,,,S.','SS,,,,,SS','.S,,,,,S.','.SS,,,SS.','..SSSSS..','....S....']},
+ {id:'tennis',n:'Мяч',info:'резина',spd:800,type:'kin',shape:['.....R.....','..RRRRRRR..','.RRRRRRRRR.','.RRRRRRRRR.','.RRRRRRRRR.','RRRRRRRRRRR','.RRRRRRRRR.','.RRRRRRRRR.','.RRRRRRRRR.','..RRRRRRR..','.....R.....']},
+ {id:'bowl',n:'Шар',info:'базальт',spd:1100,type:'kin',shape:['......S......','...SSSSSSS...','..SS77777SS..','.SS7777777SS.','.S777777777S.','.S777777777S.','SS777777777SS','.S777777777S.','.S777777777S.','.SS7777777SS.','..SS77777SS..','...SSSSSSS...','......S......']},
+ {id:'kumul2',n:'Кумулятив-2',info:'медь',spd:2100,type:'he',shape:['S.......................................','SSSSSSSSSS..............................','SSSSSSSSSSSSSSSSSSSS....................','SSSSSSSSSSSSSSSSSSSSSSCCCCCCCC..........','SSSSSSSSSSSSSSSSSSSSSSEEEEEEEECCCCCCCCCC','SSSSSSSSSSSSSSSSSSSSSSCCCCCCCC..........','SSSSSSSSSSSSSSSSSSSS....................','SSSSSSSSSS..............................','S.......................................']},
+ {id:'kumul3',n:'Кумулятив-3',info:'мощный',spd:2400,type:'he',shape:['H...................................','HHHHHHHHH...........................','HHHHHHHHHHHHHHHHHH..................','HHHHHHHHHHHHHHHHHHHHCCCCCCC.........','HHHHHHHHHHHHHHHHHHHHEEEEEEECCCCCCCCC','HHHHHHHHHHHHHHHHHHHHCCCCCCC.........','HHHHHHHHHHHHHHHHHH..................','HHHHHHHHH...........................','H...................................']},
+ {id:'shaped',n:'Кумулятивный',info:'никель',spd:2000,type:'he',shape:['S...............................','SSSSSSSSSSS.....................','SSSSSSSSSSSSSSSSSSggg...........','SSSSSSSSSSSSSSSSSSEEEggggggggggg','SSSSSSSSSSSSSSSSSSggg...........','SSSSSSSSSSS.....................','S...............................']},
+ {id:'garpun',n:'Гарпун',info:'сталь',spd:2600,type:'kin',shape:['S...........................................','SSSSSSSSSSS.................................','SSSSSSSSSSSSSSSSSSSSSS......................','SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS...........','SSSSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWSSSSSSSSSSS','SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS...........','SSSSSSSSSSSSSSSSSSSSSS......................','SSSSSSSSSSS.................................','S...........................................']},
+ {id:'granata2',n:'Граната',info:'фугас',spd:1500,type:'he',shape:['SSSSSSSSSSSSS','SSSSSSSSSSSSS','SSEEEEEEEEESS','SSEEEEEEEEESS','SSEEEEEEEEESS','SSSSSSSSSSSSS','SSSSSSSSSSSSS']},
+ {id:'mina',n:'Мина',info:'C4',spd:1200,type:'he',shape:['SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS','SSNNNNNNNNNNNSS','SSNNNNNNNNNNNSS','SSNNNNNNNNNNNSS','SSNNNNNNNNNNNSS','SSNNNNNNNNNNNSS','SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS']},
+ {id:'dynam',n:'Динамит',info:'динамит',spd:1300,type:'he',shape:['SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SS~~~~~~~~~~~~~SS','SS~~~~~~~~~~~~~SS','SS~~~~~~~~~~~~~SS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS']},
+ {id:'tntb',n:'Тротил',info:'тротил',spd:1400,type:'he',shape:['SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS','SS|||||||||||SS','SS|||||||||||SS','SS|||||||||||SS','SS|||||||||||SS','SS|||||||||||SS','SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS']},
+ {id:'powdb',n:'Пороховая',info:'порох',spd:1100,type:'he',shape:['SSSSSSSSSSSSS','SSSSSSSSSSSSS','SS_________SS','SS_________SS','SS_________SS','SSSSSSSSSSSSS','SSSSSSSSSSSSS']},
+ {id:'bbomb',n:'Бомба',info:'фугас',spd:1600,type:'he',shape:['HHHHHHHHHHHHHHHHHHH','HHHHHHHHHHHHHHHHHHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHEEEEEEEEEEEEEEEHH','HHHHHHHHHHHHHHHHHHH','HHHHHHHHHHHHHHHHHHH']},
+ {id:'fugas2',n:'Фугас-2',info:'взрыв',spd:1900,type:'he',shape:['SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS','SSEEEEEEEEEEESS','SSEEEEEEEEEEESS','SSEEEEEEEEEEESS','SSEEEEEEEEEEESS','SSEEEEEEEEEEESS','SSSSSSSSSSSSSSS','SSSSSSSSSSSSSSS']},
+ {id:'fuelb',n:'Бак',info:'топливо',spd:1700,type:'he',shape:['SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSYYYYYYYYYYYYYSS','SSYYYYYYYYYYYYYSS','SSYYYYYYYYYYYYYSS','SSYYYYYYYYYYYYYSS','SSYYYYYYYYYYYYYSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS']},
+ {id:'romb',n:'Ромб',info:'керамика',spd:3000,type:'kin',shape:['.......V.......','......VVV......','.....VVVVV.....','....VVVVVVV....','...VVVVVVVVV...','..VVVVVVVVVVV..','.VVVVVVVVVVVVV.','VVVVVVVVVVVVVVV','.VVVVVVVVVVVVV.','..VVVVVVVVVVV..','...VVVVVVVVV...','....VVVVVVV....','.....VVVVV.....','......VVV......','.......V.......']},
+ {id:'krist',n:'Кристалл',info:'карбид бора',spd:3200,type:'kin',shape:['......4......','.....444.....','....44444....','...4444444...','..444444444..','.44444444444.','4444444444444','.44444444444.','..444444444..','...4444444...','....44444....','.....444.....','......4......']},
+ {id:'kin2',n:'Бронебой',info:'HHA',spd:5000,type:'kin',shape:['....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSS','..HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSS','....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSS']},
+ {id:'kin3',n:'Подкал-2',info:'карбид',spd:5500,type:'kin',shape:['....KKKKKKKKKKKKKKKKKKKKKKKKKKKKWWWW','..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKWW','....KKKKKKKKKKKKKKKKKKKKKKKKKKKKWWWW']},
+ {id:'udart',n:'Урановый',info:'уран',spd:4000,type:'kin',shape:['....JJJJJJJJJJJJJJJJJJJJJJJJJJJJSSSS','..JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJSS','....JJJJJJJJJJJJJJJJJJJJJJJJJJJJSSSS']},
+ {id:'tsar3',n:'Царёк',info:'средний',spd:2600,type:'tsar',blast:5,shape:['SSSSSSSSSSSSS','SSSSSSSSSSSSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSNNNNNNNNNSS','SSSSSSSSSSSSS','SSSSSSSSSSSSS']},
+ {id:'tsar4',n:'Бомба-М',info:'большая',spd:2400,type:'tsar',blast:6,shape:['HHHHHHHHHHHHHHH','HHHHHHHHHHHHHHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHEEEEEEEEEEEHH','HHHHHHHHHHHHHHH','HHHHHHHHHHHHHHH']},
+ {id:'coin',n:'Монета',info:'латунь',spd:2000,type:'kin',shape:['BBBBBBBBBBBBBBB','BBBBBBBBBBBBBBB','BBBBBBBBBBBBBBB']},
+ {id:'disk',n:'Диск',info:'титан',spd:2800,type:'kin',shape:['TTTTTTTTTTTTTTTTT','TTTTTTTTTTTTTTTTT','TTTTTTTTTTTTTTTTT']},
+ {id:'ring',n:'Кольцо',info:'медь',spd:2300,type:'kin',shape:['.......C.......','....CCCCCCC....','...CC.....CC...','..CC.......CC..','.CC.........CC.','.C...........C.','.C...........C.','CC...........CC','.C...........C.','.C...........C.','.CC.........CC.','..CC.......CC..','...CC.....CC...','....CCCCCCC....','.......C.......']},
+ {id:'truba',n:'Труба',info:'сталь',spd:2000,type:'kin',shape:['......S......','...SSSSSSS...','..SSS...SSS..','.SS.......SS.','.SS.......SS.','.S.........S.','SS.........SS','.S.........S.','.SS.......SS.','.SS.......SS.','..SSS...SSS..','...SSSSSSS...','......S......']},
+ {id:'bolt',n:'Болт',info:'сталь',spd:2600,type:'kin',shape:['SSSSSSSSS','SSSSSSSSS','SSSSSSSSS','SSSSSSSSS','SSSSSSSSS']},
+ {id:'screw',n:'Винт',info:'бронза',spd:2400,type:'kin',shape:['zzzzzzzzzzz','zzzzzzzzzzz','zzzzzzzzzzz','zzzzzzzzzzz','zzzzzzzzzzz']},
+ {id:'anvil',n:'Наковальня',info:'чугун',spd:900,type:'kin',shape:['bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb','bbbbbbbbbbbbbbbbbbbbb']},
+ {id:'brickb',n:'Кирпич',info:'кирпич',spd:1000,type:'kin',shape:['999999999999999','999999999999999','999999999999999','999999999999999','999999999999999','999999999999999','999999999999999']},
+ {id:'iceb',n:'Лёд',info:'вода',spd:1300,type:'kin',shape:['.....S.....','..SSSSSSS..','.SSUUUUUSS.','.SUUUUUUUS.','.SUUUUUUUS.','SSUUUUUUUSS','.SUUUUUUUS.','.SUUUUUUUS.','.SSUUUUUSS.','..SSSSSSS..','.....S.....']},
+ {id:'stake',n:'Кол',info:'дуб',spd:1400,type:'kin',shape:['O.............................','OOOOOOOOOO....................','OOOOOOOOOOOOOOOOOSSS..........','OOOOOOOOOOOOOOOOOOOOSSSSSSSSSS','OOOOOOOOOOOOOOOOOSSS..........','OOOOOOOOOO....................','O.............................']},
+ {id:'boneb',n:'Кость',info:'кость',spd:1500,type:'kin',shape:['....::::::::::::::::::::::::SSSS','..::::::::::::::::::::::::::::SS','....::::::::::::::::::::::::SSSS']},
+ {id:'glassh',n:'Осколок',info:'стекло',spd:2600,type:'kin',shape:['.....G.....','....GGG....','...GGGGG...','..GGGGGGG..','.GGGGGGGGG.','GGGGGGGGGGG','.GGGGGGGGG.','..GGGGGGG..','...GGGGG...','....GGG....','.....G.....']},
+ {id:'carbon',n:'Карбон',info:'карбон',spd:4800,type:'kin',shape:['....pppppppppppppppppppppppppppppppppppp','..pppppppppppppppppppppppppppppppppppppp','....pppppppppppppppppppppppppppppppppppp']},
+ {id:'cork',n:'Пробка',info:'пенопласт',spd:700,type:'kin',shape:['......s......','...sssssss...','..sssssssss..','.sssssssssss.','.sssssssssss.','.sssssssssss.','sssssssssssss','.sssssssssss.','.sssssssssss.','.sssssssssss.','..sssssssss..','...sssssss...','......s......']},
+ {id:'teflon',n:'Тефлон',info:'тефлон',spd:2000,type:'kin',shape:['....S....','..SSSSS..','.SS===SS.','.S=====S.','SS=====SS','.S=====S.','.SS===SS.','..SSSSS..','....S....']},
+ {id:'sledge',n:'Кувалда',info:'сталь',spd:800,type:'kin',shape:['SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS','SSSSSSSSSSSSSSSSS']},
+ {id:'ram',n:'Таран',info:'бетон',spd:1000,type:'kin',shape:['MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM','MMMMMMMMMMMMMMMMMMM']},
+ {id:'nuc',n:'Ядерный',info:'уран',spd:2200,type:'he',shape:['SSSSSSSSSSSSS','SSSSSSSSSSSSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSJJJJJJJJJSS','SSSSSSSSSSSSS','SSSSSSSSSSSSS']}
 ];
 let curProj=6,curSpeed=PROJ_DEF[6].spd;
 const SPD_MAX=33462; /* потолок скорости — итог всё равно зависит от плотности */
@@ -1807,7 +2089,22 @@ function bendBlast(j,dx,dy,d,f){
   }
 }
 let flash=0; // вспышка экрана от взрывов, гаснет сама
-function detonate(i){detonateAt(px[i],py[i],blastPower(pm[i]));kill(i);}
+function detonate(i){
+  const m=pm[i];
+  detonateAt(px[i],py[i],blastPower(m));
+  if(m===M.U)flash=1; // уран — яркая вспышка
+  shrapnel(i);
+}
+/* взорвавшаяся частица не исчезает: рвём связи, раскаляем, швыряем осколок */
+function shrapnel(i){
+  const base=i*SL;for(let s=0;s<SL;s++){const k=pb[base+s];if(k>=0)breakBond(k,false);}
+  fuse[i]=999999; // сгорел — повторно не детонирует
+  T[i]=2.5;let hv=Tv[i]+30;if(hv>40)hv=40;Tv[i]=hv;
+  const a=Math.random()*6.283,sp=6+Math.random()*14;
+  vx[i]+=Math.cos(a)*sp;vy[i]+=Math.sin(a)*sp-3;
+  kickSpin(i,(Math.random()-.5)*12);
+  wake(i);
+}
 function detonateAt(x,y,power){
   power=power||1;
   const R=EXP_R*(power>3?Math.sqrt(power)*1.9:power);
@@ -2401,6 +2698,7 @@ function postFrame(n){
         flg[i]|=LIQ;
       }
       if(isEX(m)&&t>.8)igniteE(i,2);
+      else if(m===M.U&&t>1.2)igniteE(i,3); // уран поджигается только сильным жаром
       if(m===M.FUEL&&t>.35)igniteE(i,3);
     }else if(t!==0)T[i]=0;
     // визуальный жар: медленное остывание ~10 сек (0.4/сек от 40)
