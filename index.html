@@ -2277,7 +2277,7 @@ function updateProjectiles(){
       let sx=0,sy=0,cx=0,cy=0;for(const i of p.ids){sx+=vx[i];sy+=vy[i];cx+=px[i];cy+=py[i];}
       const sp=Math.hypot(sx,sy)/p.ids.length;
       cx/=p.ids.length;cy/=p.ids.length;
-      if(p.armed<0&&sp<p.v0*.6)p.armed=3;
+      if(p.armed<0&&sp<p.v0*.3)p.armed=3;
       if(p.armed>=0&&--p.armed<=0){
         if(p.type==='tsar'){
           // Царь-бомба: один мега-взрыв в центре + подрыв всей начинки
@@ -2706,7 +2706,7 @@ function pair(a,b,dt,stat){
     // визуальный жар: блок нагревается при попадании, держит ~40 сек, остывает ~10 сек
     Tv[a]=Math.min(40,Tv[a]+rn*.08);
     Tv[b]=Math.min(40,Tv[b]+rn*.08);
-    if(rn>5&&(isBoom(pm[a])||isBoom(pm[b]))){
+    if(rn>8&&(isBoom(pm[a])||isBoom(pm[b]))){
       if(isBoom(pm[a]))igniteE(a,1);
       if(isBoom(pm[b]))igniteE(b,1);
     }
