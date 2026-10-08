@@ -408,9 +408,9 @@ const CELL=3, GX=320, GY=180, NC=GX*GY;
 const ALIVE=1, PROJ=2, LIQ=4;
 const SLEEPF=24, ITER=4;
 const SPD_K=160;                   // м/с на пиксель/кадр
-const GRAV=0.32;                   // гравитация осколков (пикс/кадр^2) — слабая, иначе снаряды клюют
+const GRAV=0.55;                   // гравитация осколков (пикс/кадр^2) — жёсткая
 const GRAV_PROJ=0.015;             // гравитация снаряда в полёте — почти прямая траектория
-const GRAV_SPARK=0.55;             // гравитация искр
+const GRAV_SPARK=0.8;              // гравитация искр
 const WALL_R=2.2;                  // отступ стен/пола от края мира
 
 /* ================= материалы ================= */
@@ -1952,6 +1952,128 @@ const SCENES={
     for(let i=0;i<3;i++)rectC(140+i*20,103,10,6,M.CU);
     putCell(232,98,M.EXP);
   }},
+  maus:{n:'Маус',f(){
+    const wheel=(wx,wy,r,hub)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+      for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
+        if(dx*dx+dy*dy<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
+      for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
+        if(dx*dx+dy*dy<=4)putCell(wx+dx,wy+dy,hub);
+    };
+    for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5,M.RUB);
+    rectC(124,160,142,3,M.RUB);rectC(124,174,142,3,M.RUB);
+    rectC(122,160,3,17,M.RUB);rectC(265,160,3,17,M.RUB);
+    rectC(126,152,138,5,M.HHA);
+    rectC(122,136,10,20,M.HHA);
+    rotRect(146,133,42,7,-0.65,M.HHA);
+    rotRect(146,141,38,5,-0.65,M.W);
+    rectC(258,110,8,46,M.HHA);
+    rectC(132,110,58,4,M.STEEL);rectC(206,110,58,4,M.STEEL);
+    for(let r=0;r<26;r++){
+      const w=Math.round(54-r*0.6),x0=198-(w>>1);
+      for(let x=0;x<w;x++)putCell(x0+x,84+r,r<10?M.W:M.HHA);
+    }
+    rectC(70,97,118,4,M.STEEL);
+    rectC(120,95,22,8,M.STEEL);rectC(70,96,8,6,M.U);
+    boxShell(182,92,9,14,M.HHA,M.STEEL,2);
+    rectC(196,81,9,2,M.STEEL);rectC(200,75,11,2,M.STEEL);
+    rectC(138,140,7,12,M.OAK);
+    boxShell(152,130,16,18,M.BRASS,M.EXP,2);
+    boxShell(170,130,16,18,M.BRASS,M.EXP,2);
+    boxShell(214,116,32,32,M.TI,M.ALU,4);
+    rectC(221,120,4,24,M.STEEL);rectC(229,120,4,24,M.STEEL);rectC(237,120,4,24,M.STEEL);
+    rectC(228,106,5,10,M.STEEL);
+    for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
+    rectC(268,142,10,2,M.STEEL);
+  }},
+  tiger2:{n:'Тигр II',f(){
+    const wheel=(wx,wy,r)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+    };
+    for(const wx of [138,159,180,201,222,243])wheel(wx,167,5);
+    rectC(126,160,132,3,M.RUB);rectC(126,174,132,3,M.RUB);
+    rectC(124,160,3,17,M.RUB);rectC(257,160,3,17,M.RUB);
+    rectC(128,152,128,5,M.HHA);
+    rectC(124,136,10,20,M.STEEL);
+    rotRect(148,133,42,7,-0.62,M.HHA);
+    rectC(252,112,8,44,M.HHA);
+    rectC(132,112,56,4,M.STEEL);rectC(202,112,56,4,M.STEEL);
+    for(let r=0;r<22;r++){
+      const w=Math.round(50-r*0.6),x0=204-(w>>1);
+      for(let x=0;x<w;x++)putCell(x0+x,86+r,r<7?M.HHA:M.STEEL);
+    }
+    rectC(80,99,104,4,M.STEEL);
+    rectC(140,97,18,8,M.STEEL);rectC(80,98,8,6,M.HHA);
+    boxShell(194,92,9,12,M.HHA,M.STEEL,2);
+    boxShell(154,130,16,18,M.BRASS,M.EXP,2);
+    boxShell(172,130,16,18,M.BRASS,M.EXP,2);
+    boxShell(214,118,30,30,M.TI,M.ALU,4);
+    rectC(221,122,4,22,M.STEEL);rectC(229,122,4,22,M.STEEL);
+    for(const bx of [262,268])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
+    rectC(260,142,10,2,M.STEEL);
+  }},
+  is7:{n:'ИС-7',f(){
+    const wheel=(wx,wy,r)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+    };
+    for(const wx of [140,161,182,203,224,245])wheel(wx,167,5);
+    rectC(128,160,132,3,M.RUB);rectC(128,174,132,3,M.RUB);
+    rectC(126,160,3,17,M.RUB);rectC(259,160,3,17,M.RUB);
+    rectC(130,152,128,5,M.HHA);
+    rectC(130,136,8,20,M.STEEL);
+    rotRect(152,133,40,6,-0.6,M.HHA);
+    rotRect(152,139,36,3,-0.6,M.CER);
+    rectC(252,120,8,36,M.HHA);
+    rectC(136,114,54,4,M.STEEL);rectC(202,114,56,4,M.STEEL);
+    for(let r=0;r<18;r++){
+      const w=Math.round(44-r*0.5),x0=210-(w>>1);
+      for(let x=0;x<w;x++)putCell(x0+x,90+r,r<6?M.HHA:M.STEEL);
+    }
+    rectC(90,101,100,4,M.STEEL);
+    rectC(150,99,18,8,M.STEEL);rectC(90,100,8,6,M.HHA);
+    boxShell(200,94,10,12,M.HHA,M.STEEL,2);
+    rectC(140,138,6,12,M.OAK);
+    boxShell(176,132,30,14,M.BRASS,M.EXP,2);
+    boxShell(212,118,32,30,M.TI,M.ALU,4);
+    rectC(219,122,5,22,M.STEEL);rectC(228,122,5,22,M.STEEL);rectC(237,122,5,22,M.STEEL);
+    for(const bx of [264,270])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
+    rectC(262,142,10,2,M.STEEL);
+  }},
+  t10m:{n:'Т-10М',f(){
+    const wheel=(wx,wy,r)=>{
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+    };
+    for(const wx of [142,163,184,205,226,247])wheel(wx,167,5);
+    rectC(130,160,132,3,M.RUB);rectC(130,174,132,3,M.RUB);
+    rectC(128,160,3,17,M.RUB);rectC(261,160,3,17,M.RUB);
+    rectC(132,152,128,5,M.HHA);
+    rectC(132,136,8,20,M.STEEL);
+    rotRect(154,133,40,6,-0.58,M.HHA);
+    rotRect(154,139,36,3,-0.58,M.CER);
+    rectC(254,120,8,36,M.HHA);
+    rectC(138,114,54,4,M.STEEL);rectC(204,114,56,4,M.STEEL);
+    for(let r=0;r<20;r++){
+      const w=Math.round(46-r*0.55),x0=208-(w>>1);
+      for(let x=0;x<w;x++)putCell(x0+x,88+r,r<7?M.HHA:M.STEEL);
+    }
+    rectC(88,100,102,4,M.STEEL);
+    rectC(148,98,18,8,M.STEEL);rectC(88,99,8,6,M.HHA);
+    boxShell(202,93,10,12,M.HHA,M.STEEL,2);
+    rectC(142,138,6,12,M.OAK);
+    boxShell(178,132,28,14,M.BRASS,M.EXP,2);
+    boxShell(214,118,30,30,M.TI,M.ALU,4);
+    rectC(221,122,5,22,M.STEEL);rectC(230,122,5,22,M.STEEL);rectC(239,122,5,22,M.STEEL);
+    for(const bx of [266,272])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
+    rectC(264,142,10,2,M.STEEL);
+  }},
   empty:{n:'Пустая',f(){}},
 };
 
@@ -2183,7 +2305,7 @@ function spawnJet(nx,ny,dx,dy){
 }
 
 /* ================= взрывчатка + ударные волны ================= */
-const EXP_IMP=5.2,EXP_R=26,CHAIN_R=10;
+const EXP_IMP=7.5,EXP_R=34,CHAIN_R=14;
 const waves=[]; // {x,y,r,maxR,spd,w,life,maxLife,power}
 function spawnWave(x,y,power,maxR){
   waves.push({x,y,r:6,maxR:maxR||(60*power),spd:9+4*power,w:10+4*power,life:1,power});
@@ -3998,6 +4120,7 @@ function wsAutosaveBuild(build){
 }
 let bedAnchor=-1;
 let bedTool='brush',bedGridOn=true,bedPickMat=-1,bedMoveGrab=null,bedHoldSel='edge';
+bedLayout();bedDraw();
 function bedStrokeRect(a,b){
   const ax=a%BW,ay=(a/BW)|0,bx=b%BW,by=(b/BW)|0;
   const x=Math.min(ax,bx),y=Math.min(ay,by),w=Math.abs(ax-bx)+1,h=Math.abs(ay-by)+1;
@@ -4146,7 +4269,7 @@ $('bedopen').onclick=()=>{$('beditor').classList.add('open');$('editor').classLi
 $('bedclose').onclick=()=>$('beditor').classList.remove('open');
 $('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;startPlaceBuild(b);$('beditor').classList.remove('open');};
 $('bedws').onclick=()=>wsPublishFromEditor('build');
-bedLayout();
+bedLayout();bedDraw();
 
 /* ================= ВОРКШОП (общий через локалхост + офлайн-режим) ================= */
 let wsTab='proj',wsItems=[],wsBase='';
