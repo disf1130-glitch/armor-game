@@ -942,7 +942,7 @@ const SCENES={
   t34:{n:'Т-34 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+dy*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [145,180,215,250])wheel(wx,165,6);
     wheel(130,167,4);wheel(262,167,4);
@@ -978,7 +978,7 @@ const SCENES={
   leo:{n:'Леопард-2 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5);
     for(let x=124;x<264;x+=12)rectC(x,146,9,5,M.STEEL);
@@ -1015,11 +1015,11 @@ const SCENES={
     rectC(223,118,4,26,M.STEEL);rectC(231,118,4,26,M.STEEL);rectC(239,118,4,26,M.STEEL);
     for(let x=218;x<=252;x+=6)rectC(x,108,4,6,M.STEEL);
     for(const fx of [226,242])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(fx+dx,104+dy,M.ALU);
+      if(dx*dx+dy*dy<=16)putCell(fx+dx,104+dy,M.ALU);
     boxShell(244,128,14,20,M.STEEL,M.TI,2);
     boxShell(216,138,10,10,M.STEEL,M.LEAD,2);
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
     rectC(186,112,52,4,M.HHA);
     rectC(182,116,60,4,M.STEEL);
@@ -1027,7 +1027,7 @@ const SCENES={
   abrams:{n:'Абрамс M1 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5);
     rectC(124,160,142,3,M.RUB);rectC(124,174,142,3,M.RUB);
@@ -1053,7 +1053,7 @@ const SCENES={
     rectC(221,120,4,24,M.STEEL);rectC(229,120,4,24,M.STEEL);rectC(237,120,4,24,M.STEEL);
     rectC(228,106,5,10,M.STEEL);
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
     rectC(182,108,52,4,M.HHA);
     rectC(178,112,60,4,M.STEEL);
@@ -1061,7 +1061,7 @@ const SCENES={
   t14:{n:'Т-14 Армата',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+dy*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [138,159,180,201,222,243,260])wheel(wx,167,5);
     rectC(126,160,142,3,M.RUB);rectC(126,174,142,3,M.RUB);
@@ -1087,7 +1087,7 @@ const SCENES={
     boxShell(216,118,36,30,M.TI,M.ALU,4);
     rectC(223,122,5,22,M.STEEL);rectC(232,122,5,22,M.STEEL);rectC(241,122,5,22,M.STEEL);
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
     rectC(190,100,12,4,M.HHA);
     rectC(186,104,20,4,M.STEEL);
@@ -1095,7 +1095,7 @@ const SCENES={
   merkava:{n:'Меркава-4',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [140,161,182,203,224,245])wheel(wx,167,5);
     rectC(128,160,132,3,M.RUB);rectC(128,174,132,3,M.RUB);
@@ -1120,7 +1120,7 @@ const SCENES={
     rectC(220,122,5,22,M.STEEL);rectC(229,122,5,22,M.STEEL);
     rectC(244,130,12,18,M.STEEL);
     for(const bx of [266,272])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(264,142,10,2,M.STEEL);
     rectC(204,104,10,4,M.HHA);
     rectC(200,108,18,4,M.STEEL);
@@ -1165,7 +1165,7 @@ const SCENES={
   chally:{n:'Челленджер-2',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [136,157,178,199,220,241])wheel(wx,167,5);
     rectC(124,160,132,3,M.RUB);rectC(124,174,132,3,M.RUB);
@@ -1188,7 +1188,7 @@ const SCENES={
     boxShell(212,116,30,32,M.TI,M.ALU,4);
     rectC(219,120,4,24,M.STEEL);rectC(227,120,4,24,M.STEEL);
     for(const bx of [262,268])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(260,142,10,2,M.STEEL);
     rectC(188,108,9,4,M.HHA);
     rectC(184,112,17,4,M.STEEL);
@@ -1196,7 +1196,7 @@ const SCENES={
   leclerc:{n:'Леклерк',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [140,161,182,203,224,245])wheel(wx,167,5);
     rectC(128,160,132,3,M.RUB);rectC(128,174,132,3,M.RUB);
@@ -1219,7 +1219,7 @@ const SCENES={
     boxShell(212,118,32,30,M.TI,M.ALU,4);
     rectC(219,122,5,22,M.STEEL);rectC(228,122,5,22,M.STEEL);rectC(237,122,5,22,M.STEEL);
     for(const bx of [264,270])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(262,142,10,2,M.STEEL);
     rectC(200,106,10,4,M.HHA);
     rectC(196,110,18,4,M.STEEL);
@@ -1227,7 +1227,7 @@ const SCENES={
   type99:{n:'Тип-99',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [138,159,180,201,222,243])wheel(wx,167,5);
     rectC(126,160,132,3,M.RUB);rectC(126,174,132,3,M.RUB);
@@ -1251,7 +1251,7 @@ const SCENES={
     boxShell(214,118,30,30,M.TI,M.ALU,4);
     rectC(221,122,4,22,M.STEEL);rectC(229,122,4,22,M.STEEL);
     for(const bx of [262,268])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(260,142,10,2,M.STEEL);
     rectC(194,104,9,4,M.HHA);
     rectC(190,108,17,4,M.STEEL);
@@ -1259,13 +1259,13 @@ const SCENES={
   btr82:{n:'БТР-82 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.RUB);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.RUB);
       }
       for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
-        if(dx*dx+DY*DY<=9){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
+        if(dx*dx+dy*dy<=9){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
       }
       for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
-        if(dx*dx+DY*DY<=9)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=9)putCell(wx+dx,wy+dy,M.STEEL);
       }
       putCell(wx,wy,M.TI);
     };
@@ -1345,7 +1345,7 @@ const SCENES={
   bmp2:{n:'БМП-2 в разрезе',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [140,161,182,203,224,245])wheel(wx,166,5);
     rectC(128,159,132,3,M.RUB);rectC(128,173,132,3,M.RUB);
@@ -1552,7 +1552,7 @@ const SCENES={
   kv2:{n:'КВ-2',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [142,164,186,208,230,252])wheel(wx,166,6);
     rectC(130,159,136,3,M.RUB);rectC(130,173,136,3,M.RUB);
@@ -1975,11 +1975,11 @@ const SCENES={
   maus:{n:'Маус',f(){
     const wheel=(wx,wy,r,hub)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+DY*DY<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
+        if(dx*dx+dy*dy<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+DY*DY<=4)putCell(wx+dx,wy+dy,hub);
+        if(dx*dx+dy*dy<=4)putCell(wx+dx,wy+dy,hub);
     };
     for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5,M.RUB);
     rectC(124,160,142,3,M.RUB);rectC(124,174,142,3,M.RUB);
@@ -2005,7 +2005,7 @@ const SCENES={
     rectC(221,120,4,24,M.STEEL);rectC(229,120,4,24,M.STEEL);rectC(237,120,4,24,M.STEEL);
     rectC(228,106,5,10,M.STEEL);
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
     for(let y=40;y<140;y+=4)rectC(120,y,140,2,M.HHA);
     for(let x=120;x<260;x+=8)rectC(x,40,2,100,M.CER);
@@ -2025,7 +2025,7 @@ const SCENES={
   tiger2:{n:'Тигр II',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [138,159,180,201,222,243])wheel(wx,167,5);
     rectC(126,160,132,3,M.RUB);rectC(126,174,132,3,M.RUB);
@@ -2047,7 +2047,7 @@ const SCENES={
     boxShell(214,118,30,30,M.TI,M.ALU,4);
     rectC(221,122,4,22,M.STEEL);rectC(229,122,4,22,M.STEEL);
     for(const bx of [262,268])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(260,142,10,2,M.STEEL);
     rectC(180,110,28,4,M.HHA);
     rectC(176,114,36,4,M.STEEL);
@@ -2055,7 +2055,7 @@ const SCENES={
   is7:{n:'ИС-7',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [140,161,182,203,224,245])wheel(wx,167,5);
     rectC(128,160,132,3,M.RUB);rectC(128,174,132,3,M.RUB);
@@ -2078,7 +2078,7 @@ const SCENES={
     boxShell(212,118,32,30,M.TI,M.ALU,4);
     rectC(219,122,5,22,M.STEEL);rectC(228,122,5,22,M.STEEL);rectC(237,122,5,22,M.STEEL);
     for(const bx of [264,270])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(262,142,10,2,M.STEEL);
     rectC(200,106,10,4,M.HHA);
     rectC(196,110,18,4,M.STEEL);
@@ -2086,7 +2086,7 @@ const SCENES={
   t10m:{n:'Т-10М',f(){
     const wheel=(wx,wy,r)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+DY*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
     };
     for(const wx of [142,163,184,205,226,247])wheel(wx,167,5);
     rectC(130,160,132,3,M.RUB);rectC(130,174,132,3,M.RUB);
@@ -2109,7 +2109,7 @@ const SCENES={
     boxShell(214,118,30,30,M.TI,M.ALU,4);
     rectC(221,122,5,22,M.STEEL);rectC(230,122,5,22,M.STEEL);rectC(239,122,5,22,M.STEEL);
     for(const bx of [266,272])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(264,142,10,2,M.STEEL);
   }},
   empty:{n:'Пустая',f(){}},
