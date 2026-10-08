@@ -1975,11 +1975,11 @@ const SCENES={
   maus:{n:'Маус',f(){
     const wheel=(wx,wy,r,hub)=>{
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
-        if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
+        if(dx*dx+dy*DY<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+dy*dy<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
+        if(dx*dx+dy*DY<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+dy*dy<=4)putCell(wx+dx,wy+dy,hub);
+        if(dx*dx+DY*DY<=4)putCell(wx+dx,wy+dy,hub);
     };
     for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5,M.RUB);
     rectC(124,160,142,3,M.RUB);rectC(124,174,142,3,M.RUB);
@@ -2005,7 +2005,7 @@ const SCENES={
     rectC(221,120,4,24,M.STEEL);rectC(229,120,4,24,M.STEEL);rectC(237,120,4,24,M.STEEL);
     rectC(228,106,5,10,M.STEEL);
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
-      if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
+      if(dx*dx+DY*DY<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
     for(let y=40;y<140;y+=4)rectC(120,y,140,2,M.HHA);
     for(let x=120;x<260;x+=8)rectC(x,40,2,100,M.CER);
@@ -2013,14 +2013,6 @@ const SCENES={
     for(let x=128;x<256;x+=10)rectC(x,44,2,92,M.U);
     for(let y=48;y<132;y+=8)rectC(128,y,124,2,M.SIC);
     for(let x=132;x<252;x+=12)rectC(x,48,2,84,M.HHA);
-    for(let y=36;y<144;y+=3)rectC(116,y,148,2,M.HHA);
-    for(let x=116;x<264;x+=6)rectC(x,36,2,108,M.CER);
-    for(let y=40;y<140;y+=5)rectC(120,y,140,2,M.W);
-    for(let x=124;x<260;x+=8)rectC(x,40,2,100,M.U);
-    for(let y=44;y<136;y+=7)rectC(124,y,132,2,M.SIC);
-    for(let x=128;x<256;x+=10)rectC(x,44,2,92,M.HHA);
-    for(let y=48;y<132;y+=9)rectC(128,y,124,2,M.W);
-    for(let x=132;x<252;x+=12)rectC(x,48,2,84,M.CER);
   }},
   tiger2:{n:'Тигр II',f(){
     const wheel=(wx,wy,r)=>{
