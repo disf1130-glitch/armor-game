@@ -403,7 +403,7 @@ const WW=960, WH=540;              // размер мира
 const SP=3;                        // шаг решётки частиц
 const RC=2.6, RC2=RC*RC;           // диаметр столкновения частиц
 const LX=320, LY=180;              // размер решётки
-const MAXP=22000, MAXB=90000, SL=8;
+const MAXP=18000, MAXB=70000, SL=8;
 const CELL=3, GX=320, GY=180, NC=GX*GY;
 const ALIVE=1, PROJ=2, LIQ=4;
 const SLEEPF=24, ITER=4;
@@ -1957,9 +1957,9 @@ const SCENES={
       for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
         if(dx*dx+dy*dy<=r*r)putCell(wx+dx,wy+dy,M.STEEL);
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+dy*dy<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
+        if(dx*dx+dy*DY<=4){const o=occ[(wy+dy)*LX+wx+dx];if(o>=0)kill(o);}
       for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)
-        if(dx*dx+dy*dy<=4)putCell(wx+dx,wy+dy,hub);
+        if(dx*dx+dy*DY<=4)putCell(wx+dx,wy+dy,hub);
     };
     for(const wx of [136,157,178,199,220,241,258])wheel(wx,167,5,M.RUB);
     rectC(124,160,142,3,M.RUB);rectC(124,174,142,3,M.RUB);
@@ -1987,6 +1987,12 @@ const SCENES={
     for(const bx of [270,276])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
       if(dx*dx+dy*dy<=16)putCell(bx+dx,148+dy,M.LEAD);
     rectC(268,142,10,2,M.STEEL);
+    for(let y=40;y<140;y+=4)rectC(120,y,140,2,M.HHA);
+    for(let x=120;x<260;x+=8)rectC(x,40,2,100,M.CER);
+    for(let y=44;y<136;y+=6)rectC(124,y,132,2,M.W);
+    for(let x=128;x<256;x+=10)rectC(x,44,2,92,M.U);
+    for(let y=48;y<132;y+=8)rectC(128,y,124,2,M.SIC);
+    for(let x=132;x<252;x+=12)rectC(x,48,2,84,M.HHA);
   }},
   tiger2:{n:'Тигр II',f(){
     const wheel=(wx,wy,r)=>{
@@ -2926,7 +2932,7 @@ function stepFrame(){
   rebuildActB();
   brkF=0;hitE=0;detF=0;
   // сабстепы: в покое 4 вместо 6 (×1.5 быстрее idle), в ударе до Q.maxSub
-  let n=Math.ceil(maxSp*ts/1.5);n=n<4?4:n>Q.maxSub?Q.maxSub:n;
+  let n=Math.ceil(maxSp*ts/1.5);n=n<2?2:n>Q.maxSub?Q.maxSub:n;
   const dt=ts/n;
   for(let s=0;s<n;s++)substep(dt);
   postFrame(n);
