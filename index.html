@@ -2013,6 +2013,14 @@ const SCENES={
     for(let x=128;x<256;x+=10)rectC(x,44,2,92,M.U);
     for(let y=48;y<132;y+=8)rectC(128,y,124,2,M.SIC);
     for(let x=132;x<252;x+=12)rectC(x,48,2,84,M.HHA);
+    for(let y=36;y<144;y+=3)rectC(116,y,148,2,M.HHA);
+    for(let x=116;x<264;x+=6)rectC(x,36,2,108,M.CER);
+    for(let y=40;y<140;y+=5)rectC(120,y,140,2,M.W);
+    for(let x=124;x<260;x+=8)rectC(x,40,2,100,M.U);
+    for(let y=44;y<136;y+=7)rectC(124,y,132,2,M.SIC);
+    for(let x=128;x<256;x+=10)rectC(x,44,2,92,M.HHA);
+    for(let y=48;y<132;y+=9)rectC(128,y,124,2,M.W);
+    for(let x=132;x<252;x+=12)rectC(x,48,2,84,M.CER);
   }},
   tiger2:{n:'Тигр II',f(){
     const wheel=(wx,wy,r)=>{
@@ -4154,7 +4162,6 @@ function wsAutosaveBuild(build){
 }
 let bedAnchor=-1;
 let bedTool='brush',bedGridOn=true,bedPickMat=-1,bedMoveGrab=null,bedHoldSel='edge';
-bedLayout();bedDraw();
 function bedStrokeRect(a,b){
   const ax=a%BW,ay=(a/BW)|0,bx=b%BW,by=(b/BW)|0;
   const x=Math.min(ax,bx),y=Math.min(ay,by),w=Math.abs(ax-bx)+1,h=Math.abs(ay-by)+1;
