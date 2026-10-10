@@ -124,12 +124,12 @@
   .bed-top .bedtabs button{margin-left:0}
   #editor .edhead .bedtabs{margin-left:auto;display:flex;gap:4px}
   #editor .edhead .bedtabs button{margin-left:0}
-  .bed3{display:grid;grid-template-columns:264px minmax(0,1fr) 264px;min-height:480px;max-height:78vh}
-  .bed-left{border-right:1px solid var(--line);padding:10px;overflow-y:auto;scrollbar-width:thin}
-  .bed-center{background:#000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0}
+  .bed3{display:grid;grid-template-columns:264px minmax(0,1fr) 264px;grid-template-rows:minmax(0,1fr);height:calc(78vh - 60px);min-height:440px;max-height:680px}
+  .bed-left{border-right:1px solid var(--line);padding:10px;overflow-y:auto;scrollbar-width:thin;min-height:0;min-width:0;max-height:100%}
+  .bed-center{background:#000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0;min-height:0;max-height:100%}
   #bedc{background:#000;min-width:220px;min-height:130px;box-shadow:0 0 0 1px #333,0 8px 40px rgba(0,0,0,.6);flex:none}
   #edc{background:#000;box-shadow:0 0 0 1px #333;flex:none}
-  .bed-right{border-left:1px solid var(--line);padding:10px 12px;overflow-y:auto;scrollbar-width:thin}
+  .bed-right{border-left:1px solid var(--line);padding:10px 12px;overflow-y:auto;scrollbar-width:thin;min-height:0;min-width:0;max-height:100%}
   .tools4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
   .tools4 button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;font-size:14px}
   .tools4 button small{font-size:9px;letter-spacing:1px;color:var(--dim);font-weight:600}
@@ -168,7 +168,7 @@
   #scenes button{flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:6px 4px}
   #scenes button canvas{width:100%;height:auto;background:#000;border:1px solid var(--line);border-radius:3px}
   #scenes button span{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  @media (max-width:920px){.bed3{grid-template-columns:1fr;max-height:86vh}.bed-left{border-right:0;border-bottom:1px solid var(--line)}.bed-right{border-left:0;border-top:1px solid var(--line)}}
+  @media (max-width:920px){.bed3{grid-template-columns:1fr;grid-template-rows:none;height:auto;max-height:84vh;overflow-y:auto}.bed-left{border-right:0;border-bottom:1px solid var(--line);max-height:56vh}.bed-center{max-height:60vh}.bed-right{border-left:0;border-top:1px solid var(--line);max-height:60vh}}
 </style>
 </head>
 <body>
@@ -4197,21 +4197,31 @@ let bedMat=M.STEEL,bedDown=false;
 const bedc=document.getElementById('bedc'),bedx=bedc.getContext('2d');
 function bedLayout(){
   if(!(BW>=4))BW=44;if(!(BH>=4))BH=26;
-  BCS=Math.max(5,Math.min(14,Math.floor(720/BW),Math.floor(520/BH)));
+  BCS=Math.max(6,Math.min(16,Math.floor(800/BW),Math.floor(600/BH)));
   bedc.width=BW*BCS;bedc.height=BH*BCS;
   if(bedc.width<10||bedc.height<10){BW=44;BH=26;BCS=14;bedc.width=BW*BCS;bedc.height=BH*BCS;}
   try{bedDraw();}catch(_){}
 }
 function bedDraw(){
   bedx.fillStyle='#000';bedx.fillRect(0,0,bedc.width,bedc.height);
+  // шахматка — каждая клетка видна, понятно куда ставить блок
+  bedx.fillStyle='#0e0e10';
+  for(let y=0;y<BH;y++)for(let x=0;x<BW;x++)
+    if(((x+y)&1)===0)bedx.fillRect(x*BCS,y*BCS,BCS,BCS);
   for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){
     const m=bedGrid[y*BW+x];
     if(m){const c=MAT[m].c;bedx.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';bedx.fillRect(x*BCS+1,y*BCS+1,BCS-2,BCS-2);}
   }
   if(bedGridOn){
-    bedx.strokeStyle='#2e2e2e';bedx.lineWidth=1;bedx.beginPath();
+    // яркие линии каждой клетки
+    bedx.strokeStyle='#545454';bedx.lineWidth=1;bedx.beginPath();
     for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
     for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
+    bedx.stroke();
+    // жирные направляющие каждые 5 клеток
+    bedx.strokeStyle='#8f8f8f';bedx.lineWidth=1;bedx.beginPath();
+    for(let x=0;x<=BW;x+=5){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
+    for(let y=0;y<=BH;y+=5){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
     bedx.stroke();
   }
   const _cb=$('bedcell');const cmm=Math.max(1,+((_cb&&_cb.value)||2)||2);
