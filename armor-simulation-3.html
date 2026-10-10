@@ -849,7 +849,8 @@ function putCell(cx,cy,mat){
     const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=LX||ny>=LY)continue;
     const j=occ[ny*LX+nx];
     if(j>=0&&(flg[j]&ALIVE)&&home[j]===ny*LX+nx&&!(flg[j]&PROJ)&&!((flg[i]|flg[j])&LIQ)){
-      if(Math.hypot(px[j]-x,py[j]-y)<5.2)link(i,j);
+      const ddx=px[j]-x,ddy=py[j]-y;
+      if(ddx*ddx+ddy*ddy<27.04)link(i,j);
     }
   }
   return i;
@@ -4300,19 +4301,30 @@ function startPlaceBuild(build){
 function doPlaceBuild(p){
   const b=placeBuild;placeBuild=null;
   if(!b)return;
-  const S=b.S,cx0=Math.max(0,Math.min(LX-b.w,Math.round(p.x/SP-b.w/2)));
-  const cy0=Math.max(0,Math.min(LY-b.h,Math.round(p.y/SP-b.h/2)));
+  // бюджет частиц: большая постройка не должна вешать игру — ужимаем масштаб
+  let S=b.S,note='';
+  const free=Math.max(0,MAXP-1-(nP-freeP.length));
+  const need=b.base.cells.length*S*S;
+  if(need>free){
+    S=Math.max(1,Math.floor(Math.sqrt(free/Math.max(1,b.base.cells.length))));
+    note=' · ужато ×'+S+' (не влезло)';
+  }
+  const w=b.base.w*S,h=b.base.h*S;
+  const cx0=Math.max(0,Math.min(LX-w,Math.round(p.x/SP-w/2)));
+  const cy0=Math.max(0,Math.min(LY-h,Math.round(p.y/SP-h/2)));
   const hold=$('bedpin')&&$('bedpin').checked;
-  let n=0;
+  let n=0,full=false;
   for(const [dx,dy,m] of b.base.cells){
-    for(let sy=0;sy<S;sy++)for(let sx=0;sx<S;sx++){
+    if(full)break;
+    for(let sy=0;sy<S;sy++){if(full)break;for(let sx=0;sx<S;sx++){
       const idx=putCell(cx0+dx*S+sx,cy0+dy*S+sy,m);
       if(idx>=0){n++;if(hold){fix[idx]=1;pin[idx]=1;wake(idx);}}
-    }
+      else if(freeP.length===0&&nP>=MAXP){full=true;break;}
+    }}
   }
   markAnchors();recomputeSupport();
   tool='fire';refreshActive();
-  caption('Поставлено: '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе':'')+'.');
+  caption('Поставлено: '+n+' блоков'+(S>1?' · ×'+S:'')+(hold?' · в воздухе':'')+note+'.');
   wsAutosaveBuild(b.base);
   if(mp.on){
     /* абсолютные координаты — иначе у друга постройка встанет в углу */
