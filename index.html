@@ -126,8 +126,8 @@
   #editor .edhead .bedtabs button{margin-left:0}
   .bed3{display:grid;grid-template-columns:264px minmax(0,1fr) 264px;min-height:480px;max-height:78vh}
   .bed-left{border-right:1px solid var(--line);padding:10px;overflow-y:auto;scrollbar-width:thin}
-  .bed-center{background:#0b0f16;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0}
-  #bedc{background:#0b0f16;min-width:220px;min-height:130px;box-shadow:0 0 0 1px #333,0 8px 40px rgba(0,0,0,.6);flex:none}
+  .bed-center{background:#000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0}
+  #bedc{background:#000;min-width:220px;min-height:130px;box-shadow:0 0 0 1px #333,0 8px 40px rgba(0,0,0,.6);flex:none}
   #edc{background:#000;box-shadow:0 0 0 1px #333;flex:none}
   .bed-right{border-left:1px solid var(--line);padding:10px 12px;overflow-y:auto;scrollbar-width:thin}
   .tools4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
@@ -4203,20 +4203,17 @@ function bedLayout(){
   try{bedDraw();}catch(_){}
 }
 function bedDraw(){
-  bedx.fillStyle='#0b0f16';bedx.fillRect(0,0,bedc.width,bedc.height);
+  bedx.fillStyle='#000';bedx.fillRect(0,0,bedc.width,bedc.height);
   for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){
     const m=bedGrid[y*BW+x];
     if(m){const c=MAT[m].c;bedx.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';bedx.fillRect(x*BCS+1,y*BCS+1,BCS-2,BCS-2);}
   }
   if(bedGridOn){
-    bedx.strokeStyle='rgba(130,150,180,.30)';bedx.lineWidth=1;bedx.beginPath();
+    bedx.strokeStyle='#2e2e2e';bedx.lineWidth=1;bedx.beginPath();
     for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
     for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
     bedx.stroke();
   }
-  bedx.save();bedx.strokeStyle='rgba(245,166,35,.22)';bedx.setLineDash([6,5]);bedx.lineWidth=1;bedx.beginPath();
-  bedx.moveTo(bedc.width/2+.5,0);bedx.lineTo(bedc.width/2+.5,bedc.height);
-  bedx.moveTo(0,bedc.height/2+.5);bedx.lineTo(bedc.width,bedc.height/2+.5);bedx.stroke();bedx.restore();
   const _cb=$('bedcell');const cmm=Math.max(1,+((_cb&&_cb.value)||2)||2);
   const sx=$('bedsize');if(sx)sx.textContent=BW+' × '+BH;
   const s2=$('bedsize2');if(s2)s2.innerHTML='<b>'+((BW*cmm)/1000).toFixed(1)+' × '+((BH*cmm)/1000).toFixed(1)+' м</b> нарисовано<br>cell '+cmm+' мм';
