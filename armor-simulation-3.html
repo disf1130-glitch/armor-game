@@ -67,7 +67,7 @@
   #cap.go{animation:cap 1.4s ease-out}
   @keyframes cap{0%{opacity:0;transform:scale(1.08)}12%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0}}
   #fps{position:fixed;right:16px;top:10px;font:10px ui-monospace,monospace;color:#4d566b;pointer-events:none}
-  #editor,#beditor,#workshop,#mp{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;display:none;
+  #editor,#beditor,#workshop,#mp{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;display:none;
     background:#000;border:1px solid var(--line);border-radius:8px;padding:12px 14px;
     box-shadow:0 12px 60px rgba(0,0,0,.7);max-width:94vw;max-height:92vh;overflow-y:auto}
   #editor.open,#beditor.open,#workshop.open,#mp.open{display:block}
@@ -549,15 +549,28 @@ const img=octx.createImageData(WW,WH);
 const buf8=img.data,buf32=new Uint32Array(buf8.buffer);
 const bg32=new Uint32Array(WW*WH);
 (function(){
-  const base=(255<<24)|(12<<16)|(9<<8)|6;
   const gl=(255<<24)|(24<<16)|(18<<8)|13;
   const gl2=(255<<24)|(32<<16)|(24<<8)|17;
-  for(let y=0;y<WH;y++)for(let x=0;x<WW;x++){
-    let c=base;
-    if(x%30===0||y%30===0)c=gl;
-    if(x%150===0||y%150===0)c=gl2;
-    bg32[y*WW+x]=c;
+  for(let y=0;y<WH;y++){
+    // лёгкий вертикальный градиент: сверху темнее, снизу теплее
+    const t=y/WH;
+    const bR=(12+t*7)|0, bG=(9+t*5)|0, bB=(6+t*4)|0;
+    const base=(255<<24)|(bR<<16)|(bG<<8)|bB;
+    for(let x=0;x<WW;x++){
+      let c=base;
+      if(x%30===0||y%30===0)c=gl;
+      if(x%150===0||y%150===0)c=gl2;
+      bg32[y*WW+x]=c;
+    }
   }
+})();
+/* виньетка: затемнение к краям — глубина кадра за один drawImage */
+const vigC=document.createElement('canvas');vigC.width=WW;vigC.height=WH;
+(function(){
+  const x=vigC.getContext('2d');
+  const g=x.createRadialGradient(WW/2,WH/2,WH*0.32,WW/2,WH/2,WW*0.62);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0.40)');
+  x.fillStyle=g;x.fillRect(0,0,WW,WH);
 })();
 let G1W,G1H,G2W,G2H,GS1,GS2;
 let g1c,g1x,g2c,g2x,g1i,g1b,g1u,g2i,g2b,g2u;
@@ -721,7 +734,7 @@ function newP(x,y,mat){
   let i;
   if(freeP.length)i=freeP.pop();else{if(nP>=MAXP)return -1;i=nP++;}
   px[i]=qx[i]=x;py[i]=qy[i]=y;vx[i]=vy[i]=0;im[i]=1/MAT[mat].d;
-  pm[i]=mat;flg[i]=ALIVE;if(mat===M.WATER)flg[i]|=LIQ;awake[i]=0;deg[i]=0;T[i]=0;Tv[i]=0;pres[i]=prD[i]=str[i]=strD[i]=0;pRad[i]=2.6;
+  pm[i]=mat;flg[i]=ALIVE;if(mat===M.WATER||mat===M.OIL||mat===M.PETR||mat===M.HG)flg[i]|=LIQ;awake[i]=0;deg[i]=0;T[i]=0;Tv[i]=0;pres[i]=prD[i]=str[i]=strD[i]=0;pRad[i]=2.6;
   shade[i]=(Math.random()*256)|0;  home[i]=-1;fuse[i]=0;sup[i]=1;fix[i]=0;wasP[i]=0;pin[i]=0;
   pAng[i]=Math.random()*6.283;pSpin[i]=0;
   const b=i*SL;for(let s=0;s<SL;s++)pb[b+s]=-1;
@@ -798,7 +811,7 @@ function putCell(cx,cy,mat){
     if(!dx&&!dy)continue;
     const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=LX||ny>=LY)continue;
     const j=occ[ny*LX+nx];
-    if(j>=0&&(flg[j]&ALIVE)&&home[j]===ny*LX+nx&&!(flg[j]&PROJ)){
+    if(j>=0&&(flg[j]&ALIVE)&&home[j]===ny*LX+nx&&!(flg[j]&PROJ)&&!((flg[i]|flg[j])&LIQ)){
       if(Math.hypot(px[j]-x,py[j]-y)<5.2)link(i,j);
     }
   }
@@ -2697,6 +2710,12 @@ function pair(a,b,dt,stat){
     const f=Math.min(mu*ov,tl)/tl;
     qx[a]-=tx*f*wa/w;qy[a]-=ty*f*wa/w;qx[b]+=tx*f*wb/w;qy[b]+=ty*f*wb/w;
   }
+  if((flg[a]&LIQ)&&(flg[b]&LIQ)){
+    // жидкость–жидкость: вязкость — скорости соседей выравниваются, поток тянется цепью
+    const wv=.07;
+    const dvx=rvx*wv,dvy=rvy*wv;
+    qx[a]-=dvx*wa/w;qy[a]-=dvy*wa/w;qx[b]+=dvx*wb/w;qy[b]+=dvy*wb/w;
+  }
   const pI=ov/w*.6;pres[a]+=pI;pres[b]+=pI;
   if(rn>1){
     const e=.5*rn*rn/w*.0125;
@@ -2847,7 +2866,7 @@ function substep(dt){
         T[i]+=Math.min(.12,nvy*.004);
         kickSpin(i,(Math.random()-.5)*8+nvx*0.3);
       }
-      if(nvy>0)nvy=-nvy*(0.32-mu*0.25);
+      if(nvy>0){let rest=0.32-mu*0.25;if(flg[i]&LIQ)rest*=.12;nvy=-nvy*rest;}
       if(nvy<0.25&&nvy>-0.25)nvy=0;
       nvx*=(1-mu*0.35);
       if(Math.abs(nvx)<0.05)nvx=0;
@@ -2990,6 +3009,13 @@ function postFrame(n){
       if(isEX(m)&&t>.8)igniteE(i,2);
       else if(m===M.U&&t>1.2)igniteE(i,3); // уран поджигается только сильным жаром
       if(m===M.FUEL&&t>.35)igniteE(i,3);
+      if(m===M.WATER&&t>.45&&Math.random()<.05){
+        // вода кипит — уходит паром
+        gas(px[i],py[i]-2,(Math.random()-.5)*.6,-1-Math.random()*1.4,60+Math.random()*50,2.5+Math.random()*2,1);
+        kill(i);continue;
+      }
+      if((m===M.OIL||m===M.PETR)&&t>.5&&Math.random()<.03)
+        gas(px[i],py[i]-2,(Math.random()-.5)*.5,-1-Math.random(),70+Math.random()*50,2.5+Math.random()*2,1);
     }else if(t!==0)T[i]=0;
     // визуальный жар: медленное остывание ~10 сек (0.4/сек от 40)
     if(Tv[i]>0){Tv[i]-=0.4*inv;if(Tv[i]<0)Tv[i]=0;}
@@ -3205,6 +3231,10 @@ function drawParticles(){
       const m=pm[i],sh=SHADE[shade[i]];
       r=BR[m]*sh;g=BG[m]*sh;b=BB[m]*sh;
       if((flg[i]&PROJ)&&!isEX(m)&&m!==M.CU){r=r*.4+104;g=g*.4+90;b=b*.4+130;}
+      if(flg[i]&LIQ){ // жидкость: мокрый блик — светлее и холоднее
+        r=r*.55+80;g=g*.55+105;b=b*.55+140;
+        if(r>255)r=255;if(g>255)g=255;if(b>255)b=255;
+      }
       if(t>.04){
         const h=Math.min(255,(t*102)|0)*4,a=hLUT[h+3]*.003922;
         r+=(hLUT[h]-r)*a;g+=(hLUT[h+1]-g)*a;b+=(hLUT[h+2]-b)*a;
@@ -3230,6 +3260,20 @@ function drawParticles(){
     }
     const c=0xFF000000|((b|0)<<16)|((g|0)<<8)|(r|0);
     let o=iy*WW+ix;
+    if((flg[i]&PROJ)&&v===0){ // скоростной след снаряда: шлейф против вектора скорости
+      const sp2=vx[i]*vx[i]+vy[i]*vy[i];
+      if(sp2>64){
+        const sp=Math.sqrt(sp2),tx=-vx[i]/sp,ty=-vy[i]/sp;
+        const tc=((c>>1)&0x007F7F7F)|0xFF000000;
+        const nst=sp>20?3:2;
+        for(let s2=1;s2<=nst;s2++){
+          const hx=(x+tx*2.4*s2)|0,hy=(y+ty*2.4*s2)|0;
+          if(hx<1||hy<1||hx>=WW-1||hy>=WH-1)break;
+          const ho=hy*WW+hx;
+          buf32[ho]=tc;buf32[ho+1]=tc;buf32[ho+WW]=tc;
+        }
+      }
+    }
     const shm=Q.shape===2?(deg[i]>0?0:2):Q.shape; // 0 квадрат, 1 круг, 2 кувыркающийся осколок
     if(shm===1){ // всё из кругов: спрайтовые круги — и тела, и осколки
       if(freeN<16000){freeList[freeN++]=i;pCol[i]=c;}
@@ -3370,6 +3414,7 @@ function render(){
   if(Q.spark)drawSparks();
   if(Q.fire)drawFire();
   octx.putImageData(img,0,0);
+  octx.drawImage(vigC,0,0);
   if(Q.smoke)drawSmoke();
   drawWaves();
   if(Q.glow){g1x.putImageData(g1i,0,0);g2x.putImageData(g2i,0,0);}
@@ -3931,6 +3976,7 @@ function edShapeRows(){
   return rows;
 }
 edLayout();
+try{edDraw();}catch(_){}
 let edPlate=false,edAnchor=-1;
 function edStrokeRect(a,b){
   const ax=a%EW,ay=(a/EW)|0,bx=b%EW,by=(b/EW)|0;
@@ -4030,7 +4076,7 @@ function bedDraw(){
     if(m){const c=MAT[m].c;bedx.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';bedx.fillRect(x*BCS+1,y*BCS+1,BCS-2,BCS-2);}
   }
   if(bedGridOn){
-    bedx.strokeStyle='rgba(130,150,180,.16)';bedx.lineWidth=1;bedx.beginPath();
+    bedx.strokeStyle='rgba(130,150,180,.30)';bedx.lineWidth=1;bedx.beginPath();
     for(let x=0;x<=BW;x++){bedx.moveTo(x*BCS+.5,0);bedx.lineTo(x*BCS+.5,bedc.height);}
     for(let y=0;y<=BH;y++){bedx.moveTo(0,y*BCS+.5);bedx.lineTo(bedc.width,y*BCS+.5);}
     bedx.stroke();
@@ -4682,8 +4728,8 @@ paused=true;$('pause').textContent='▶ пуск';
 function showMenu(v){$('menu').classList.toggle('hide',!v);if(v){paused=true;$('pause').textContent='▶ пуск';}}
 function hideMenu(){$('menu').classList.add('hide');paused=false;$('pause').textContent='⏸ пауза';}
 $('mplay').onclick=()=>{audioInit();hideMenu();caption('Клик — выстрел');};
-$('mproj').onclick=()=>{hideMenu();$('editor').classList.add('open');};
-$('mbuild').onclick=()=>{hideMenu();$('beditor').classList.add('open');};
+$('mproj').onclick=()=>{hideMenu();$('editor').classList.add('open');try{edDraw();}catch(_){}};
+$('mbuild').onclick=()=>{hideMenu();$('beditor').classList.add('open');try{bedLayout();bedDraw();}catch(_){}};
 $('mws').onclick=()=>{hideMenu();$('workshop').classList.add('open');};
 $('mmp').onclick=()=>{hideMenu();$('mp').classList.add('open');};
 $('mhelp').onclick=()=>{const t=$('mhelptxt');t.style.display=t.style.display==='none'?'block':'none';};
