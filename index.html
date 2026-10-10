@@ -127,6 +127,8 @@
   .bed3{display:grid;grid-template-columns:264px minmax(0,1fr) 264px;min-height:480px;max-height:78vh}
   .bed-left{border-right:1px solid var(--line);padding:10px;overflow-y:auto;scrollbar-width:thin}
   .bed-center{background:#0b0f16;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0}
+  #bedc{background:#0b0f16;min-width:220px;min-height:130px;box-shadow:0 0 0 1px #333,0 8px 40px rgba(0,0,0,.6);flex:none}
+  #edc{background:#000;box-shadow:0 0 0 1px #333;flex:none}
   .bed-right{border-left:1px solid var(--line);padding:10px 12px;overflow-y:auto;scrollbar-width:thin}
   .tools4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
   .tools4 button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;font-size:14px}
@@ -631,6 +633,10 @@ function resize(){
   sc=Math.min(cw/WW,ch/WH);
   ox=(cw-WW*sc)/2;oy=(ch-WH*sc)/2;
   allocGlow();
+  try{ // окно поменяли — открытый редактор перестроить и перерисовать
+    if(typeof bedLayout==='function'&&document.getElementById('beditor').classList.contains('open'))bedLayout();
+    if(typeof edLayout==='function'&&document.getElementById('editor').classList.contains('open'))edLayout();
+  }catch(_){}
 }
 addEventListener('resize',resize);resize();
 
@@ -3713,7 +3719,7 @@ const $=id=>document.getElementById(id);
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
-function caption(t){return;}
+function caption(t){try{const c=$('cap');if(!c||!t)return;c.textContent=t;c.classList.remove('go');void c.offsetWidth;c.classList.add('go');}catch(_){}}
 function setToolLabel(){
   const el=$('tool');
   if(tool==='fire')el.innerHTML='ОГОНЬ · <b>'+PROJ_DEF[curProj].n+'</b>';
@@ -4027,8 +4033,10 @@ let edMat=M.STEEL,edDown=false;
 const edc=document.getElementById('edc');
 const ex=edc.getContext('2d');
 function edLayout(){
+  if(!(EW>=4))EW=40;if(!(EH>=4))EH=20;
   ECS=Math.max(6,Math.min(14,Math.floor(560/EW),Math.floor(280/EH)));
   edc.width=EW*ECS;edc.height=EH*ECS;
+  try{edDraw();}catch(_){}
 }
 function edDraw(){
   ex.fillStyle='#000';ex.fillRect(0,0,edc.width,edc.height);
@@ -4188,8 +4196,11 @@ let bedGrid=new Uint8Array(BW*BH);
 let bedMat=M.STEEL,bedDown=false;
 const bedc=document.getElementById('bedc'),bedx=bedc.getContext('2d');
 function bedLayout(){
+  if(!(BW>=4))BW=44;if(!(BH>=4))BH=26;
   BCS=Math.max(5,Math.min(14,Math.floor(720/BW),Math.floor(520/BH)));
   bedc.width=BW*BCS;bedc.height=BH*BCS;
+  if(bedc.width<10||bedc.height<10){BW=44;BH=26;BCS=14;bedc.width=BW*BCS;bedc.height=BH*BCS;}
+  try{bedDraw();}catch(_){}
 }
 function bedDraw(){
   bedx.fillStyle='#0b0f16';bedx.fillRect(0,0,bedc.width,bedc.height);
