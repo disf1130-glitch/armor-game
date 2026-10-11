@@ -60,8 +60,7 @@
   #tool{position:fixed;left:50%;top:52px;transform:translateX(-50%);font-size:12px;letter-spacing:3px;color:var(--dim);
     pointer-events:none;text-transform:uppercase;text-shadow:0 0 8px #000;white-space:nowrap}
   #tool b{color:var(--acc2);font-weight:600}
-  #hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);font-size:12.5px;letter-spacing:1.5px;color:#aab2c6;
-    pointer-events:none;text-shadow:0 0 8px #000;transition:opacity .6s;text-align:center;padding:0 10px}
+  #hint{display:none}
   #cap{position:fixed;left:0;right:0;top:36%;text-align:center;font-weight:700;font-size:clamp(34px,7vw,92px);letter-spacing:4px;
     color:#fff;opacity:0;pointer-events:none;text-shadow:0 0 30px rgba(255,170,60,.8),0 0 4px #fff;text-transform:uppercase}
   #cap.go{animation:cap 1.4s ease-out}
@@ -3752,7 +3751,7 @@ const $=id=>document.getElementById(id);
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
-function caption(t){try{const c=$('cap');if(!c||!t)return;c.textContent=t;c.classList.remove('go');void c.offsetWidth;c.classList.add('go');}catch(_){}}
+function caption(t){return;}
 function setToolLabel(){
   const el=$('tool');
   if(tool==='fire')el.innerHTML='ОГОНЬ · <b>'+PROJ_DEF[curProj].n+'</b>';
