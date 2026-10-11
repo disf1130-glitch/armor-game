@@ -1,0 +1,3 @@
+C:\Users\vlad6\Downloads\armor-game-master\armor-game-master\dist\index.html
+C:\Users\vlad6\Downloads\armor-game-master\armor-game-master\dist\AG.png
+C:\Users\vlad6\Downloads\armor-game-master\armor-game-master\dist\ArmorGame.exe

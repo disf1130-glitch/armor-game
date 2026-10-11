@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AG — Armor Simulation</title>
+<title>AG — Armor Game</title>
 <link rel="icon" type="image/png" href="AG.png">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -90,6 +90,34 @@
   .wsitem .wstop .likes{margin-left:auto;color:var(--acc2);font-size:12px;white-space:nowrap}
   .wsitem canvas{border:1px solid var(--line);border-radius:4px;background:#000;max-width:100%}
   .wsitem .wsrow{display:flex;gap:4px;flex-wrap:wrap}
+  /* ===== ВОРКШОП v2 ===== */
+  #workshop{width:min(780px,96vw);padding:0;overflow:hidden;background:linear-gradient(180deg,#0d0d10,#000)}
+  .ws-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:radial-gradient(ellipse at 20% 0%,rgba(245,166,35,.16),transparent 60%);border-bottom:1px solid var(--line)}
+  .ws-title{font-weight:700;letter-spacing:4px;font-size:17px;color:#fff}
+  .ws-title em{font-style:normal;color:var(--acc)}
+  .ws-sub{font-size:11px;letter-spacing:1px;color:var(--dim);margin-top:2px}
+  .ws-head button{margin-left:auto}
+  .wstabs{display:flex;gap:6px;padding:10px 16px 0}
+  .wstabs button{flex:1;letter-spacing:1.5px;font-weight:700;padding:8px 4px;border-radius:8px;font-size:12.5px}
+  .wstabs button.on{background:rgba(245,166,35,.18);border-color:var(--acc);color:#fff;box-shadow:0 0 14px rgba(245,166,35,.25)}
+  #wsrefresh{flex:none;width:40px}
+  .ws-search{padding:8px 16px 0}
+  .ws-search input{width:100%;background:#0b0b0b;border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:7px 10px;font:inherit;font-size:12.5px;box-sizing:border-box}
+  .ws-pub{margin:10px 16px 0;background:rgba(245,166,35,.06);border:1px dashed rgba(245,166,35,.4);border-radius:10px;padding:10px;display:flex;gap:6px;flex-wrap:wrap}
+  .ws-pub input{flex:1;min-width:110px;background:#0b0b0b;border:1px solid var(--line);border-radius:6px;color:var(--txt);padding:7px 9px;font:inherit;font-size:12.5px}
+  .ws-pub #wsname{flex:2}
+  #wspub{width:100%;font-weight:700;letter-spacing:2px;background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
+  #wspub:hover{background:rgba(245,166,35,.32)}
+  #wslist{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:none;max-height:46vh;padding:12px 16px 16px;overflow-y:auto;scrollbar-width:thin}
+  @media (max-width:640px){#wslist{grid-template-columns:1fr}}
+  .wsitem{background:linear-gradient(180deg,#111116,#0a0a0c);border:1px solid #2b2b2b;border-radius:10px;padding:10px 11px;transition:transform .12s,border-color .12s,box-shadow .12s}
+  .wsitem:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 16px rgba(245,166,35,.12)}
+  .wsitem .wstype{display:inline-block;font-size:9.5px;letter-spacing:2px;font-weight:700;color:var(--acc2);border:1px solid var(--acc);border-radius:4px;padding:1px 7px;margin-bottom:6px}
+  .wsitem .wstop b{font-size:14px}
+  .wsitem canvas{width:100%;height:96px;object-fit:contain}
+  .wsitem .likes{background:rgba(245,166,35,.12);border-radius:10px;padding:1px 8px}
+  .wsempty{grid-column:1/-1;text-align:center;color:var(--dim);font-size:12.5px;padding:22px 10px;letter-spacing:1px}
+  .wsitem .wsrow button{font-size:12px}
   @media (max-width:640px){#panel{width:244px}}
   /* ===== ГЛАВНОЕ МЕНЮ AG ===== */
   #menu{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
@@ -183,7 +211,7 @@
 <div id="menu">
   <div class="menu-box">
     <img class="logo" src="AG.png" alt="AG — Armor Game">
-    <div class="menu-title">ARMOR SIMULATION</div>
+    <div class="menu-title">Armor Game</div>
     <div class="menu-sub">Удар, а не анимация</div>
     <div class="menu-btns">
       <button id="mplay" class="primary">▶&nbsp;&nbsp;ИГРАТЬ</button>
@@ -204,7 +232,7 @@
 
 <div id="panel">
   <button id="hide" title="Скрыть панель">✕</button>
-  <div class="brand"><img src="AG.png" alt="AG"><div class="bt">ARMOR SIMULATION<small>УДАР, А НЕ АНИМАЦИЯ</small></div></div>
+  <div class="brand"><img src="AG.png" alt="AG"><div class="bt">Armor Game<small>УДАР, А НЕ АНИМАЦИЯ</small></div></div>
   <button id="menubtn" title="Открыть главное меню (Esc)">☰&nbsp; МЕНЮ</button>
   <div class="tabs">
     <button id="tabB-targets" class="on">ЦЕЛИ</button>
@@ -397,18 +425,22 @@
 </div>
 
 <div id="workshop">
-  <div class="edhead">ВОРКШОП <small id="wsstatus">локалхост…</small><button id="wsclose" title="Закрыть">✕</button></div>
-  <div class="row" style="margin-bottom:6px">
-    <button id="wstab-proj" class="on">Снаряды</button>
-    <button id="wstab-build" class="">Постройки</button>
-    <button id="wstab-down" class="">Скачанные</button>
+  <div class="ws-head">
+    <div><div class="ws-title">ВОРК<em>ШОП</em></div><div class="ws-sub" id="wsstatus">локалхост…</div></div>
+    <button id="wsclose" title="Закрыть">✕</button>
+  </div>
+  <div class="wstabs">
+    <button id="wstab-proj" class="on">🚀 Снаряды</button>
+    <button id="wstab-build" class="">🏭 Постройки</button>
+    <button id="wstab-down" class="">⤓ Скачанные</button>
     <button id="wsrefresh" title="Обновить список">↻</button>
   </div>
-  <div class="row" style="margin-bottom:6px;align-items:center">
-    <input id="wsname" placeholder="Название…" maxlength="40" style="flex:2;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
-    <input id="wsauthor" placeholder="Автор…" maxlength="20" style="flex:1;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
+  <div class="ws-search"><input id="wssearch" placeholder="🔍 Поиск по названию или автору…" maxlength="30"></div>
+  <div class="ws-pub">
+    <input id="wsname" placeholder="Название…" maxlength="40">
+    <input id="wsauthor" placeholder="Автор…" maxlength="20">
+    <button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">⤴ ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button>
   </div>
-  <div class="row" style="margin-bottom:8px"><button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button></div>
   <div id="wslist"></div>
 </div>
 
@@ -4566,8 +4598,9 @@ function wsRender(){
   list.innerHTML='';
   document.querySelectorAll('#workshop button[id^="wstab"]').forEach(b=>b.classList.toggle('on',b.id==='wstab-'+wsTab));
   let hid=[];try{hid=JSON.parse(localStorage.getItem('ws_hidden')||'[]');}catch(e){}
-  const vis=wsItems.filter(x=>!hid.includes(x.id));
-  if(!vis.length){list.innerHTML='<div style="color:var(--dim);font-size:12px">Пока пусто — выложи первый '+(wsTab==='proj'?'снаряд':'постройку')+' из редактора.</div>';return;}
+  const wsq=(($('wssearch')&&$('wssearch').value)||'').trim().toLowerCase();
+  const vis=wsItems.filter(x=>!hid.includes(x.id)&&(!wsq||((x.name||'')+' '+(x.author||'')).toLowerCase().includes(wsq)));
+  if(!vis.length){list.innerHTML='<div class="wsempty">Пока пусто — выложи первый '+(wsTab==='proj'?'снаряд':'постройку')+' из редактора.</div>';return;}
   const sorted=[...vis].sort((a,b)=>{
     if(wsTab==='down'&&(a.type!==b.type))return a.type<b.type?-1:1;
     return (b.likes||0)-(a.likes||0);
@@ -4580,6 +4613,7 @@ function wsRender(){
       list.appendChild(hd);
     }
     const d=document.createElement('div');d.className='wsitem';
+    const badge=document.createElement('span');badge.className='wstype';badge.textContent=it.type==='proj'?'🚀 СНАРЯД':'🏭 ПОСТРОЙКА';d.appendChild(badge);
     const top=document.createElement('div');top.className='wstop';
     const n=it.data&&it.data.shape?it.data.shape.length+' рядов':(it.data&&it.data.cells?it.data.cells.length+' бл.':'');
     top.innerHTML='<b></b><small></small><span class="likes">Лайки: '+(it.likes||0)+'</span>';
@@ -4746,6 +4780,7 @@ function wsDownDelete(id){
 $('wsrefresh').onclick=()=>wsFetchList();
 $('wspub').onclick=()=>wsPublishFromEditor(wsTab==='build'?'build':'proj');
 $('wsopen').onclick=async()=>{$('workshop').classList.add('open');$('editor').classList.remove('open');$('beditor').classList.remove('open');await wsConnect();wsFetchList();};
+$('wssearch').oninput=()=>wsRender();
 $('wsclose').onclick=()=>$('workshop').classList.remove('open');
 wsConnect().then(()=>{const s=$('wsstatus');});
 

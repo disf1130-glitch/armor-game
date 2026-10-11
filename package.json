@@ -1,7 +1,7 @@
 {
   "name": "armor-workshop",
   "version": "1.0.0",
-  "description": "Armor Simulation + shared workshop",
+  "description": "Armor Game + shared workshop",
   "main": "workshop-server.js",
   "dependencies": {
     "pg": "^8.13.0"
