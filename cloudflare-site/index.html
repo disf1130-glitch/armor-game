@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Armor Game — выход через 30 минут</title>
+<link rel="icon" type="image/png" href="AG.png">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#08080a;--panel:#101013;--panel2:#0c0c0f;--line:#2a2a2e;--acc:#f5a623;--acc2:#ffd27a;
+    --txt:#d7dcea;--dim:#8b93a7;--green:#7dff9e}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Rajdhani","Segoe UI",system-ui,sans-serif;min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 70% 45% at 50% -5%,rgba(245,166,35,.10),transparent 70%)}
+  .wrap{max-width:920px;margin:0 auto;padding:18px 14px 44px;position:relative}
+
+  /* шапка */
+  header{display:flex;align-items:center;gap:12px;padding:8px 2px}
+  header img{width:46px;height:46px;object-fit:contain}
+  .brand{font-weight:700;letter-spacing:3px;font-size:19px;color:#fff;line-height:1.05}
+  .brand small{display:block;font-size:10px;letter-spacing:2.5px;color:var(--dim);font-weight:500}
+  .online{margin-left:auto;display:flex;align-items:center;gap:8px;background:#101a13;
+    border:1px solid #1f4d2e;color:var(--green);border-radius:20px;padding:6px 15px;font-size:15px;font-weight:600}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
+
+  /* hero */
+  .hero{text-align:center;margin-top:16px;padding:34px 20px 30px;border-radius:18px;
+    background:linear-gradient(180deg,#141009,#000);border:1px solid var(--line)}
+  .hero img.hero-logo{width:min(300px,64vw);height:auto;display:block;margin:0 auto 4px}
+  .hero h1{font-size:clamp(22px,4.5vw,32px);letter-spacing:5px;color:#fff;font-weight:700}
+  .hero h1 span{color:var(--acc)}
+  .tagline{letter-spacing:3px;font-size:12px;color:var(--acc2);margin-top:2px;text-transform:uppercase}
+  #sub{margin-top:16px;font-size:12px;letter-spacing:4px;color:var(--dim);font-weight:600}
+  #timer{display:flex;justify-content:center;gap:10px;margin:10px 0 4px}
+  .tcell{background:#000;border:1px solid var(--line);border-radius:12px;min-width:110px;padding:8px 10px 6px}
+  .tcell b{display:block;font-size:clamp(44px,10vw,68px);font-variant-numeric:tabular-nums;color:var(--acc2);line-height:1}
+  .tcell span{font-size:11px;letter-spacing:3px;color:var(--dim)}
+  #timer.done .tcell b{font-size:clamp(26px,6vw,40px);color:var(--green)}
+  .bar{height:8px;background:#191919;border-radius:6px;overflow:hidden;margin:14px auto 4px;max-width:520px}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .5s}
+  #dlNote{color:var(--dim);font-size:15px;letter-spacing:1px;margin-top:8px}
+  .playbtn{display:inline-block;margin-top:16px;padding:14px 54px;font-size:19px;font-weight:700;letter-spacing:3px;
+    color:#fff;background:rgba(245,166,35,.16);border:1px solid var(--acc);border-radius:12px;text-decoration:none;
+    box-shadow:0 0 24px rgba(245,166,35,.25)}
+  .playbtn:hover{background:rgba(245,166,35,.32)}
+
+  /* инфо */
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:14px;padding:16px;margin-top:14px}
+  .card h2{font-size:12px;letter-spacing:3px;color:var(--acc);margin-bottom:12px;font-weight:700}
+  .card h2::after{content:"";display:block;height:1px;background:var(--line);margin-top:6px}
+  .stats{display:grid;grid-template-columns:1fr;gap:8px}
+  @media(min-width:600px){.stats{grid-template-columns:1fr 1fr 1fr}}
+  .stat{background:#0a0a0d;border:1px solid #232326;border-radius:9px;padding:12px;font-size:15px;text-align:center}
+  .stat b{display:block;color:var(--acc2);font-size:24px;margin-top:2px}
+  .note{color:var(--dim);font-size:13.5px;line-height:1.5;margin-top:10px;text-align:center}
+  footer{text-align:center;color:#4d566b;font-size:12px;margin-top:20px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="AG.png" alt="AG">
+    <div class="brand">ARMOR GAME<small>УДАР, А НЕ АНИМАЦИЯ</small></div>
+    <div class="online"><span class="dot"></span><b id="onlineNum">1</b>&nbsp;онлайн</div>
+  </header>
+
+  <div class="hero">
+    <img class="hero-logo" src="AG.png" alt="Armor Game">
+    <h1>ARMOR <span>GAME</span></h1>
+    <div class="tagline">Удар, а не анимация</div>
+    <p id="sub">ДО ВЫХОДА ОСТАЛОСЬ</p>
+    <div id="timer">
+      <div class="tcell"><b id="tMin">30</b><span>МИНУТ</span></div>
+      <div class="tcell"><b id="tSec">00</b><span>СЕКУНД</span></div>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div id="dlNote">Следи за таймером 👇</div>
+    <a class="playbtn" href="game.html">▶&nbsp;&nbsp;ИГРАТЬ</a>
+  </div>
+
+  <div class="card">
+    <h2>ℹ️ ИНФО</h2>
+    <div class="stats">
+      <div class="stat">🟢 Онлайн сейчас<b id="onlineNum2">1</b></div>
+      <div class="stat">⏱ До выхода<b id="miniTimer">30:00</b></div>
+      <div class="stat">📦 Релиз<b>скоро</b></div>
+    </div>
+    <div class="note">Таймер общий для всех: идёт с момента первого открытия сайта.</div>
+  </div>
+
+  <footer>AG BUILD · v1.0 · ARMOR GAME</footer>
+</div>
+
+<script>
+'use strict';
+/* ============ НАСТРОЙКИ ============ */
+const RELEASE_MINUTES = 30;          // длительность таймера
+const API = '';                      // '' = тот же домен (/api/online)
+
+/* ============ ТАЙМЕР 30:00 ============ */
+const tMin = document.getElementById('tMin'),
+      tSec = document.getElementById('tSec'),
+      miniTimer = document.getElementById('miniTimer'),
+      timerBox = document.getElementById('timer'),
+      barFill = document.getElementById('barFill'),
+      dlNote = document.getElementById('dlNote'),
+      sub = document.getElementById('sub');
+const TOTAL = RELEASE_MINUTES * 60 * 1000;
+let deadline = +localStorage.getItem('ag_release_deadline') || 0;
+// общий дедлайн: пробуем взять с сервера, иначе стартуем локально
+fetch(API + '/api/release').then(r => r.json()).then(d => {
+  if (d && d.deadline) { deadline = d.deadline; localStorage.setItem('ag_release_deadline', deadline); }
+}).catch(() => {
+  if (!deadline || deadline < Date.now()) { deadline = Date.now() + TOTAL; localStorage.setItem('ag_release_deadline', deadline); }
+});
+if (new URLSearchParams(location.search).has('unlock')) { deadline = Date.now(); }
+function fmt(left) {
+  return String(Math.floor(left / 60000)).padStart(2, '0') + ':' +
+         String(Math.floor(left % 60000 / 1000)).padStart(2, '0');
+}
+function tick() {
+  if (!deadline) deadline = Date.now() + TOTAL;
+  const left = Math.max(0, deadline - Date.now());
+  tMin.textContent = String(Math.floor(left / 60000)).padStart(2, '0');
+  tSec.textContent = String(Math.floor(left % 60000 / 1000)).padStart(2, '0');
+  miniTimer.textContent = fmt(left);
+  barFill.style.width = (100 * (1 - left / TOTAL)).toFixed(1) + '%';
+  if (left <= 0) {
+    timerBox.classList.add('done');
+    timerBox.innerHTML = '<div class="tcell"><b>МЫ ВЫШЛИ! 🎮</b></div>';
+    sub.textContent = 'РЕЛИЗ СОСТОЯЛСЯ';
+    dlNote.textContent = 'Время вышло — всем спасибо за ожидание!';
+    miniTimer.textContent = '00:00';
+  } else { setTimeout(tick, 500); }
+}
+tick();
+
+/* ============ ОНЛАЙН ============ */
+const onlineNum = document.getElementById('onlineNum'),
+      onlineNum2 = document.getElementById('onlineNum2');
+const myId = localStorage.getItem('ag_online_id') ||
+  (() => { const v = Math.random().toString(36).slice(2); localStorage.setItem('ag_online_id', v); return v; })();
+async function heartbeat() {
+  try {
+    const r = await fetch(API + '/api/online', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id: myId })
+    });
+    const d = await r.json();
+    if (typeof d.online === 'number') {
+      onlineNum.textContent = d.online; onlineNum2.textContent = d.online;
+      return;
+    }
+  } catch (_) {}
+  // нет связи с сервером — честно показываем прочерк, а не выдуманные цифры
+  onlineNum.textContent = '–'; onlineNum2.textContent = '–';
+}
+heartbeat(); setInterval(heartbeat, 15000);
+</script>
+</body>
+</html>

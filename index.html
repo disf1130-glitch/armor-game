@@ -207,6 +207,7 @@
   <button id="tbmenu" title="Меню (Esc)">☰</button>
   <button id="tbpause" title="Пауза (P)"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></svg></button>
   <button id="tbws" title="Библиотека / Воркшоп"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
+  <button id="tbdeto" title="Детонаторы: тап — выбрать/подключить">DETO</button>
   <button id="tbed" title="Редактор"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
   <input id="tss" type="range" min="0.1" max="3" step="0.05" value="1" title="Время: замедление 0.1 — ускорение 3">
   <b id="tsv" title="Множитель времени">1×</b>
@@ -291,6 +292,8 @@
   <input type="range" id="fxr" min="20" max="100" step="5" value="75">
   <label>Частицы <b id="pcv"></b></label>
   <input type="range" id="pcr" min="500" max="8529" step="100" value="4000" title="Сколько искр и дыма держать в воздухе (500–8529)">
+  <label>Размер частиц <b id="pszV">3 px</b></label>
+  <input type="range" id="psz" min="1" max="5" step="1" value="3" title="Размер квадрата частицы в пикселях (1–5)">
 
   <h3>Комната</h3>
   <div class="row" id="rooms"><button data-room="S" title="Карта 960×540">S</button><button data-room="M" title="Карта 1280×720">M</button><button data-room="L" title="Карта 1600×900">L</button></div>
@@ -401,8 +404,17 @@
         <label style="margin:0;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--dim)"><input id="bedpin" type="checkbox" checked style="accent-color:var(--acc)"> в воздухе</label>
       </div>
       <div class="bed-actions">
+      </div>
+      <h3>Мои постройки</h3>
+      <div class="row" style="margin-bottom:4px;align-items:center">
+        <input id="bedlibname" placeholder="Название…" maxlength="24" style="flex:2;min-width:0;background:#0b0b0b;border:1px solid var(--line);border-radius:4px;color:var(--txt);padding:5px 7px;font:inherit;font-size:12px">
+        <button id="bedlibsave" title="Сохранить сетку в библиотеку">💾</button>
+      </div>
+      <div class="list" id="bedliblist" style="max-height:110px;overflow-y:auto"></div>
+      <div class="bed-actions">
         <button id="bedmap" title="Поставить постройку на карту в центр камеры">⌖ НА КАРТУ</button>
         <button id="bedws" title="Выложить постройку в воркшоп">ВОРКШОП</button>
+        <button id="bedexp" title="Сохранить выбранную постройку в файл">💾 ЭКСПОРТ</button>
       </div>
     </div>
   </div>
@@ -670,7 +682,7 @@ function makePuffSpr(r,g,b){
 const sprSmoke=makePuffSpr(72,72,80),sprDust=makePuffSpr(140,114,88);
 
 /* качество раньше resize: иначе resize() падает в TDZ */
-var Q={q:1,glow:true,smoke:true,spark:true,fire:true,fx:.75,maxSub:12,iter:3,auto:true,shape:1,pcMax:4000};
+var Q={q:1,glow:true,smoke:true,spark:true,fire:true,fx:.75,maxSub:12,iter:3,auto:true,shape:1,pcMax:4000,psz:3};
 let cw=1,ch=1,sc=1,ox=0,oy=0,dpr=1;
 function resize(){
   const cap=(Q.q===0?1:(Q.q===1?1.5:2));
@@ -727,6 +739,29 @@ let maxSp=0,maxT=0,peakT=0,pScale=1,detCount=0,simT=0,lastShotSpeed=0,shotFrames
 let brkF=0,hitE=0,detF=0;
 let sparkN=0,gasN=0;
 /* ================= качество (антилаг): Q объявлен выше, тут только apply ================= */
+/* ===== быстрая лестница производительности: душит просадки на 2×/3× и танках =====
+   Рунги: perf-множитель физики + отключение рюшек. Базу юзера (UB) не трогаем,
+   восстанавливаем при fps>55. Ручные кнопки качества имеют приоритет (Q.auto=false). */
+let Qperf=1,perfLevel=0,perfGood=0,perfT=0;
+const UB={glow:true,smoke:true,spark:true,fire:true,shape:1,init:false};
+function effIter(){return Math.max(2,Math.round(Q.iter*(typeof Qperf==='number'?Qperf:1)));}
+function perfSet(level){
+  perfLevel=Math.max(0,Math.min(4,level));
+  Qperf=[1,.85,.7,.55,.4][perfLevel];
+  if(!UB.init){UB.glow=Q.glow;UB.smoke=Q.smoke;UB.spark=Q.spark;UB.fire=Q.fire;UB.shape=Q.shape;UB.init=true;}
+  Q.glow=UB.glow&&perfLevel<1;
+  Q.smoke=UB.smoke&&perfLevel<2;
+  Q.spark=UB.spark&&perfLevel<3;
+  Q.shape=perfLevel>=2?0:UB.shape;
+  try{syncQBtns();syncShape();}catch(e){}
+}
+function perfTick(){
+  if(perfLevel===0&&!UB.init){UB.glow=Q.glow;UB.smoke=Q.smoke;UB.spark=Q.spark;UB.fire=Q.fire;UB.shape=Q.shape;UB.init=true;}
+  if(fpsV<25||(ts>=2&&fpsV<33)){if(perfLevel<4){perfSet(perfLevel+1);perfGood=0;}}
+  else if(fpsV<33||(ts>=2&&fpsV<42)){if(perfLevel<2){perfSet(perfLevel+1);perfGood=0;}}
+  else if(fpsV>55){if(++perfGood>=2){perfGood=0;if(perfLevel>0)perfSet(perfLevel-1);}}
+  else perfGood=0;
+}
 function applyQuality(){
   // физика усилена: больше итераций связей = жёстче броня, стабильнее удар
   if(Q.q===0){Q.iter=3;Q.maxSub=8;}
@@ -745,8 +780,9 @@ function spark(x,y,ax,ay,life){
   if(sparkN+gasN>=Q.pcMax)return;
   if(Math.random()>Q.fx+.05)return;
   const i=sHead;sHead=(sHead+1)%MAXS;
+  const wasLive=sl[i]>0;
   sxA[i]=x;syA[i]=y;svx[i]=ax;svy[i]=ay;sl[i]=life;sm[i]=life;
-  if(sparkN<MAXS)sparkN++;
+  if(!wasLive&&sparkN<MAXS)sparkN++;
 }
 const MAXG=3500;
 const gx=new Float32Array(MAXG),gy=new Float32Array(MAXG),gvx=new Float32Array(MAXG),gvy=new Float32Array(MAXG),
@@ -760,9 +796,10 @@ function gas(x,y,ax,ay,life,size,kind,blast){
   if(sparkN+gasN>=Q.pcMax)return;
   if(Math.random()>Q.fx+.05)return;
   const i=gHead;gHead=(gHead+1)%MAXG;
+  const wasLive=gl[i]>0;
   gx[i]=x;gy[i]=y;gvx[i]=ax;gvy[i]=ay;gl[i]=life;gm[i]=life;gs[i]=gs0[i]=size;
   gkind[i]=kind===undefined?0:kind;gseed[i]=Math.random()*6.283;gblast[i]=blast||0;
-  if(gasN<MAXG)gasN++;
+  if(!wasLive&&gasN<MAXG)gasN++;
 }
 // удобный спавн: яркая вспышка + серый дым + пыль
 function puff(x,y,vx0,vy0,power){
@@ -873,7 +910,7 @@ function kill(i){
   if(!(flg[i]&ALIVE))return;
   const base=i*SL;
   for(let s=0;s<SL;s++){const k=pb[base+s];if(k>=0)breakBond(k,false);}
-  flg[i]=0;pm[i]=0;awake[i]=0;T[i]=0;Tv[i]=0;fuse[i]=0;pin[i]=0;
+  flg[i]=0;pm[i]=0;awake[i]=0;T[i]=0;Tv[i]=0;fuse[i]=0;pin[i]=0;detoNum.delete(i);
   const h=home[i];if(h>=0&&occ[h]===i)occ[h]=-1;home[i]=-1;
   freeP.push(i);
 }
@@ -3001,7 +3038,7 @@ function substep(dt){
     qx[i]=px[i]+vx[i]*dt;qy[i]=py[i]+vy[i]*dt;
   }
   hashBuild(act,n,dStart,dFill,dItems,dCell,true,false);
-  for(let it=0;it<Q.iter;it++){solveBonds(dt);solveCollisions(dt);}
+  for(let it=0;it<effIter();it++){solveBonds(dt);solveCollisions(dt);}
   // финализация + пол/стены для ВСЕХ активных осколков
   let ms=0;
   for(let k=0;k<act.length;k++){
@@ -3150,7 +3187,7 @@ function stepFrame(){
   rebuildActB();
   brkF=0;hitE=0;detF=0;
   // сабстепы: в покое 4 вместо 6 (×1.5 быстрее idle), в ударе до Q.maxSub
-  let n=Math.ceil(maxSp*ts/1.5);n=n<2?2:n>Q.maxSub?Q.maxSub:n;
+  const msCap=Math.max(2,Math.round(Q.maxSub*(typeof Qperf==='number'?Qperf:1)));let n=Math.ceil(maxSp*ts/1.5);n=n<2?2:n>msCap?msCap:n;
   const dt=ts/n;
   for(let s=0;s<n;s++)substep(dt);
   postFrame(n);
@@ -3505,10 +3542,15 @@ function drawParticles(){
       else if(oo===2){buf32[cc-WW]=c;buf32[cc]=c;buf32[cc+WW]=c;}
       else if(oo===1){buf32[cc-WW-1]=c;buf32[cc]=c;buf32[cc+WW+1]=c;}
       else{buf32[cc-WW+1]=c;buf32[cc]=c;buf32[cc+WW-1]=c;}
-    }else{ // чёткий квадрат 3x3
+    }else if(Q.psz===3){ // чёткий квадрат 3x3
       buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
       buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;o+=WW;
       buf32[o]=c;buf32[o+1]=c;buf32[o+2]=c;
+    }else{ // свой размер: квадрат psz×psz по центру частицы
+      const PS=Q.psz|0, hox=ix-((PS/2)|0), hoy=iy-((PS/2)|0);
+      for(let sy=0;sy<PS;sy++){const yy3=hoy+sy;if(yy3<0||yy3>=WH)continue;
+        const oo=yy3*WW+hox;
+        for(let sx=0;sx<PS;sx++){const xx3=hox+sx;if(xx3>=0&&xx3<WW)buf32[oo+sx]=c;}}
     }
     if((t>.3||Tv[i]>.5)&&(v===0||v===3)){
       const heat=Math.max(t,Tv[i]/40);
@@ -3739,6 +3781,7 @@ cv.addEventListener('pointerdown',e=>{
   try{cv.setPointerCapture(e.pointerId);}catch(_){}
   const p=toWorld(e);
   if(tool==='place'&&placeBuild&&e.button===0&&!e.shiftKey){doPlaceBuild(p);return;}
+  if(tool==='deto'&&e.button===0&&!e.shiftKey){detoTap(p);mouseDown=false;downP=null;lastP=null;return;}
   mouseDown=true;downP=p;curP=p;lastP=null;
   if(tool!=='fire')strokeTo(p);
 });
@@ -3856,6 +3899,27 @@ function drawOverlay(){
     if(brushSq)ctx.strokeRect(curP.x-R,curP.y-R,R*2,R*2);
     else{ctx.beginPath();ctx.arc(curP.x,curP.y,R,0,7);ctx.stroke();}
   }
+  /* детонаторы: номера + кольцо выбранного */
+  if(detoNum.size){
+    const blink=0.5+0.5*Math.sin(performance.now()/180);
+    ctx.textAlign='center';
+    for(const entry of detoNum){
+      const di=entry[0], dn=entry[1];
+      if(!(flg[di]&ALIVE)||pm[di]!==M.DETO)continue;
+      const dx0=px[di], dy0=py[di];
+      if(dn===detoSel){
+        ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=1.6;
+        ctx.beginPath();ctx.arc(dx0,dy0,7+blink*2,0,7);ctx.stroke();
+      }else{
+        ctx.strokeStyle='rgba(255,120,40,.8)';ctx.lineWidth=1.2;
+        ctx.beginPath();ctx.arc(dx0,dy0,6,0,7);ctx.stroke();
+      }
+      ctx.font='bold 6px sans-serif';
+      ctx.fillStyle=dn===detoSel?'#fff':'rgba(255,'+((100+blink*120)|0)+',60,.95)';
+      ctx.fillText(dn,dx0,dy0-7);
+    }
+    ctx.textAlign='left';
+  }
   /* курсоры друзей из мультиплеера */
   if(mp.on){
     for(const pid in mp.players){
@@ -3881,19 +3945,83 @@ const IC_FACT='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentCo
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
-function caption(t){return;}
+function caption(t){try{const c=$('cap');if(!c||!t)return;c.textContent=t;c.classList.remove('go');void c.offsetWidth;c.classList.add('go');}catch(_){}}
+$('tbdeto').onclick=()=>{tool=(tool==='deto')?'fire':'deto';if(tool!=='deto')detoSel=0;refreshActive();if(tool==='deto')caption('тапай по детонатору');};
+/* ===== ручные детонаторы: тап-выбор, связь до 5 клеток, цепочка 70% ===== */
+let detoSel=0, detoNextNum=1;
+const detoNum=new Map();
+const detoLink=new Map();
+const DETO_RANGE=15, DETO_CHANCE=0.7;
+function detoFind(num){
+  for(const entry of detoNum){
+    const idx=entry[0];
+    if(entry[1]===num&&(flg[idx]&ALIVE)&&pm[idx]===M.DETO)return idx;
+  }
+  return -1;
+}
+function detoAt(p){
+  const cx=(p.x/SP)|0, cy=(p.y/SP)|0;
+  let best=-1, bd=64;
+  for(let yy=cy-3;yy<=cy+3;yy++)for(let xx=cx-3;xx<=cx+3;xx++){
+    if(xx<0||yy<0||xx>=LX||yy>=LY)continue;
+    const o=occ[yy*LX+xx];
+    if(o<0||!(flg[o]&ALIVE)||pm[o]!==M.DETO)continue;
+    const dx=px[o]-p.x, dy=py[o]-p.y, d2=dx*dx+dy*dy;
+    if(d2<bd){bd=d2;best=o;}
+  }
+  return best;
+}
+function detoTap(p){
+  const idx=detoAt(p);
+  if(idx<0){caption('тут нет детонатора');return;}
+  let num=detoNum.get(idx);
+  if(!num){num=detoNextNum++;detoNum.set(idx,num);}
+  if(!detoSel){detoSel=num;caption('детонатор '+num+' выбран');}
+  else if(detoSel===num){
+    detoFire(num,0,[]);
+    detoSel=0;
+  }else{
+    const a=detoFind(detoSel);
+    if(a<0){detoSel=num;caption('детонатор '+num+' выбран');return;}
+    const dx=px[a]-px[idx], dy=py[a]-py[idx];
+    if(dx*dx+dy*dy>DETO_RANGE*DETO_RANGE){caption('слишком далеко (макс 5 клеток)');return;}
+    let cur=detoLink.get(num), cyc=false, n=0;
+    while(cur&&n++<64){if(cur===detoSel){cyc=true;break;}cur=detoLink.get(cur);}
+    if(cyc){caption('так нельзя');return;}
+    detoLink.set(detoSel,num);
+    detoSel=num;
+    caption('детонатор '+num+' подключен');
+  }
+  refreshActive();
+}
+function detoFire(num,depth,vis){
+  vis=vis||[];
+  if(vis.indexOf(num)>=0||depth>64)return false;
+  vis.push(num);
+  const idx=detoFind(num);
+  if(idx<0)return false;
+  if(depth>0&&Math.random()>DETO_CHANCE){caption('осечка! (шанс 70%)');return false;}
+  igniteE(idx,2+depth*3);
+  if(depth===0)caption('детонатор '+num+' — ПУСК');
+  wake(idx);
+  const nx=detoLink.get(num);
+  if(nx)detoFire(nx,depth+1,vis);
+  return true;
+}
 function setToolLabel(){
   const el=$('tool');
   if(tool==='fire')el.innerHTML='ОГОНЬ · <b>'+PROJ_DEF[curProj].n+'</b>';
   else if(tool==='paint')el.innerHTML='СТРОИТЬ · <b>'+MAT[curMat].n+'</b>';
   else if(tool==='plate')el.innerHTML='PLATE · <b>'+MAT[curMat].n+'</b> · тяни квадрат';
   else if(tool==='place')el.innerHTML='ПОСТАВИТЬ · <b>клик — место</b>';
+  else if(tool==='deto')el.innerHTML='ДЕТОНАТОР · <b>тап — выбрать/подключить</b>';
   else el.innerHTML='ЛАСТИК';
 }
 function refreshActive(){
   document.querySelectorAll('#projs button').forEach((b,i)=>b.classList.toggle('on',tool==='fire'&&i===curProj));
   const er=$('erase');if(er)er.classList.toggle('on',tool==='erase');
   const pl=$('plate');if(pl)pl.classList.toggle('on',tool==='plate');
+  const dtt=$('tbdeto');if(dtt)dtt.classList.toggle('on',tool==='deto');
   setToolLabel();
 }
 let sceneName='composite';
@@ -3919,7 +4047,7 @@ function resetAll(){
   occ.fill(-1);flg.fill(0,0,MAXP);awake.fill(0);pb.fill(-1);bAlive.fill(0);bAct.fill(0);
   Tv.fill(0);
   sparkN=0;gasN=0;sl.fill(0);gl.fill(0);gblast.fill(0);
-  detCount=0;peakT=0;maxT=0;maxSp=0;shotFrames=-1;pScale=1;
+  detCount=0;peakT=0;maxT=0;maxSp=0;shotFrames=-1;pScale=1;detoNum.clear();detoLink.clear();detoSel=0;
 }
 /* фото цели: прогоняем сцену на пустом поле и снимаем миниатюру из occ-сетки */
 function scenePreview(k){
@@ -4009,13 +4137,13 @@ function syncQBtns(){
   $('qFire').classList.toggle('on',Q.fire);
   $('qAuto').classList.toggle('on',Q.auto);
 }
-$('qGlow').onclick=()=>{Q.glow=!Q.glow;syncQBtns();};
-$('qSmoke').onclick=()=>{Q.smoke=!Q.smoke;syncQBtns();};
-$('qSpark').onclick=()=>{Q.spark=!Q.spark;syncQBtns();};
-$('qFire').onclick=()=>{Q.fire=!Q.fire;syncQBtns();};
+$('qGlow').onclick=()=>{Q.glow=!Q.glow;UB.glow=Q.glow;UB.init=true;syncQBtns();};
+$('qSmoke').onclick=()=>{Q.smoke=!Q.smoke;UB.smoke=Q.smoke;UB.init=true;syncQBtns();};
+$('qSpark').onclick=()=>{Q.spark=!Q.spark;UB.spark=Q.spark;UB.init=true;syncQBtns();};
+$('qFire').onclick=()=>{Q.fire=!Q.fire;UB.fire=Q.fire;UB.init=true;syncQBtns();};
 const SHN=['Частицы: квадраты','Частицы: круги','Частицы: смесь'];
 function syncShape(){const b=$('qShape');if(b)b.textContent=SHN[Q.shape];}
-$('qShape').onclick=()=>{Q.shape=(Q.shape+1)%3;syncShape();};
+$('qShape').onclick=()=>{Q.shape=(Q.shape+1)%3;UB.shape=Q.shape;UB.init=true;syncShape();};
 syncShape();
 function setPanelW(w){
   w=Math.max(260,Math.min(520,Math.round(+w||340)));
@@ -4026,16 +4154,19 @@ function setPanelW(w){
 }
 $('pwr').oninput=e=>setPanelW(+e.target.value);
 try{const pw=+localStorage.getItem('panelW');setPanelW(pw||340);}catch(e){setPanelW(340);}
-$('qAuto').onclick=()=>{Q.auto=!Q.auto;syncQBtns();caption(Q.auto?'Авто-качество вкл.':'Авто-качество выкл.');};
+$('qAuto').onclick=()=>{Q.auto=!Q.auto;if(Q.auto)perfSet(0);syncQBtns();caption(Q.auto?'Авто-качество вкл.':'Авто-качество выкл.');};
 function syncFx(){$('fxr').value=Math.round(Q.fx*100);$('fxv').textContent=Math.round(Q.fx*100)+'%';}
 $('fxr').oninput=e=>{Q.fx=+e.target.value/100;syncFx();};
 syncFx();applyQuality();syncQBtns();
 function syncPc(){$('pcr').value=Q.pcMax;$('pcv').textContent=Q.pcMax;}
 $('pcr').oninput=e=>{Q.pcMax=Math.max(500,Math.min(8529,Math.round(+e.target.value||4000)));syncPc();};
 syncPc();
+function syncPsz(){const s=$('psz');if(s)s.value=Q.psz;const v=$('pszV');if(v)v.textContent=Q.psz+' px';}
+const pszEl=$('psz');if(pszEl)pszEl.oninput=e=>{Q.psz=Math.max(1,Math.min(5,Math.round(+e.target.value||3)));syncPsz();saveSettings();};
+syncPsz();
 /* ================= сохранение настроек ================= */
 function saveSettings(){
-  try{localStorage.setItem('ag_settings',JSON.stringify({q:Q.q,glow:Q.glow?1:0,smoke:Q.smoke?1:0,spark:Q.spark?1:0,fire:Q.fire?1:0,fx:Q.fx,pc:Q.pcMax,shape:Q.shape,auto:Q.auto?1:0,spd:curSpeed,ts:ts,view:view,snd:soundOn?1:0,sup:supMode,unlim:spdUnlim?1:0}));}catch(e){}
+  try{localStorage.setItem('ag_settings',JSON.stringify({q:Q.q,glow:Q.glow?1:0,smoke:Q.smoke?1:0,spark:Q.spark?1:0,fire:Q.fire?1:0,fx:Q.fx,pc:Q.pcMax,psz:Q.psz,shape:Q.shape,auto:Q.auto?1:0,spd:curSpeed,ts:ts,view:view,snd:soundOn?1:0,sup:supMode,unlim:spdUnlim?1:0}));}catch(e){}
 }
 function loadSettings(){
   let s=null;try{s=JSON.parse(localStorage.getItem('ag_settings')||'null');}catch(e){}
@@ -4045,6 +4176,7 @@ function loadSettings(){
     Q.glow=!!s.glow;Q.smoke=!!s.smoke;Q.spark=!!s.spark;Q.fire=!!s.fire;
     if(s.fx>=.2&&s.fx<=1)Q.fx=s.fx;
     if(s.pc>=500&&s.pc<=8529)Q.pcMax=Math.round(s.pc);
+    if(s.psz>=1&&s.psz<=5)Q.psz=Math.round(s.psz);
     if(s.shape>=0&&s.shape<=2)Q.shape=s.shape;
     Q.auto=!!s.auto;
     if(s.spd>=50)curSpeed=Math.round(s.spd);
@@ -4780,7 +4912,81 @@ $('wsFile').onchange=e=>{
 $('bedopen').onclick=()=>{$('beditor').classList.add('open');$('editor').classList.remove('open');bedLayout();bedDraw();try{edTabSync('b');}catch(_){}};
 $('bedclose').onclick=()=>$('beditor').classList.remove('open');
 $('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;startPlaceBuild(b);$('beditor').classList.remove('open');};
-$('bedws').onclick=()=>wsPublishFromEditor('build');
+/* ===== скачать файлом: диалог папки → blob → буфер ===== */
+function agSaveFile(fname,txt,done){
+  try{
+    if(window.showSaveFilePicker){
+      window.showSaveFilePicker({suggestedName:fname,types:[{description:'AG',accept:{'application/json':['.agbuild.json','.agproj.json','.json']}}]}).then(async h=>{
+        try{const w=await h.createWritable();await w.write(txt);await w.close();caption('сохранено: '+fname);if(done)done(true);}catch(e){caption('не вышло сохранить');if(done)done(false);}
+      }).catch(()=>{});
+      return;
+    }
+  }catch(e){}
+  try{
+    const blob=new Blob([txt],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=fname;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{try{URL.revokeObjectURL(a.href);a.remove();}catch(e){}},4000);
+    caption('скачано: '+fname);if(done)done(true);
+  }catch(e){
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(()=>{caption('скопировано в буфер');if(done)done(true);}).catch(()=>{caption('не вышло сохранить');if(done)done(false);});
+      }else{caption('не вышло сохранить');if(done)done(false);}
+    }catch(e2){caption('не вышло сохранить');if(done)done(false);}
+  }
+}
+function agFname(name,ext){
+  return (name||'item').replace(/[\\/:*?"<>|]/g,'_').slice(0,40)+(ext||'.agbuild.json');
+}
+$('bedexp').onclick=()=>{
+  const b=bedLibSelected();
+  if(!b){caption('выбери постройку для экспорта');return;}
+  const data={app:'AG-armor',type:'build',name:b.name,date:b.date||Date.now(),build:b.build};
+  agSaveFile(agFname(b.name||'postroika','.agbuild.json'),JSON.stringify(data));
+};
+$('bedws').onclick=()=>{
+  const b=bedLibSelected();
+  if(!b){caption('выбери постройку для экспорта');return;}
+  wsPublishFromEditor('build',b.build);
+};
+/* ===== библиотека построек: экспорт только выбранной ===== */
+function bedLibLoad(){try{return JSON.parse(localStorage.getItem('ag_builds_v1')||'[]');}catch(e){return[];}}
+function bedLibSaveAll(a){try{localStorage.setItem('ag_builds_v1',JSON.stringify(a.slice(-30)));}catch(e){}}
+let bedLibSel='';
+function bedLibSelected(){const a=bedLibLoad();for(const x of a)if(x.id===bedLibSel)return x;return null;}
+function bedLibRender(){
+  const box=$('bedliblist');if(!box)return;box.innerHTML='';
+  const a=bedLibLoad();
+  if(!a.length){box.innerHTML='<div style="color:var(--dim);font-size:11.5px">пусто — нарисуй и жми 💾</div>';return;}
+  a.slice().reverse().forEach(it=>{
+    const b=document.createElement('button');
+    if(it.id===bedLibSel)b.classList.add('on');
+    b.style.justifyContent='flex-start';
+    const nm=document.createElement('span');nm.textContent=it.name+' · '+it.build.cells.length+' бл.';
+    b.appendChild(nm);
+    b.onclick=()=>{bedLibSel=(bedLibSel===it.id)?'':it.id;bedLibRender();
+      if(bedLibSel)caption('выбрана: '+it.name);};
+    const del=document.createElement('button');
+    del.textContent='✕';del.title='Удалить';del.style.marginLeft='auto';
+    del.onclick=e=>{e.stopPropagation();bedLibSaveAll(bedLibLoad().filter(x=>x.id!==it.id));
+      if(bedLibSel===it.id)bedLibSel='';bedLibRender();};
+    b.appendChild(del);box.appendChild(b);
+  });
+}
+$('bedlibsave').onclick=()=>{
+  const b=bedBuild();
+  if(!b){caption('сетка пуста');return;}
+  let nm='';try{nm=(($('bedlibname')||{}).value||'').trim();}catch(e){}
+  if(!nm)nm='Постройка '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const a=bedLibLoad();
+  const it={id:'b'+Date.now().toString(36),name:nm.slice(0,24),date:Date.now(),build:b};
+  a.push(it);bedLibSaveAll(a);bedLibSel=it.id;
+  try{$('bedlibname').value='';}catch(e){}
+  bedLibRender();caption('сохранено: '+it.name);
+};
+bedLibRender();
 bedLayout();bedDraw();
 
 /* ================= ВОРКШОП (общий через локалхост + офлайн-режим) ================= */
@@ -4886,6 +5092,9 @@ function wsRender(){
     const bLike=document.createElement('button');bLike.textContent='Лайк';bLike.title='Лайк';
     bLike.onclick=()=>wsLike(it.id);
     row.appendChild(bUse);row.appendChild(bLike);
+    const bFile=document.createElement('button');bFile.textContent='💾 Файл';bFile.title='Скачать файлом + в «Скачанные»';
+    bFile.onclick=()=>wsDownloadFile(it.id);
+    row.appendChild(bFile);
     if(wsTab==='down'){
       const bDel=document.createElement('button');bDel.textContent='✕';bDel.title='Удалить из Скачанных и из меню';
       bDel.onclick=()=>wsDownDelete(it.id);
@@ -4899,7 +5108,7 @@ function wsRender(){
     list.appendChild(d);
   }
 }
-async function wsPublishFromEditor(kind){
+async function wsPublishFromEditor(kind,pre){
   kind=kind||wsTab;
   const name=($('wsname')&&$('wsname').value.trim())||'';
   const author=(($('wsauthor')&&$('wsauthor').value.trim())||'anon').slice(0,20);
@@ -4911,7 +5120,7 @@ async function wsPublishFromEditor(kind){
     for(const r of rows)for(const ch of r){const m=CH2MAT[ch];if(m&&isBoom(m)){hasBoom=true;break;}}
     data={shape:rows,spd:curSpeed,ptype:hasBoom?'he':'kin'};
   }else{
-    const b=bedBuild();
+    const b=pre||bedBuild();
     if(!b){caption('Редактор блоков пуст.');return;}
     data=b;
   }
@@ -4993,6 +5202,15 @@ function wsDownload(id){
   wsRender();
   caption('Скачано в «Скачанные»: '+(it.name||''));
 }
+/* скачать публикацию файлом + положить в «Скачанные» */
+function wsDownloadFile(id){
+  const it=wsItems.find(x=>x.id===id);
+  if(!it){caption('Не найдено.');return;}
+  try{wsDownload(id);}catch(e){}
+  const ext=it.type==='proj'?'.agproj.json':'.agbuild.json';
+  const data={app:'AG-armor',type:it.type,name:it.name,author:it.author||'anon',date:it.date||Date.now(),data:it.data};
+  agSaveFile(agFname(it.name||'item',ext),JSON.stringify(data));
+}
 /* удалить свою публикацию: с сервера, из локального списка и из Скачанных */
 async function wsDeleteMine(id,type){
   if(wsBase&&!String(id).startsWith('w')){
@@ -5028,7 +5246,14 @@ function wsDownDelete(id){
   caption('Удалено из Скачанных.');
 }
 $('wsrefresh').onclick=()=>wsFetchList();
-$('wspub').onclick=()=>wsPublishFromEditor(wsTab==='build'?'build':'proj');
+$('wspub').onclick=()=>{
+  if(wsTab==='build'){
+    const b=bedLibSelected();
+    if(!b){caption('выбери постройку для экспорта');return;}
+    wsPublishFromEditor('build',b.build);return;
+  }
+  wsPublishFromEditor('proj');
+};
 $('wsopen').onclick=async()=>{$('workshop').classList.add('open');$('editor').classList.remove('open');$('beditor').classList.remove('open');await wsConnect();wsFetchList();};
 $('wssearch').oninput=()=>wsRender();
 $('wsclose').onclick=()=>$('workshop').classList.remove('open');
@@ -5161,6 +5386,7 @@ function loop(t){
       else if(fpsV>45&&Q.q<qManual){setQ(Q.q+1);}
     }
   }else autoT=0;
+  if(Q.auto){perfT+=dt;if(perfT>.5){perfT=0;try{perfTick();}catch(e){}}}
   requestAnimationFrame(loop);
 }
 try{ // телефон: сразу лёгкий режим — меньше тормозов
