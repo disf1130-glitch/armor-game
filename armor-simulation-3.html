@@ -3945,7 +3945,7 @@ const IC_FACT='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentCo
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
-function caption(t){try{const c=$('cap');if(!c||!t)return;c.textContent=t;c.classList.remove('go');void c.offsetWidth;c.classList.add('go');}catch(_){}}
+function caption(t){return;}
 $('tbdeto').onclick=()=>{tool=(tool==='deto')?'fire':'deto';if(tool!=='deto')detoSel=0;refreshActive();if(tool==='deto')caption('тапай по детонатору');};
 /* ===== ручные детонаторы: тап-выбор, связь до 5 клеток, цепочка 70% ===== */
 let detoSel=0, detoNextNum=1;
