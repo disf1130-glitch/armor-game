@@ -137,6 +137,7 @@
   .menu-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .menu-foot{margin-top:12px;font-size:11px;letter-spacing:1.5px;color:var(--dim)}
   .menu-ver{margin-top:4px;font-size:10px;letter-spacing:2px;color:#4d566b}
+  .ic{width:1.15em;height:1.15em;vertical-align:-0.22em;flex:none}
   #menubtn{width:100%;margin-bottom:6px;letter-spacing:2px;font-weight:700;color:var(--acc2);border-color:var(--acc)}
   .brand{display:flex;align-items:center;gap:8px}
   .brand img{width:52px;height:auto;flex:none;filter:drop-shadow(0 0 8px rgba(245,166,35,.4))}
@@ -189,6 +190,8 @@
   #topbar button{background:rgba(0,0,0,.72);border:1px solid var(--line);border-radius:6px;color:var(--acc2);font:inherit;font-size:13px;padding:6px 11px;cursor:pointer;letter-spacing:1px;backdrop-filter:blur(6px)}
   #topbar button:hover{background:#1c1c1c}
   #topbar button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
+  #topbar input[type=range]{width:110px;accent-color:var(--acc);align-self:center}
+  #tsv{color:var(--acc2);font-size:12px;min-width:36px;text-align:center;align-self:center;font-weight:600}
   .bedtabs{display:flex;gap:4px}
   .bedtabs button{font-size:11px;letter-spacing:1.5px;padding:5px 9px}
   .bedtabs button.on{background:rgba(245,166,35,.16);border-color:var(--acc);color:#fff}
@@ -202,9 +205,11 @@
 <canvas id="cv"></canvas>
 <div id="topbar">
   <button id="tbmenu" title="Меню (Esc)">☰</button>
-  <button id="tbpause" title="Пауза (P)">⏸</button>
-  <button id="tbws" title="Библиотека / Воркшоп">📚</button>
-  <button id="tbed" title="Редактор">✎</button>
+  <button id="tbpause" title="Пауза (P)"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></svg></button>
+  <button id="tbws" title="Библиотека / Воркшоп"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
+  <button id="tbed" title="Редактор"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+  <input id="tss" type="range" min="0.1" max="3" step="0.05" value="1" title="Время: замедление 0.1 — ускорение 3">
+  <b id="tsv" title="Множитель времени">1×</b>
 </div>
 
 <div id="menu">
@@ -213,7 +218,7 @@
     <div class="menu-title">Armor Game</div>
     <div class="menu-sub">Удар, а не анимация</div>
     <div class="menu-btns">
-      <button id="mplay" class="primary">▶&nbsp;&nbsp;ИГРАТЬ</button>
+      <button id="mplay" class="primary"><svg class="ic" viewBox="0 0 24 24"><polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none"/></svg>&nbsp;&nbsp;ИГРАТЬ</button>
       <div class="menu-row">
         <button id="mproj">✎ Снаряды</button>
         <button id="mbuild">▦ Постройки</button>
@@ -223,6 +228,7 @@
         <button id="mmp">Мультиплеер</button>
       </div>
       <button id="mhelp">Как играть</button>
+      <button id="mmob" title="Версия для телефона"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 18h.01"/></svg> Мобильная версия</button>
     </div>
     <div class="menu-foot" id="mhelptxt" style="display:none">КЛИК — выстрел · тяни — прицел · колесо — зум · Shift-тащи / ПКМ — камера · Esc — меню</div>
     <div class="menu-ver">AG BUILD · v1.0</div>
@@ -273,7 +279,7 @@
 
   <h3>Время</h3>
   <div class="row" id="times"></div>
-  <div class="row" style="margin-top:4px"><button id="pause">⏸ пауза</button><button id="snd" class="on">Звук</button></div>
+  <div class="row" style="margin-top:4px"><button id="pause"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></svg> пауза</button><button id="snd" class="on">Звук</button></div>
 
   <h3>Настройки</h3>
   <div class="row" id="quals"><button data-q="0" title="Минимум физики и эффектов">Низк.</button><button data-q="1" class="on" title="Баланс">Сред.</button><button data-q="2" title="Максимум физики + чёткие грани">Высок.</button></div>
@@ -286,6 +292,9 @@
   <label>Частицы <b id="pcv"></b></label>
   <input type="range" id="pcr" min="500" max="8529" step="100" value="4000" title="Сколько искр и дыма держать в воздухе (500–8529)">
 
+  <h3>Комната</h3>
+  <div class="row" id="rooms"><button data-room="S" title="Карта 960×540">S</button><button data-room="M" title="Карта 1280×720">M</button><button data-room="L" title="Карта 1600×900">L</button></div>
+  <div style="font-size:11px;color:var(--dim);margin-top:2px">Размер карты — применится после перезагрузки.</div>
   <h3>Опора</h3>
   <div class="row"><button id="smE" class="on" title="Низ на земле, верх закреплён. Отлетают только обломки">По краям</button><button id="smG" title="Держится только то, что связано с землёй">Земля</button></div>
   <label>Ширина панели <b id="pwv"></b></label>
@@ -322,7 +331,7 @@
   <canvas id="edc"></canvas>
   <div id="edpal"></div>
   <div class="row"><button id="edmirror">MIRROR</button><button id="edoutline" title="Обвести контур текущим материалом">OUTLINE</button><button id="edplate" title="Тяни прямоугольник — зальёт материалом">▦ PLATE</button><button id="edclear">CLEAR</button></div>
-  <div class="row" style="margin-top:4px"><button id="edfire">ADD TO FIRE →</button><button id="edws" title="Выложить снаряд в воркшоп">ВОРКШОП</button></div>
+  <div class="row" style="margin-top:4px"><button id="edfire">ADD TO FIRE →</button><button id="edws" title="Выложить снаряд в воркшоп">ВОРКШОП</button><button id="edlib" title="Взять снаряд из воркшопа в редактор">Из воркшопа</button></div>
   <div class="row" style="margin-top:4px"><button id="edmap" title="Поставить рисунок на карту как броню (в центр камеры)">⌖ НА КАРТУ</button></div>
 </div>
 
@@ -331,12 +340,12 @@
   <div class="bed3">
     <div class="bed-left">
       <div class="tools4">
-        <button id="tBrush" class="on" title="Кисть — рисовать материалом">🖌<small>brush</small></button>
-        <button id="tBucket" title="Заливка области (Bucket)">🪣<small>bucket</small></button>
-        <button id="tPick" title="Пипетка — взять материал (Eyedropper)">💧<small>eyedrop</small></button>
-        <button id="tMove" title="Переместить рисунок (Move)">✥<small>move</small></button>
-        <button id="tErase" title="Ластик (eraser)">⌫<small>eraser</small></button>
-        <button id="tPlate" title="Тяни прямоугольник — зальёт материалом">▦<small>plate</small></button>
+        <button id="tBrush" class="on" title="Кисть — рисовать материалом"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg><small>brush</small></button>
+        <button id="tBucket" title="Заливка области (Bucket)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l8-8 8 8-8 8-8-8z"/><path d="M19 16.5s1.6 2.4 1.6 3.9a1.6 1.6 0 0 1-3.2 0c0-1.5 1.6-3.9 1.6-3.9z"/></svg><small>bucket</small></button>
+        <button id="tPick" title="Пипетка — взять материал (Eyedropper)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 9.5L4 15l3 3 5.5-5.5"/><path d="M11 8l5 5"/><path d="M15 4l5 5"/><path d="M19 15s1.5 2.4 1.5 3.8a1.5 1.5 0 0 1-3 0C17.5 17.4 19 15 19 15z"/></svg><small>eyedrop</small></button>
+        <button id="tMove" title="Переместить рисунок (Move)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg><small>move</small></button>
+        <button id="tErase" title="Ластик (eraser)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg><small>eraser</small></button>
+        <button id="tPlate" title="Тяни прямоугольник — зальёт материалом"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg><small>plate</small></button>
       </div>
       <label>Кисть <b id="bedbrushV">1</b></label>
       <input type="range" id="bedbrushR" min="1" max="8" step="1" value="1" title="Размер кисти">
@@ -429,16 +438,19 @@
     <button id="wsclose" title="Закрыть">✕</button>
   </div>
   <div class="wstabs">
-    <button id="wstab-proj" class="on">🚀 Снаряды</button>
-    <button id="wstab-build" class="">🏭 Постройки</button>
+    <button id="wstab-proj" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Снаряды</button>
+    <button id="wstab-build" class=""><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1M12 18h1M7 18h1"/></svg> Постройки</button>
     <button id="wstab-down" class="">⤓ Скачанные</button>
     <button id="wsrefresh" title="Обновить список">↻</button>
   </div>
-  <div class="ws-search"><input id="wssearch" placeholder="🔍 Поиск по названию или автору…" maxlength="30"></div>
+  <div class="ws-search"><input id="wssearch" placeholder="Поиск по названию или автору…" maxlength="30"></div>
   <div class="ws-pub">
     <input id="wsname" placeholder="Название…" maxlength="40">
     <input id="wsauthor" placeholder="Автор…" maxlength="20">
     <button id="wspub" title="Опубликовать текущий редактор (снаряд или блоки — по вкладке)">⤴ ОПУБЛИКОВАТЬ ИЗ РЕДАКТОРА</button>
+    <button id="wsExp" title="Скачать модель из редактора в файл">⤓ Экспорт в файл</button>
+    <button id="wsImp" title="Загрузить модель из файла в редактор">⤴ Импорт из файла</button>
+    <input type="file" id="wsFile" accept=".json,application/json" style="display:none">
   </div>
   <div id="wslist"></div>
 </div>
@@ -454,12 +466,14 @@
 'use strict';
 
 /* ================= константы ================= */
-const WW=1280, WH=720;           // размер мира
+let AGROOM='M';try{AGROOM=localStorage.getItem('ag_room')||'M';}catch(e){}
+const ROOM_SIZES={S:[960,540],M:[1280,720],L:[1600,900]};
+const WW=(ROOM_SIZES[AGROOM]||ROOM_SIZES.M)[0], WH=(ROOM_SIZES[AGROOM]||ROOM_SIZES.M)[1]; // размер мира
 const SP=3;                        // шаг решётки частиц
 const RC=2.6, RC2=RC*RC;           // диаметр столкновения частиц
-const LX=427, LY=240;              // размер решётки
+const LX=Math.ceil(WW/SP), LY=Math.ceil(WH/SP); // размер решётки
 const MAXP=18000, MAXB=70000, SL=8;
-const CELL=3, GX=427, GY=240, NC=GX*GY;
+const CELL=3, GX=Math.ceil(WW/CELL), GY=Math.ceil(WH/CELL), NC=GX*GY;
 const ALIVE=1, PROJ=2, LIQ=4;
 const SLEEPF=24, ITER=4;
 const SPD_K=160;                   // м/с на пиксель/кадр
@@ -3860,6 +3874,10 @@ function drawOverlay(){
 
 /* ================= интерфейс ================= */
 const $=id=>document.getElementById(id);
+const IC_PLAY='<svg class="ic" viewBox="0 0 24 24"><polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none"/></svg>';
+const IC_PAUSE='<svg class="ic" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></svg>';
+const IC_ROCKET='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>';
+const IC_FACT='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1M12 18h1M7 18h1"/></svg>';
 const hintEl=$('hint');let hintHidden=false;
 function hideHint(){if(!hintHidden){hintHidden=true;hintEl.style.opacity=0;}}
 let capTimer=0;
@@ -4046,9 +4064,16 @@ function setView(i){
 function setTs(t){
   ts=t;
   document.querySelectorAll('#times button').forEach(b=>b.classList.toggle('on',+b.dataset.t===t));
+  const sl=$('tss');if(sl)sl.value=Math.max(0.1,Math.min(3,t));
+  const sv=$('tsv');if(sv)sv.textContent=(Math.round(t*100)/100)+'×';
 }
-function syncTopPause(){const tp=$('tbpause');if(tp){tp.textContent=paused?'▶':'⏸';tp.classList.toggle('on',paused);}}
-function togglePause(){paused=!paused;$('pause').textContent=paused?'▶ пуск':'⏸ пауза';$('pause').classList.toggle('on',paused);syncTopPause();}
+$('tss').oninput=e=>setTs(+e.target.value);
+document.querySelectorAll('#rooms button').forEach(b=>{
+  b.classList.toggle('on',b.dataset.room===AGROOM);
+  b.onclick=()=>{try{localStorage.setItem('ag_room',b.dataset.room);}catch(e){}location.reload();};
+});
+function syncTopPause(){const tp=$('tbpause');if(tp){tp.innerHTML=paused?IC_PLAY:IC_PAUSE;tp.classList.toggle('on',paused);}}
+function togglePause(){paused=!paused;$('pause').innerHTML=(paused?IC_PLAY:IC_PAUSE)+(paused?' пуск':' пауза');$('pause').classList.toggle('on',paused);syncTopPause();}
 $('pause').onclick=togglePause;
 $('snd').onclick=e=>{soundOn=!soundOn;e.target.textContent='Звук';e.target.classList.toggle('on',soundOn);audioInit();};
 $('reset').onclick=()=>loadScene(sceneName);
@@ -4655,7 +4680,7 @@ $('bedmirror').onclick=()=>{for(let y=0;y<BH;y++)for(let x=0;x<BW/2;x++){const a
 $('bedmirrorV').onclick=()=>{for(let y=0;y<BH/2;y++)for(let x=0;x<BW;x++){const a=y*BW+x,b=(BH-1-y)*BW+x,t=bedGrid[a];bedGrid[a]=bedGrid[b];bedGrid[b]=t;}bedDraw();};
 $('bedgrid').onclick=e=>{bedGridOn=!bedGridOn;e.target.classList.toggle('on',bedGridOn);bedDraw();};
 $('bedreplace').onclick=()=>{
-  if(bedPickMat<0){caption('Сначала пипеткой 💧 кликни материал для замены.');return;}
+  if(bedPickMat<0){caption('Сначала пипеткой кликни материал для замены.');return;}
   if(bedPickMat===bedMat){caption('Пипетка и кисть — один материал, менять нечего.');return;}
   let n=0;for(let i=0;i<BW*BH;i++)if(bedGrid[i]===bedPickMat){bedGrid[i]=bedMat;n++;}
   caption('Заменено: '+n+' → '+MAT[bedMat].n+'.');bedDraw();
@@ -4692,6 +4717,66 @@ $('bedhull').onchange=e=>{
   else caption('Vehicle hull выкл.');
 };
 $('bedlib').onclick=()=>{$('workshop').classList.add('open');const t=$('wstab-build');if(t)t.click();};
+$('edlib').onclick=()=>{$('workshop').classList.add('open');const t=$('wstab-proj');if(t)t.click();};
+function wsExport(){
+  const kind=(wsTab==='build')?'build':'proj';
+  const name=(($('wsname')&&$('wsname').value.trim())||(kind==='proj'?'snaryad':'postroyka'));
+  let data=null;
+  if(kind==='proj'){
+    const rows=edShapeRows();
+    if(!rows)return;
+    let hasBoom=false;
+    for(const r of rows)for(const ch of r){const m=CH2MAT[ch];if(m&&isBoom(m)){hasBoom=true;break;}}
+    data={shape:rows,spd:curSpeed,ptype:hasBoom?'he':'kin'};
+  }else{
+    const b=bedBuild();
+    if(!b)return;
+    data=b;
+  }
+  try{
+    const blob=new Blob([JSON.stringify({app:'armor-game',type:kind,name:name,data:data})],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='ag-'+kind+'-'+name.replace(/[^\wа-яё-]+/gi,'_').slice(0,24)+'.json';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }catch(e){}
+}
+function wsImportJSON(o){
+  if(!o||(o.type!=='proj'&&o.type!=='build')||!o.data)throw 0;
+  if(o.type==='proj'){
+    const rows=o.data.shape;
+    if(!Array.isArray(rows)||!rows.length||rows.length>40)throw 0;
+    const w=String(rows[0]).length;
+    if(!w||w>80)throw 0;
+    for(const r of rows){const s=String(r);if(s.length!==w)throw 0;for(const ch of s){if(ch!=='.'&&!CH2MAT[ch])throw 0;}}
+    edApplySize(w,rows.length);
+    for(let y=0;y<rows.length;y++){const s=String(rows[y]);for(let x=0;x<w;x++)edGrid[y*EW+x]=CH2MAT[s[x]]||0;}
+    if(+o.data.spd>=50)setSpeed(Math.round(+o.data.spd));
+    edDraw();$('editor').classList.add('open');$('beditor').classList.remove('open');wsTab='proj';
+  }else{
+    const d=o.data;
+    if(!d||!Array.isArray(d.cells)||!d.cells.length||d.cells.length>16000)throw 0;
+    const w=Math.round(+d.w)||0,h=Math.round(+d.h)||0;
+    if(w<1||h<1||w>150||h>90)throw 0;
+    for(const c of d.cells){
+      if(!Array.isArray(c)||c.length<3)throw 0;
+      const cx=Math.round(+c[0]),cy=Math.round(+c[1]),m=Math.round(+c[2]);
+      if(!(cx>=0&&cy>=0&&cx<w&&cy<h&&m>=1&&m<MAT.length))throw 0;
+    }
+    bedApplySize(w,h);
+    for(const c of d.cells)bedGrid[Math.round(+c[1])*BW+Math.round(+c[0])]=Math.round(+c[2]);
+    bedLayout();bedDraw();$('beditor').classList.add('open');$('editor').classList.remove('open');wsTab='build';
+  }
+  wsFetchList();
+}
+$('wsExp').onclick=()=>wsExport();
+$('wsImp').onclick=()=>$('wsFile').click();
+$('wsFile').onchange=e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{wsImportJSON(JSON.parse(r.result));}catch(_){}};
+  r.readAsText(f);e.target.value='';
+};
 $('bedopen').onclick=()=>{$('beditor').classList.add('open');$('editor').classList.remove('open');bedLayout();bedDraw();try{edTabSync('b');}catch(_){}};
 $('bedclose').onclick=()=>$('beditor').classList.remove('open');
 $('bedmap').onclick=()=>{const b=bedBuild();if(!b)return;startPlaceBuild(b);$('beditor').classList.remove('open');};
@@ -4778,7 +4863,7 @@ function wsRender(){
       list.appendChild(hd);
     }
     const d=document.createElement('div');d.className='wsitem';
-    const badge=document.createElement('span');badge.className='wstype';badge.textContent=it.type==='proj'?'🚀 СНАРЯД':'🏭 ПОСТРОЙКА';d.appendChild(badge);
+    const badge=document.createElement('span');badge.className='wstype';badge.innerHTML=(it.type==='proj'?IC_ROCKET:IC_FACT)+' '+(it.type==='proj'?'СНАРЯД':'ПОСТРОЙКА');d.appendChild(badge);
     const top=document.createElement('div');top.className='wstop';
     const n=it.data&&it.data.shape?it.data.shape.length+' рядов':(it.data&&it.data.cells?it.data.cells.length+' бл.':'');
     top.innerHTML='<b></b><small></small><span class="likes">Лайки: '+(it.likes||0)+'</span>';
@@ -5089,15 +5174,16 @@ $('cap').classList.remove('go');
 curProj=6;if(!S0.spd)curSpeed=PROJ_DEF[6].spd;syncSpeed();refreshActive();
 
 /* ================= главное меню AG ================= */
-paused=true;$('pause').textContent='▶ пуск';syncTopPause();
-function showMenu(v){$('menu').classList.toggle('hide',!v);if(v){paused=true;$('pause').textContent='▶ пуск';syncTopPause();}}
-function hideMenu(){$('menu').classList.add('hide');paused=false;$('pause').textContent='⏸ пауза';syncTopPause();}
+paused=true;$('pause').innerHTML=IC_PLAY+' пуск';syncTopPause();
+function showMenu(v){$('menu').classList.toggle('hide',!v);if(v){paused=true;$('pause').innerHTML=IC_PLAY+' пуск';syncTopPause();}}
+function hideMenu(){$('menu').classList.add('hide');paused=false;$('pause').innerHTML=IC_PAUSE+' пауза';syncTopPause();}
 $('mplay').onclick=()=>{audioInit();hideMenu();caption('Клик — выстрел');};
 $('mproj').onclick=()=>{hideMenu();$('editor').classList.add('open');try{edDraw();}catch(_){}};
 $('mbuild').onclick=()=>{hideMenu();$('beditor').classList.add('open');try{bedLayout();bedDraw();}catch(_){}};
 $('mws').onclick=()=>{hideMenu();$('workshop').classList.add('open');};
 $('mmp').onclick=()=>{hideMenu();$('mp').classList.add('open');};
 $('mhelp').onclick=()=>{const t=$('mhelptxt');t.style.display=t.style.display==='none'?'block':'none';};
+$('mmob').onclick=()=>{location.href='mobile.html';};
 $('menubtn').onclick=()=>showMenu(true);
 $('tbmenu').onclick=()=>showMenu(true);
 $('tbpause').onclick=()=>togglePause();
